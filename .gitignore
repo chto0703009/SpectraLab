@@ -1,0 +1,25 @@
+# MATLAB
+*.asv
+*.m~
+*.mat
+*.fig
+slprj/
+codegen/
+*.mex*
+*.mlappinstall
+
+# SpectraLab generated outputs
+*.slab.json
+*_export.csv
+*_export.txt
+mock_led*
+led_spectrum*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Archives
+*.zip

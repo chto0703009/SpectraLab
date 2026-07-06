@@ -1,0 +1,10 @@
+Measure spot values, Version 3.5.0
+Calibration complete
+Spectrum:
+nm value
+380.0 0.010
+390.0 0.013
+400.0 0.020
+410.0 0.030
+420.0 0.025
+Result is XYZ: 0.1 0.2 0.3
