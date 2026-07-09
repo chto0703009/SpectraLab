@@ -161,3 +161,83 @@ Future releases will introduce:
 # Closing Statement
 
 > **Measure once. Save forever. Reanalyse when needed.**
+
+------------------------------------------------------------------------
+
+# 9. Archive Identity
+
+SpectraLab archives contain two distinct identity concepts.
+
+## UUID
+
+`archive.Identity.UUID` identifies a specific archive instance.
+
+It is intentionally random and may differ even when two archives contain
+the same scientific measurement.
+
+The UUID is useful for file management, bookkeeping and distinguishing
+archive objects created at different times.
+
+## ContentHash
+
+`archive.Identity.ContentHash` identifies the deterministic scientific
+content of the archive.
+
+It is a SHA-256 hash calculated from the canonical scientific payload,
+including measurement values, wavelength vector, instrument information
+and quality information.
+
+It intentionally excludes:
+
+-   UUID
+-   archive creation time
+-   software version fields
+-   filenames
+-   editable descriptive metadata
+-   comments
+
+This ensures that the same scientific measurement produces the same
+content hash even if archive instance metadata changes.
+
+## Identity rule
+
+``` text
+UUID        = archive instance identity
+ContentHash = scientific measurement identity
+```
+
+This distinction is required for reproducibility, long-term preservation
+and future comparison of archived spectra.
+
+------------------------------------------------------------------------
+
+# 10. Interactive Instrument Workflow
+
+SpectraLab supports instruments that require explicit operator
+interaction.
+
+ArgyllCMS `spotread` is treated as an interactive instrument. During
+calibration and measurement, the user must physically position the
+instrument and confirm readiness.
+
+SpectraLab therefore does not attempt to hide or bypass these manual
+steps.
+
+## ENTER handshake
+
+Interactive keyboard handshakes are handled by the Python bridge layer.
+
+The bridge is responsible for:
+
+-   starting the external command-line process
+-   detecting prompts
+-   forwarding ENTER at the correct time
+-   reporting clear diagnostics if interaction fails
+
+MATLAB remains responsible for the scientific session model, while the
+bridge remains responsible for external process interaction.
+
+This separation preserves clean architecture and allows future
+interactive instruments to be supported without changing the Session
+abstraction.
+
