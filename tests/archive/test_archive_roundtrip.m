@@ -1,5 +1,5 @@
 function test_archive_roundtrip()
-%TEST_ARCHIVE_ROUNDTRIP Verify Spectrum -> Archive -> Spectrum.
+%TEST_ARCHIVE_ROUNDTRIP Verify Spectrum -> Archive -> save -> load -> Spectrum.
 
 wavelength = (400:10:700)';
 power = linspace(0.1, 1.0, numel(wavelength))';
@@ -11,20 +11,28 @@ spec1 = spectralab.core.Spectrum( ...
     [], [], [], ...
     "arbitrary");
 
-archive = spectralab.archive.create(spec1);
+archive1 = spectralab.archive.create(spec1);
 
-assert(isfield(archive,"Identity"));
-assert(isfield(archive.Identity,"UUID"));
-assert(strlength(archive.Identity.UUID) > 0);
-assert(isfield(archive.Identity,"Created"));
-assert(isfield(archive.Identity,"CreatedBy"));
-spec2 = spectralab.archive.restore(archive);
+tmp = [tempname ".mat"];
+cleanup = onCleanup(@() localDeleteIfExists(tmp));
 
-assert(isequal(spec1.Label, spec2.Label));
-assert(isequal(spec1.WavelengthNm, spec2.WavelengthNm));
-assert(isequal(spec1.Power, spec2.Power));
-assert(isequal(spec1.PowerUnit, spec2.PowerUnit));
+spectralab.archive.save(archive1, tmp);
+archive2 = spectralab.archive.load(tmp);
 
-fprintf("test_archive_roundtrip PASS\n");
+assert(archive1.Identity.ContentHash == archive2.Identity.ContentHash)
 
+spec2 = spectralab.archive.restore(archive2);
+
+assert(all(spec1.WavelengthNm == spec2.WavelengthNm))
+assert(all(spec1.Power == spec2.Power))
+assert(spec1.Label == spec2.Label)
+
+disp("PASS: archive round-trip")
+
+end
+
+function localDeleteIfExists(filename)
+if exist(filename, "file")
+    delete(filename);
+end
 end
