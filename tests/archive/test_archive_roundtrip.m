@@ -13,6 +13,11 @@ spec1 = spectralab.core.Spectrum( ...
 
 archive = spectralab.archive.create(spec1);
 
+assert(isfield(archive,"Identity"));
+assert(isfield(archive.Identity,"UUID"));
+assert(strlength(archive.Identity.UUID) > 0);
+assert(isfield(archive.Identity,"Created"));
+assert(isfield(archive.Identity,"CreatedBy"));
 spec2 = spectralab.archive.restore(archive);
 
 assert(isequal(spec1.Label, spec2.Label));

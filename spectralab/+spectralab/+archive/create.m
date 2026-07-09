@@ -20,6 +20,14 @@ arguments
 end
 
 %----------------------------------------------------------
+% Archive identity
+%----------------------------------------------------------
+
+archive.Identity.UUID      = string(java.util.UUID.randomUUID);
+archive.Identity.Created   = datetime("now");
+archive.Identity.CreatedBy = "SpectraLab";
+
+%----------------------------------------------------------
 % Archive version
 %----------------------------------------------------------
 
