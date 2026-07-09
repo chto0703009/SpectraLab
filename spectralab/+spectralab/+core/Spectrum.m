@@ -79,7 +79,7 @@ classdef Spectrum
         function out = toStruct(obj)
             out = struct();
             out.type = "spectralab.core.Spectrum";
-            out.version = "0.4.0";
+            out.version = "0.5.0";
             out.label = obj.Label;
             out.timestamp = char(obj.Timestamp);
             out.wavelength_nm = obj.WavelengthNm;

@@ -106,7 +106,7 @@ classdef SpectrumCollection
         function doc = toStruct(obj)
             doc = struct();
             doc.type = "spectralab.core.SpectrumCollection";
-            doc.version = "0.4.0";
+            doc.version = "0.5.0";
             doc.name = obj.Name;
             doc.timestamp = char(obj.Timestamp);
             doc.metadata = obj.Metadata;
