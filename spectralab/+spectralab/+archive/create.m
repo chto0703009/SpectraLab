@@ -23,9 +23,10 @@ end
 % Archive identity
 %----------------------------------------------------------
 
-archive.Identity.UUID      = string(java.util.UUID.randomUUID);
-archive.Identity.Created   = datetime("now");
-archive.Identity.CreatedBy = "SpectraLab";
+archive.Identity.UUID          = string(java.util.UUID.randomUUID);
+archive.Identity.Created       = datetime("now");
+archive.Identity.CreatedBy     = "SpectraLab";
+archive.Identity.HashAlgorithm = "SHA-256";
 
 %----------------------------------------------------------
 % Archive version
@@ -45,7 +46,7 @@ archive.Measurement.Wavelength = spec.WavelengthNm;
 archive.Measurement.Value      = spec.Power;
 archive.Measurement.Unit       = spec.PowerUnit;
 archive.Measurement.Operator   = "";
-archive.Measurement.Timestamp = spec.Timestamp;
+archive.Measurement.Timestamp  = spec.Timestamp;
 
 %----------------------------------------------------------
 % Metadata
@@ -81,3 +82,24 @@ archive.Quality.Comment     = "";
 %----------------------------------------------------------
 
 archive.History = struct.empty;
+
+%----------------------------------------------------------
+% Deterministic scientific content hash
+%----------------------------------------------------------
+%
+% The ContentHash is a deterministic SHA-256 fingerprint of
+% the scientific payload. It intentionally excludes UUIDs,
+% creation timestamps, software version fields and editable
+% descriptive metadata.
+%
+% UUID identifies this archive instance.
+% ContentHash identifies the scientific measurement content.
+
+payload = struct();
+payload.Measurement = archive.Measurement;
+payload.Instrument  = archive.Instrument;
+payload.Quality     = archive.Quality;
+
+archive.Identity.ContentHash = spectralab.archive.contentHash(payload);
+
+end
