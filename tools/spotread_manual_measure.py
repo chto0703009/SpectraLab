@@ -40,9 +40,10 @@ def _input_timeout_handler(signum, frame):
 
 def ask_user(title: str, lines, timeout_seconds: int = 180) -> None:
     step_box(title, lines)
-    print("", flush=True)
-    print("Press ENTER in the MATLAB Command Window when ready.", flush=True)
-    print("If this prompt does not respond, stop with Ctrl-C and run startup again.", flush=True)
+
+    print("Preparation complete.", flush=True)
+    ("When the instrument is correctly positioned,")
+    print("SpectraLab will ask you to press ENTER in the MATLAB Command Window.", flush=True)
 
     old_handler = None
     try:
