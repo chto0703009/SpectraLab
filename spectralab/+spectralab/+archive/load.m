@@ -1,13 +1,16 @@
-function archive = load(filename)
+function archive = load(filename, options)
 %LOAD Load a SpectraLab archive from a MAT-file.
 %
 %   archive = spectralab.archive.load(filename)
 %
-% Loads a SpectraLab archive previously written by
-% spectralab.archive.save().
+%   archive = spectralab.archive.load(filename, Quiet=true)
+%
+% By default, a concise archive summary is displayed after loading.
+% Set Quiet=true for scripts and batch processing.
 
 arguments
     filename {mustBeTextScalar}
+    options.Quiet (1,1) logical = false
 end
 
 filename = char(string(filename));
@@ -21,7 +24,6 @@ end
 
 archive = S.archive;
 
-% Basic validation
 required = [ ...
     "Identity"
     "Version"
@@ -36,6 +38,10 @@ for k = 1:numel(required)
         error("SpectraLab:Archive:InvalidArchive", ...
             "Archive is missing required field '%s'.", required(k));
     end
+end
+
+if ~options.Quiet
+    spectralab.archive.summary(archive);
 end
 
 end
