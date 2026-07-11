@@ -1,8 +1,7 @@
 # SpectraLab v0.5.0 Architecture
 
-**Status:** Draft\
+**Status:** Implemented\
 **Version:** 0.1\
-**Branch:** `v0.5-archive-workflow`
 
 **Project Owner:** Professor Christer Törnkvist\
 **System Architect:** OpenAI ChatGPT

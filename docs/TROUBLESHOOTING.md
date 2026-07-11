@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: TROUBLESHOOTING.md
-Version: v0.4.0
+Version: v0.5.1
 Status: FROZEN
 -->
 
@@ -365,7 +365,7 @@ The MATLAB release is older than the verified release configuration.
 
 Use MATLAB R2024b or later when possible.
 
-Earlier releases may work, but they are not part of the verified v0.4.0 configuration.
+Earlier releases may work, but they are not part of the verified v0.5.1 configuration.
 
 ---
 

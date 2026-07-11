@@ -76,10 +76,33 @@ classdef Spectrum
                 obj.Calibration, obj.Metadata, obj.PowerUnit);
         end
 
+        function obj = withMetadataField(obj, name, value)
+            %WITHMETADATAFIELD Return a copy with one metadata field updated.
+            arguments
+                obj
+                name (1,1) string
+                value
+            end
+
+            name = strtrim(name);
+
+            if strlength(name) == 0
+                error("SpectraLab:Spectrum:InvalidMetadataName", ...
+                    "Metadata field name must not be empty.");
+            end
+
+            if ~isvarname(char(name))
+                error("SpectraLab:Spectrum:InvalidMetadataName", ...
+                    "'%s' is not a valid metadata field name.", name);
+            end
+
+            obj.Metadata.(char(name)) = value;
+        end
+
         function out = toStruct(obj)
             out = struct();
             out.type = "spectralab.core.Spectrum";
-            out.version = "0.5.0";
+            out.version = "0.5.1";
             out.label = obj.Label;
             out.timestamp = char(obj.Timestamp);
             out.wavelength_nm = obj.WavelengthNm;

@@ -29,7 +29,7 @@ classdef Calibration
         function s = toStruct(obj)
             s = struct();
             s.type = "spectralab.core.Calibration";
-            s.version = "0.5.0";
+            s.version = "0.5.1";
             s.is_valid = obj.IsValid;
             s.timestamp = char(obj.Timestamp);
             s.instrument = obj.Instrument;

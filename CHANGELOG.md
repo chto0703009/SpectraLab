@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: CHANGELOG.md
-Version: v0.4.0
-Status: FROZEN
+Version: v0.5.1
+Status: CURRENT
 -->
 
 # Changelog
@@ -31,9 +31,47 @@ Only public releases are recorded as release history.
 
 | Version | Release Type | Status |
 |---------|--------------|--------|
-| v0.4.0 | Foundation Release | Current |
+| v0.5.1 | Scientific Archive | Current |
+| v0.5.0 | Archive Architecture | Supported |
+| v0.4.0 | Foundation Release | Historical |
 
 ---
+
+## Scientific Archive — v0.5.1
+
+### Why this release exists
+
+Version 0.5.1 completes the engineering work required before SpectraLab
+moves from infrastructure development to scientific analysis.
+
+The release focuses on archive usability, scientific provenance,
+metadata consistency and release quality without changing the released
+archive structure.
+
+### Engineering improvements
+
+- Canonical operator provenance
+- Structured metadata mapping
+- Archive summary
+- Informative and quiet archive loading
+- Safe archive filename handling
+- Documentation and version consistency
+- Regression-tested maintenance improvements
+
+### User impact
+
+Users can now identify, understand and manage archived measurements more
+easily while maintaining compatibility with previously released archive
+formats.
+
+### Compatibility
+
+No breaking changes have been introduced.
+
+Archives produced by previous released versions remain readable.
+
+The archive structure established during the v0.5 release series is
+considered stable for future analytical development.
 
 ## Foundation Release — v0.4.0
 
