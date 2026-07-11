@@ -90,10 +90,12 @@ Engineering Decisions document concrete implementation choices.
 
 ## Approved Decisions
 
-  ID       Title                          Status
-  -------- ------------------------------ ----------
-  ED-001   SpectraLab Archive Structure   Approved
-  ED-002   Scientific Provenance          Approved
+| ID | Title | Status |
+|---|---|---|
+| ED-001 | SpectraLab Archive Structure | Approved |
+| ED-002 | Scientific Provenance | Approved |
+| ED-003 | Deterministic Scientific Identity | Approved |
+| ED-004 | Interactive Instrument Handshake | Approved |
 
 ------------------------------------------------------------------------
 

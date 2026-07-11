@@ -6,4 +6,8 @@ Run all tests:
 run_all_tests
 ```
 
-Hardware tests are intentionally not automated in v0.4 because real i1Pro2/spotread use requires user interaction.
+Hardware-dependent tests are not fully automated because real i1Pro2 and
+
+spotread workflows require physical instrument placement and operator
+
+interaction.

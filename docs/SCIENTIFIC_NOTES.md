@@ -10,7 +10,9 @@ Normalization divides the spectrum by its maximum absolute power.
 
 ## Units
 
-v0.4 does not assume radiometric calibration. Default power unit is `arbitrary`.
+SpectraLab does not assume radiometric calibration unless the instrument
+workflow and archived calibration information explicitly establish it.
+The default power unit is `arbitrary`.
 
 ## Traceability
 

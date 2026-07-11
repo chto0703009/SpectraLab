@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: GETTING_STARTED.md
-Version: v0.4.0
+Version: v0.5.1
 Status: FROZEN
 -->
 
@@ -40,7 +40,7 @@ You need:
 - a supported spectrophotometer connected by USB,
 - the instrument's white reference for calibration.
 
-The v0.4.0 release has been verified with:
+The v0.5.1 release has been verified with:
 
 | Component | Recommended |
 |-----------|-------------|
@@ -106,7 +106,7 @@ startup
 Expected output is similar to:
 
 ```text
-SpectraLab 0.4.0
+SpectraLab 0.5.1
 Measure once. Save forever.
 Ready
 

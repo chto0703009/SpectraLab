@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: REPOSITORY_STRUCTURE.md
-Version: v0.4.0
+Version: v0.5.1
 Status: FROZEN
 -->
 
