@@ -5,11 +5,17 @@ classdef Session
         Instrument = []
         State (1,1) string = "CREATED"
         History (:,1) string = strings(0,1)
+        Operator (1,1) string = ""
     end
 
     methods
-        function obj = Session(instrument)
-            if nargin < 1 || isempty(instrument)
+        function obj = Session(instrument, options)
+            arguments
+                instrument
+                options.Operator (1,1) string = ""
+            end
+
+            if isempty(instrument)
                 error("SpectraLab:Session:MissingInstrument", ...
                     "A spectralab.core.Instrument instance is required.");
             end
@@ -19,7 +25,28 @@ classdef Session
             end
 
             obj.Instrument = instrument;
+            obj.Operator = strtrim(options.Operator);
             obj = obj.log("Session created.");
+
+            if strlength(obj.Operator) > 0
+                obj = obj.log("Session operator set to " + obj.Operator + ".");
+            end
+        end
+
+        function obj = withOperator(obj, operator)
+            %WITHOPERATOR Return a session with an updated operator.
+            arguments
+                obj
+                operator (1,1) string
+            end
+
+            obj.Operator = strtrim(operator);
+
+            if strlength(obj.Operator) == 0
+                obj = obj.log("Session operator cleared.");
+            else
+                obj = obj.log("Session operator set to " + obj.Operator + ".");
+            end
         end
 
         function obj = open(obj)
@@ -61,6 +88,7 @@ classdef Session
             details.state = obj.State;
             details.instrument = obj.Instrument.getInfo();
             details.has_valid_calibration = obj.Instrument.hasValidCalibration();
+            details.operator = obj.Operator;
             details.history = obj.History;
 
             status = spectralab.core.Status.ok("Session status.", details);
@@ -89,6 +117,8 @@ classdef Session
                 error("SpectraLab:Session:InvalidMeasurement", ...
                     "Instrument returned invalid measurement object.");
             end
+
+            spec = spec.withMetadataField("Operator", obj.Operator);
         end
 
         function result = measureResult(obj, label, varargin)

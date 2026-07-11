@@ -45,7 +45,11 @@ archive.Measurement.Name       = spec.Label;
 archive.Measurement.Wavelength = spec.WavelengthNm;
 archive.Measurement.Value      = spec.Power;
 archive.Measurement.Unit       = spec.PowerUnit;
-archive.Measurement.Operator   = "";
+if isfield(spec.Metadata, "Operator")
+    archive.Measurement.Operator = string(spec.Metadata.Operator);
+else
+    archive.Measurement.Operator = "";
+end
 archive.Measurement.Timestamp  = spec.Timestamp;
 
 %----------------------------------------------------------
