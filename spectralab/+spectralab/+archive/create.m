@@ -59,8 +59,29 @@ archive.Measurement.Timestamp  = spec.Timestamp;
 archive.Metadata.Project     = "";
 archive.Metadata.SampleID    = "";
 archive.Metadata.Description = "";
+archive.Metadata.Laboratory  = "";
 archive.Metadata.Tags        = strings(0);
 archive.Metadata.Comment     = "";
+
+% Copy structured metadata from the Spectrum when available
+meta = spec.Metadata;
+
+if isfield(meta,"Project"),      archive.Metadata.Project = string(meta.Project); end
+if isfield(meta,"SampleID"),     archive.Metadata.SampleID = string(meta.SampleID); end
+if isfield(meta,"Description"),  archive.Metadata.Description = string(meta.Description); end
+if isfield(meta,"Laboratory"),   archive.Metadata.Laboratory = string(meta.Laboratory); end
+
+if isfield(meta,"Tags")
+    archive.Metadata.Tags = string(meta.Tags);
+elseif isfield(meta,"Keywords")
+    archive.Metadata.Tags = string(meta.Keywords);
+end
+
+if isfield(meta,"Comment")
+    archive.Metadata.Comment = string(meta.Comment);
+elseif isfield(meta,"Notes")
+    archive.Metadata.Comment = string(meta.Notes);
+end
 
 %----------------------------------------------------------
 % Instrument
