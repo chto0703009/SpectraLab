@@ -3,8 +3,6 @@ function lineHandle = transmission(wavelengthNm, transmittance, options)
 %
 %   spectralab.plot.transmission(wavelengthNm, transmittance)
 %
-%   plots spectral transmittance as a function of wavelength.
-%
 %   h = spectralab.plot.transmission(...)
 %
 %   returns the MATLAB Line object.
@@ -12,15 +10,12 @@ function lineHandle = transmission(wavelengthNm, transmittance, options)
 %   Name-value options
 %   ------------------
 %   Title
-%       Plot title.
 %       Default: "Transmission spectrum".
 %
 %   LineWidth
-%       Line width.
 %       Default: 1.5.
 %
 %   ShowGrid
-%       Show grid.
 %       Default: true.
 %
 %   Parent
@@ -30,75 +25,57 @@ function lineHandle = transmission(wavelengthNm, transmittance, options)
 %            spectralab.plot.opticalDensity
 %            spectralab.plot.spectrum
 
-arguments
-    wavelengthNm {mustBeNumeric,mustBeReal}
-    transmittance {mustBeNumeric,mustBeReal}
+    arguments
+        wavelengthNm {mustBeNumeric, mustBeReal}
+        transmittance {mustBeNumeric, mustBeReal}
 
-    options.Title (1,1) string = "Transmission spectrum"
-    options.LineWidth (1,1) double {mustBePositive,mustBeFinite} = 1.5
-    options.ShowGrid (1,1) logical = true
-    options.Parent = []
-end
+        options.Title (1,1) string = "Transmission spectrum"
+        options.LineWidth (1,1) double ...
+            {mustBePositive, mustBeFinite} = 1.5
+        options.ShowGrid (1,1) logical = true
+        options.Parent = []
+    end
 
-if isempty(wavelengthNm)
-    error( ...
-        "spectralab:plot:transmission:EmptyWavelength", ...
-        "Wavelength values must not be empty.");
-end
+    try
+        lineHandle = plotSpectralSeries( ...
+            wavelengthNm, ...
+            transmittance, ...
+            "Transmission", ...
+            "Transmission spectrum", ...
+            "spectralab:plot:transmission", ...
+            Title=options.Title, ...
+            LineWidth=options.LineWidth, ...
+            ShowGrid=options.ShowGrid, ...
+            Parent=options.Parent);
 
-if isempty(transmittance)
-    error( ...
-        "spectralab:plot:transmission:EmptyTransmission", ...
-        "Transmission values must not be empty.");
-end
-
-if numel(wavelengthNm) ~= numel(transmittance)
-    error( ...
-        "spectralab:plot:transmission:SizeMismatch", ...
-        "Wavelength and transmission inputs must contain the same number of values.");
-end
-
-if any(~isfinite(wavelengthNm),"all")
-    error( ...
-        "spectralab:plot:transmission:NonFiniteWavelength", ...
-        "Wavelength values must be finite.");
-end
-
-if any(~isfinite(transmittance),"all")
-    error( ...
-        "spectralab:plot:transmission:NonFiniteTransmission", ...
-        "Transmission values must be finite.");
-end
-
-wavelengthNm = wavelengthNm(:);
-transmittance = transmittance(:);
-
-if isempty(options.Parent)
-    ax = gca;
-else
-    ax = options.Parent;
-
-    if ~isa(ax,"matlab.graphics.axis.Axes") || ~isvalid(ax)
-        error( ...
-            "spectralab:plot:transmission:InvalidParent", ...
-            "Parent must be a valid MATLAB axes object.");
+    catch exception
+        throwMappedException(exception);
     end
 end
 
-lineHandle = plot( ...
-    ax, ...
-    wavelengthNm, ...
-    transmittance, ...
-    "LineWidth", options.LineWidth);
 
-xlabel(ax,"Wavelength (nm)");
-ylabel(ax,"Transmission");
-title(ax,options.Title);
+function throwMappedException(exception)
+% Preserve the established public error identifiers.
 
-if options.ShowGrid
-    grid(ax,"on");
-else
-    grid(ax,"off");
+    identifier = string(exception.identifier);
+
+    mappings = [
+        "spectralab:plot:transmission:EmptyValues", ...
+        "spectralab:plot:transmission:EmptyTransmission";
+        "spectralab:plot:transmission:NonFiniteValues", ...
+        "spectralab:plot:transmission:NonFiniteTransmission"
+    ];
+
+    for index = 1:size(mappings, 1)
+        if identifier == mappings(index, 1)
+            mapped = MException( ...
+                mappings(index, 2), ...
+                "%s", ...
+                exception.message);
+
+            throwAsCaller(mapped);
+        end
+    end
+
+    rethrow(exception);
 end
-
-box(ax,"on");
