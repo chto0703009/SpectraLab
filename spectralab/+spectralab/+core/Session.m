@@ -7,6 +7,8 @@ classdef Session
         History (:,1) string = strings(0,1)
         Operator (1,1) string = ""
         Comment (1,1) string = ""
+        Project (1,1) string = ""
+        SampleID (1,1) string = ""
     end
 
     methods
@@ -15,6 +17,8 @@ classdef Session
                 instrument
                 options.Operator (1,1) string = ""
                 options.Comment (1,1) string = ""
+                options.Project (1,1) string = ""
+                options.SampleID (1,1) string = ""
             end
 
             if isempty(instrument)
@@ -29,6 +33,8 @@ classdef Session
             obj.Instrument = instrument;
             obj.Operator = strtrim(options.Operator);
             obj.Comment = strtrim(options.Comment);
+            obj.Project = strtrim(options.Project);
+            obj.SampleID = strtrim(options.SampleID);
             obj = obj.log("Session created.");
 
             if strlength(obj.Operator) > 0
@@ -37,6 +43,14 @@ classdef Session
 
             if strlength(obj.Comment) > 0
                 obj = obj.log("Session comment set.");
+            end
+
+            if strlength(obj.Project) > 0
+                obj = obj.log("Session project set to " + obj.Project + ".");
+            end
+
+            if strlength(obj.SampleID) > 0
+                obj = obj.log("Session sample set to " + obj.SampleID + ".");
             end
         end
 
@@ -106,6 +120,38 @@ classdef Session
             end
         end
 
+        function obj = withProject(obj, project)
+            %WITHPROJECT Return a session with an updated project identifier.
+            arguments
+                obj
+                project (1,1) string
+            end
+
+            obj.Project = strtrim(project);
+
+            if strlength(obj.Project) == 0
+                obj = obj.log("Session project cleared.");
+            else
+                obj = obj.log("Session project updated to " + obj.Project + ".");
+            end
+        end
+
+        function obj = withSample(obj, sampleID)
+            %WITHSAMPLE Return a session with an updated sample identifier.
+            arguments
+                obj
+                sampleID (1,1) string
+            end
+
+            obj.SampleID = strtrim(sampleID);
+
+            if strlength(obj.SampleID) == 0
+                obj = obj.log("Session sample cleared.");
+            else
+                obj = obj.log("Session sample updated to " + obj.SampleID + ".");
+            end
+        end
+
         function status = status(obj)
             details = struct();
             details.state = obj.State;
@@ -113,6 +159,8 @@ classdef Session
             details.has_valid_calibration = obj.Instrument.hasValidCalibration();
             details.operator = obj.Operator;
             details.comment = obj.Comment;
+            details.project = obj.Project;
+            details.sample_id = obj.SampleID;
             details.history = obj.History;
 
             status = spectralab.core.Status.ok("Session status.", details);
@@ -144,6 +192,8 @@ classdef Session
 
             spec = spec.withMetadataField("Operator", obj.Operator);
             spec = spec.withMetadataField("Comment", obj.Comment);
+            spec = spec.withMetadataField("Project", obj.Project);
+            spec = spec.withMetadataField("SampleID", obj.SampleID);
         end
 
         function result = measureResult(obj, label, varargin)
