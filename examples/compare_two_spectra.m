@@ -1,4 +1,4 @@
-% SpectraLab v0.4 compare two spectra example
+% SpectraLab compare two spectra example
 
 startup
 

@@ -1,4 +1,4 @@
-% SpectraLab v0.4 spotread/i1Pro2 example
+% SpectraLab spotread/i1Pro2 example
 %
 % Requires ArgyllCMS spotread and connected instrument.
 

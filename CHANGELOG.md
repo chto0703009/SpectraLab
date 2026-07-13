@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: CHANGELOG.md
-Version: v0.5.1
+Version: v0.6.0
 Status: CURRENT
 -->
 
@@ -29,13 +29,49 @@ Only public releases are recorded as release history.
 
 ## Release History
 
-| Version | Release Type | Status |
-|---------|--------------|--------|
-| v0.5.1 | Scientific Archive | Current |
-| v0.5.0 | Archive Architecture | Supported |
+| Version | Release | Status |
+|---|---|---|
+| v0.6.0 | Scientific Archive and Metadata | Current |
+| v0.5.1 | Scientific Archive | Supported |
+| v0.5.0 | Archive Architecture | Historical |
 | v0.4.0 | Foundation Release | Historical |
 
 ---
+
+## Scientific Archive and Metadata — v0.6.0
+
+SpectraLab v0.6.0 strengthens the scientific archive workflow with
+structured metadata, provenance preservation, archive validation and
+verified round-trip integrity.
+
+### Added
+
+- Session metadata for Operator, Comment, Project and SampleID.
+- Centralized metadata validation.
+- Structured archive summaries.
+- Archive integrity validation.
+- Direct archive-file inspection with `spectralab.archive.info`.
+- Optional validation during archive loading.
+- Validated archive restoration.
+
+### Improved
+
+- Instrument and calibration provenance propagation.
+- Preservation of archive metadata during restoration.
+- Informative and quiet archive-loading workflows.
+- Compatibility handling for older archives with missing optional metadata.
+
+### Fixed
+
+- Instrument metadata being replaced by empty archive fields.
+- Metadata loss during archive restoration.
+- Measurement timestamp loss during restoration.
+- Changed `ContentHash` after archive round trips.
+
+### Verification
+
+- 52 automated regression tests pass.
+- No failed or incomplete tests.
 
 ## Scientific Archive — v0.5.1
 

@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v0.5.1
+Version: v0.6.0
 Status: FROZEN
 -->
 
@@ -23,7 +23,7 @@ Reliable measurements require reliable software.
 
 SpectraLab was developed to provide a clean separation between measurement, data management, visualisation, export and instrument communication. This makes user applications independent of specific instruments while allowing new devices to be added through dedicated drivers.
 
-The goal of the v0.5.1 release is long-term stability rather than rapid feature growth.
+The goal of the v0.6.0 release is long-term stability rather than rapid feature growth.
 
 ---
 
@@ -44,7 +44,7 @@ The goal of the v0.5.1 release is long-term stability rather than rapid feature 
 
 ## Supported Environment
 
-The v0.5.1 release has been verified with the following environment.
+The v0.6.0 release has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|

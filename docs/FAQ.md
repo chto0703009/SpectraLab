@@ -8,9 +8,9 @@ Because the target workflow is scientific, laboratory and educational MATLAB use
 
 Because saved spectral measurements should remain readable over time.
 
-## Is v0.5.1 final?
+## Is v0.6.0 the current stable release?
 
-Yes. v0.5.1 is the current stable release of SpectraLab.
+Yes. v0.6.0 is the current stable release of SpectraLab.
 
 
 

@@ -1,4 +1,4 @@
-% SpectraLab v0.4 first measurement example
+% SpectraLab first measurement example
 
 startup
 
