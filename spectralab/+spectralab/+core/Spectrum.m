@@ -45,6 +45,16 @@ classdef Spectrum
             obj.PowerUnit = string(powerUnit);
         end
 
+        function obj = withTimestamp(obj, timestamp)
+            %WITHTIMESTAMP Return a spectrum with a preserved timestamp.
+            arguments
+                obj
+                timestamp (1,1) datetime
+            end
+
+            obj.Timestamp = timestamp;
+        end
+
         function p = integratedPower(obj)
             p = trapz(obj.WavelengthNm, obj.Power);
         end
