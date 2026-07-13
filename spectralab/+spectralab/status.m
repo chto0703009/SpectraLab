@@ -99,10 +99,6 @@ if s.spotread_ok
 end
 fprintf("\n");
 
-if p.Results.Startup
-    fprintf("\nFirst measurement:\n  measure_led\n");
-end
-
 allOk = s.project_ok && s.examples_ok && s.matlab_ok && ...
     s.python_ok && s.python_version_ok && s.pexpect_ok && ...
     s.spotread_ok && s.argyll_ok;
