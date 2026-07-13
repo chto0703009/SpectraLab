@@ -33,7 +33,7 @@ archive.Identity.HashAlgorithm = "SHA-256";
 %----------------------------------------------------------
 
 archive.Version.Format   = "SLAB-MAT";
-archive.Version.Version  = "0.5";
+archive.Version.Version  = "0.6";
 archive.Version.Software = spectralab.version();
 archive.Version.Created  = datetime("now");
 
@@ -45,11 +45,8 @@ archive.Measurement.Name       = spec.Label;
 archive.Measurement.Wavelength = spec.WavelengthNm;
 archive.Measurement.Value      = spec.Power;
 archive.Measurement.Unit       = spec.PowerUnit;
-if isfield(spec.Metadata, "Operator")
-    archive.Measurement.Operator = string(spec.Metadata.Operator);
-else
-    archive.Measurement.Operator = "";
-end
+archive.Measurement.Operator   = readTextField(spec.Metadata, ...
+    ["Operator", "operator"]);
 archive.Measurement.Timestamp  = spec.Timestamp;
 
 %----------------------------------------------------------
@@ -63,34 +60,63 @@ archive.Metadata.Laboratory  = "";
 archive.Metadata.Tags        = strings(0);
 archive.Metadata.Comment     = "";
 
-% Copy structured metadata from the Spectrum when available
+% Copy structured metadata from the Spectrum when available.
 meta = spec.Metadata;
 
-if isfield(meta,"Project"),      archive.Metadata.Project = string(meta.Project); end
-if isfield(meta,"SampleID"),     archive.Metadata.SampleID = string(meta.SampleID); end
-if isfield(meta,"Description"),  archive.Metadata.Description = string(meta.Description); end
-if isfield(meta,"Laboratory"),   archive.Metadata.Laboratory = string(meta.Laboratory); end
+archive.Metadata.Project = readTextField(meta, ...
+    ["Project", "project"]);
 
-if isfield(meta,"Tags")
-    archive.Metadata.Tags = string(meta.Tags);
-elseif isfield(meta,"Keywords")
-    archive.Metadata.Tags = string(meta.Keywords);
+archive.Metadata.SampleID = readTextField(meta, ...
+    ["SampleID", "SampleId", "sample_id", "sample"]);
+
+archive.Metadata.Description = readTextField(meta, ...
+    ["Description", "description"]);
+
+archive.Metadata.Laboratory = readTextField(meta, ...
+    ["Laboratory", "laboratory", "Lab"]);
+
+tags = readField(meta, ["Tags", "Keywords", "tags", "keywords"]);
+if ~isempty(tags)
+    archive.Metadata.Tags = string(tags);
 end
 
-if isfield(meta,"Comment")
-    archive.Metadata.Comment = string(meta.Comment);
-elseif isfield(meta,"Notes")
-    archive.Metadata.Comment = string(meta.Notes);
-end
+archive.Metadata.Comment = readTextField(meta, ...
+    ["Comment", "Notes", "comment", "notes"]);
 
 %----------------------------------------------------------
 % Instrument
 %----------------------------------------------------------
 
-archive.Instrument.Name          = "";
-archive.Instrument.Driver        = "";
-archive.Instrument.SerialNumber  = "";
-archive.Instrument.CalibrationID = "";
+% META-001:
+% Preserve the instrument provenance already captured in Spectrum.
+% Aliases are accepted defensively because drivers may expose equivalent
+% information under different field names.
+
+instrument = spec.Instrument;
+calibration = spec.Calibration;
+
+archive.Instrument.Name = readTextField(instrument, ...
+    ["Name", "Model", "InstrumentName", "Instrument", ...
+     "name", "model", "instrument_name"]);
+
+archive.Instrument.Driver = readTextField(instrument, ...
+    ["Driver", "Backend", "DriverName", ...
+     "driver", "backend", "driver_name"]);
+
+archive.Instrument.SerialNumber = readTextField(instrument, ...
+    ["SerialNumber", "Serial", "SerialNo", ...
+     "serial_number", "serial", "serial_no"]);
+
+archive.Instrument.CalibrationID = readTextField(calibration, ...
+    ["CalibrationID", "CalibrationId", "ID", "Id", ...
+     "calibration_id", "id"]);
+
+% If a driver stores calibration identity with the instrument information,
+% use it only when the calibration structure did not provide one.
+if strlength(archive.Instrument.CalibrationID) == 0
+    archive.Instrument.CalibrationID = readTextField(instrument, ...
+        ["CalibrationID", "CalibrationId", "calibration_id"]);
+end
 
 %----------------------------------------------------------
 % Quality
@@ -127,4 +153,48 @@ payload.Quality     = archive.Quality;
 
 archive.Identity.ContentHash = spectralab.archive.contentHash(payload);
 
+end
+
+function value = readTextField(source, candidates)
+%READTEXTFIELD Return the first matching field as a scalar string.
+
+value = "";
+raw = readField(source, candidates);
+
+if isempty(raw)
+    return
+end
+
+try
+    converted = string(raw);
+catch
+    return
+end
+
+if isempty(converted)
+    return
+end
+
+value = strtrim(converted(1));
+end
+
+function value = readField(source, candidates)
+%READFIELD Return the first matching struct field, ignoring case.
+
+value = [];
+
+if ~isstruct(source) || isempty(source)
+    return
+end
+
+available = string(fieldnames(source));
+
+for candidate = string(candidates)
+    index = find(strcmpi(available, candidate), 1);
+
+    if ~isempty(index)
+        value = source.(char(available(index)));
+        return
+    end
+end
 end
