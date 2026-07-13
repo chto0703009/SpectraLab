@@ -6,6 +6,7 @@ classdef Session
         State (1,1) string = "CREATED"
         History (:,1) string = strings(0,1)
         Operator (1,1) string = ""
+        Comment (1,1) string = ""
     end
 
     methods
@@ -13,6 +14,7 @@ classdef Session
             arguments
                 instrument
                 options.Operator (1,1) string = ""
+                options.Comment (1,1) string = ""
             end
 
             if isempty(instrument)
@@ -26,10 +28,15 @@ classdef Session
 
             obj.Instrument = instrument;
             obj.Operator = strtrim(options.Operator);
+            obj.Comment = strtrim(options.Comment);
             obj = obj.log("Session created.");
 
             if strlength(obj.Operator) > 0
                 obj = obj.log("Session operator set to " + obj.Operator + ".");
+            end
+
+            if strlength(obj.Comment) > 0
+                obj = obj.log("Session comment set.");
             end
         end
 
@@ -83,12 +90,29 @@ classdef Session
             obj = obj.log("Calibration OK.");
         end
 
+        function obj = withComment(obj, comment)
+            %WITHCOMMENT Return a session with an updated measurement comment.
+            arguments
+                obj
+                comment (1,1) string
+            end
+
+            obj.Comment = strtrim(comment);
+
+            if strlength(obj.Comment) == 0
+                obj = obj.log("Session comment cleared.");
+            else
+                obj = obj.log("Session comment updated.");
+            end
+        end
+
         function status = status(obj)
             details = struct();
             details.state = obj.State;
             details.instrument = obj.Instrument.getInfo();
             details.has_valid_calibration = obj.Instrument.hasValidCalibration();
             details.operator = obj.Operator;
+            details.comment = obj.Comment;
             details.history = obj.History;
 
             status = spectralab.core.Status.ok("Session status.", details);
@@ -119,6 +143,7 @@ classdef Session
             end
 
             spec = spec.withMetadataField("Operator", obj.Operator);
+            spec = spec.withMetadataField("Comment", obj.Comment);
         end
 
         function result = measureResult(obj, label, varargin)
