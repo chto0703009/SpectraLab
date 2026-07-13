@@ -31,10 +31,15 @@ classdef Session
             end
 
             obj.Instrument = instrument;
-            obj.Operator = strtrim(options.Operator);
-            obj.Comment = strtrim(options.Comment);
-            obj.Project = strtrim(options.Project);
-            obj.SampleID = strtrim(options.SampleID);
+            obj.Operator = spectralab.core.validateMetadataText( ...
+                options.Operator, "Operator", MaxLength=200);
+            obj.Comment = spectralab.core.validateMetadataText( ...
+                options.Comment, "Comment", ...
+                MaxLength=4000, AllowMultiline=true);
+            obj.Project = spectralab.core.validateMetadataText( ...
+                options.Project, "Project", MaxLength=200);
+            obj.SampleID = spectralab.core.validateMetadataText( ...
+                options.SampleID, "SampleID", MaxLength=200);
             obj = obj.log("Session created.");
 
             if strlength(obj.Operator) > 0
@@ -61,7 +66,8 @@ classdef Session
                 operator (1,1) string
             end
 
-            obj.Operator = strtrim(operator);
+            obj.Operator = spectralab.core.validateMetadataText( ...
+                operator, "Operator", MaxLength=200);
 
             if strlength(obj.Operator) == 0
                 obj = obj.log("Session operator cleared.");
@@ -111,7 +117,9 @@ classdef Session
                 comment (1,1) string
             end
 
-            obj.Comment = strtrim(comment);
+            obj.Comment = spectralab.core.validateMetadataText( ...
+                comment, "Comment", ...
+                MaxLength=4000, AllowMultiline=true);
 
             if strlength(obj.Comment) == 0
                 obj = obj.log("Session comment cleared.");
@@ -127,7 +135,8 @@ classdef Session
                 project (1,1) string
             end
 
-            obj.Project = strtrim(project);
+            obj.Project = spectralab.core.validateMetadataText( ...
+                project, "Project", MaxLength=200);
 
             if strlength(obj.Project) == 0
                 obj = obj.log("Session project cleared.");
@@ -143,7 +152,8 @@ classdef Session
                 sampleID (1,1) string
             end
 
-            obj.SampleID = strtrim(sampleID);
+            obj.SampleID = spectralab.core.validateMetadataText( ...
+                sampleID, "SampleID", MaxLength=200);
 
             if strlength(obj.SampleID) == 0
                 obj = obj.log("Session sample cleared.");
