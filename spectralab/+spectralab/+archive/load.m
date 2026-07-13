@@ -5,15 +5,38 @@ function archive = load(filename, options)
 %
 %   archive = spectralab.archive.load(filename, Quiet=true)
 %
+%   archive = spectralab.archive.load(filename, Validation="warn")
+%
+%   archive = spectralab.archive.load(filename, Validation="error")
+%
 % By default, a concise archive summary is displayed after loading.
 % Set Quiet=true for scripts and batch processing.
+%
+% Validation modes:
+%   "none"  Load without content validation (backward-compatible default).
+%   "warn"  Load and issue warnings for validation errors and warnings.
+%   "error" Reject archives that fail validation.
 
 arguments
     filename {mustBeTextScalar}
     options.Quiet (1,1) logical = false
+    options.Validation (1,1) string = "none"
+end
+
+validationMode = lower(strtrim(options.Validation));
+
+allowedModes = ["none","warn","error"];
+if ~any(validationMode == allowedModes)
+    error("SpectraLab:Archive:InvalidValidationMode", ...
+        "Validation must be ""none"", ""warn"", or ""error"".");
 end
 
 filename = char(string(filename));
+
+if ~isfile(filename)
+    error("SpectraLab:Archive:FileNotFound", ...
+        "Archive file not found: %s", filename);
+end
 
 S = load(filename, "-mat");
 
@@ -40,8 +63,29 @@ for k = 1:numel(required)
     end
 end
 
+if validationMode ~= "none"
+    validation = spectralab.archive.validate(archive);
+
+    if validationMode == "error" && ~validation.IsValid
+        message = strjoin(validation.Errors, newline);
+        error("SpectraLab:Archive:ValidationFailed", ...
+            "Archive validation failed:\n%s", message);
+    end
+
+    if validationMode == "warn"
+        for k = 1:numel(validation.Errors)
+            warning("SpectraLab:Archive:ValidationError", ...
+                "%s", validation.Errors(k));
+        end
+
+        for k = 1:numel(validation.Warnings)
+            warning("SpectraLab:Archive:ValidationWarning", ...
+                "%s", validation.Warnings(k));
+        end
+    end
+end
+
 if ~options.Quiet
     spectralab.archive.summary(archive);
 end
-
 end
