@@ -1,197 +1,265 @@
 function tests = test_plot_transmission
-%TEST_PLOT_TRANSMISSION Tests for spectral transmission plotting.
+%TEST_PLOT_TRANSMISSION Tests for spectralab.plot.transmission.
 
     tests = functiontests(localfunctions);
 end
 
 
+function setupOnce(testCase)
+% Create one valid transmission result structure for all tests.
+
+    wavelength = (380:10:730).';
+    transmission = linspace(0.15, 0.85, numel(wavelength)).';
+
+    result = struct();
+    result.Result = struct();
+    result.Result.WavelengthNm = wavelength;
+    result.Result.Value = transmission;
+
+    testCase.TestData.Result = result;
+end
+
+
+function setup(~)
+
+    close all force
+end
+
+
+function teardown(~)
+
+    close all force
+end
+
+
 function testCreatesLine(testCase)
-    figureHandle = figure("Visible", "off");
-    cleanup = onCleanup(@() close(figureHandle));
 
-    axesHandle = axes("Parent", figureHandle);
+    result = testCase.TestData.Result;
 
-    wavelengthNm = [400, 500, 600];
-    transmittance = [1.0, 0.5, 0.1];
+    h = spectralab.plot.transmission(result);
 
-    lineHandle = spectralab.plot.transmission( ...
-        wavelengthNm, ...
-        transmittance, ...
-        Parent=axesHandle);
+    verifyClass(testCase, h, "matlab.graphics.chart.primitive.Line");
+    verifyTrue(testCase, isvalid(h));
+end
 
-    verifyClass( ...
+
+function testPlotsResultData(testCase)
+
+    result = testCase.TestData.Result;
+
+    h = spectralab.plot.transmission(result);
+
+    verifyEqual( ...
         testCase, ...
-        lineHandle, ...
-        "matlab.graphics.chart.primitive.Line");
+        h.XData(:), ...
+        result.Result.WavelengthNm(:));
 
-    verifyEqual(testCase, lineHandle.XData, wavelengthNm);
-    verifyEqual(testCase, lineHandle.YData, transmittance);
-    verifyEqual(testCase, lineHandle.Parent, axesHandle);
+    verifyEqual( ...
+        testCase, ...
+        h.YData(:), ...
+        result.Result.Value(:));
+end
 
-    clear cleanup
+
+function testUsesSuppliedParent(testCase)
+
+    result = testCase.TestData.Result;
+
+    fig = figure;
+    ax = axes(fig);
+
+    h = spectralab.plot.transmission( ...
+        result, ...
+        Parent=ax);
+
+    verifyEqual(testCase, h.Parent, ax);
+    verifyEqual(testCase, numel(findobj(ax, "Type", "line")), 1);
+end
+
+
+function testAddsTwoResultsToSameAxes(testCase)
+
+    result = testCase.TestData.Result;
+
+    secondResult = result;
+    secondResult.Result.Value = ...
+        0.9 .* secondResult.Result.Value;
+
+    fig = figure;
+    ax = axes(fig);
+
+    hold(ax, "on");
+
+    h1 = spectralab.plot.transmission( ...
+        result, ...
+        Parent=ax, ...
+        DisplayName="First");
+
+    h2 = spectralab.plot.transmission( ...
+        secondResult, ...
+        Parent=ax, ...
+        LineStyle="--", ...
+        DisplayName="Second");
+
+    hold(ax, "off");
+
+    verifyEqual(testCase, h1.Parent, ax);
+    verifyEqual(testCase, h2.Parent, ax);
+    verifyEqual(testCase, numel(findobj(ax, "Type", "line")), 2);
+end
+
+
+function testAppliesLineProperties(testCase)
+
+    result = testCase.TestData.Result;
+
+    h = spectralab.plot.transmission( ...
+        result, ...
+        Color="r", ...
+        LineStyle="--", ...
+        Marker="*", ...
+        LineWidth=2.5, ...
+        DisplayName="Test transmission");
+
+    verifyEqual(testCase, h.Color, [1 0 0], "AbsTol", 1e-12);
+    verifyEqual(testCase, string(h.LineStyle), "--");
+    verifyEqual(testCase, string(h.Marker), "*");
+    verifyEqual(testCase, h.LineWidth, 2.5);
+    verifyEqual( ...
+        testCase, ...
+        string(h.DisplayName), ...
+        "Test transmission");
 end
 
 
 function testAxisLabels(testCase)
-    figureHandle = figure("Visible", "off");
-    cleanup = onCleanup(@() close(figureHandle));
 
-    axesHandle = axes("Parent", figureHandle);
+    result = testCase.TestData.Result;
 
-    spectralab.plot.transmission( ...
-        [400, 500, 600], ...
-        [1.0, 0.5, 0.1], ...
-        Parent=axesHandle);
+    h = spectralab.plot.transmission(result);
+    ax = h.Parent;
 
     verifyEqual( ...
         testCase, ...
-        string(axesHandle.XLabel.String), ...
+        string(ax.XLabel.String), ...
         "Wavelength (nm)");
 
     verifyEqual( ...
         testCase, ...
-        string(axesHandle.YLabel.String), ...
+        string(ax.YLabel.String), ...
         "Transmission");
-
-    clear cleanup
 end
 
 
 function testCustomTitle(testCase)
-    figureHandle = figure("Visible", "off");
-    cleanup = onCleanup(@() close(figureHandle));
 
-    axesHandle = axes("Parent", figureHandle);
+    result = testCase.TestData.Result;
 
-    spectralab.plot.transmission( ...
-        [400, 500], ...
-        [1.0, 0.5], ...
-        Parent=axesHandle, ...
-        Title="Film transmission");
+    h = spectralab.plot.transmission( ...
+        result, ...
+        Title="Custom transmission title");
 
     verifyEqual( ...
         testCase, ...
-        string(axesHandle.Title.String), ...
-        "Film transmission");
-
-    clear cleanup
+        string(h.Parent.Title.String), ...
+        "Custom transmission title");
 end
 
 
-function testPreservesParentAxes(testCase)
-    figureHandle = figure("Visible", "off");
-    cleanup = onCleanup(@() close(figureHandle));
+function testEmptyTitle(testCase)
 
-    axesHandle = axes("Parent", figureHandle);
+    result = testCase.TestData.Result;
 
-    lineHandle = spectralab.plot.transmission( ...
-        [400, 500], ...
-        [1.0, 0.5], ...
-        Parent=axesHandle);
+    h = spectralab.plot.transmission( ...
+        result, ...
+        Title="");
 
-    verifyEqual(testCase, lineHandle.Parent, axesHandle);
-
-    clear cleanup
-end
-
-
-function testRejectsSizeMismatch(testCase)
-    testFunction = @() spectralab.plot.transmission( ...
-        [400, 500, 600], ...
-        [1.0, 0.5]);
-
-    verifyError( ...
+    verifyEqual( ...
         testCase, ...
-        testFunction, ...
-        "spectralab:plot:transmission:SizeMismatch");
+        string(h.Parent.Title.String), ...
+        "");
 end
 
 
-function testRejectsEmptyWavelength(testCase)
-    testFunction = @() spectralab.plot.transmission([], []);
+function testGridCanBeEnabled(testCase)
 
-    verifyError( ...
-        testCase, ...
-        testFunction, ...
-        "spectralab:plot:transmission:EmptyWavelength");
-end
+    result = testCase.TestData.Result;
 
+    h = spectralab.plot.transmission( ...
+        result, ...
+        ShowGrid=true);
 
-function testRejectsEmptyTransmission(testCase)
-    testFunction = @() spectralab.plot.transmission( ...
-        [400, 500], ...
-        []);
-
-    verifyError( ...
-        testCase, ...
-        testFunction, ...
-        "spectralab:plot:transmission:EmptyTransmission");
-end
-
-
-function testRejectsNonFiniteWavelength(testCase)
-    testFunction = @() spectralab.plot.transmission( ...
-        [400, NaN], ...
-        [1.0, 0.5]);
-
-    verifyError( ...
-        testCase, ...
-        testFunction, ...
-        "spectralab:plot:transmission:NonFiniteWavelength");
-end
-
-
-function testRejectsNonFiniteTransmission(testCase)
-    testFunction = @() spectralab.plot.transmission( ...
-        [400, 500], ...
-        [1.0, NaN]);
-
-    verifyError( ...
-        testCase, ...
-        testFunction, ...
-        "spectralab:plot:transmission:NonFiniteTransmission");
-end
-
-
-function testCustomLineWidth(testCase)
-    figureHandle = figure("Visible", "off");
-    cleanup = onCleanup(@() close(figureHandle));
-
-    axesHandle = axes("Parent", figureHandle);
-
-    lineHandle = spectralab.plot.transmission( ...
-        [400, 500], ...
-        [1.0, 0.5], ...
-        Parent=axesHandle, ...
-        LineWidth=2.5);
-
-    verifyEqual(testCase, lineHandle.LineWidth, 2.5);
-
-    clear cleanup
+    verifyEqual(testCase, string(h.Parent.XGrid), "on");
+    verifyEqual(testCase, string(h.Parent.YGrid), "on");
 end
 
 
 function testGridCanBeDisabled(testCase)
-    figureHandle = figure("Visible", "off");
-    cleanup = onCleanup(@() close(figureHandle));
 
-    axesHandle = axes("Parent", figureHandle);
+    result = testCase.TestData.Result;
 
-    spectralab.plot.transmission( ...
-        [400, 500], ...
-        [1.0, 0.5], ...
-        Parent=axesHandle, ...
+    h = spectralab.plot.transmission( ...
+        result, ...
         ShowGrid=false);
 
-    verifyEqual( ...
-        testCase, ...
-        string(axesHandle.XGrid), ...
-        "off");
+    verifyEqual(testCase, string(h.Parent.XGrid), "off");
+    verifyEqual(testCase, string(h.Parent.YGrid), "off");
+end
 
-    verifyEqual( ...
-        testCase, ...
-        string(axesHandle.YGrid), ...
-        "off");
 
-    clear cleanup
+function testRejectsInvalidParent(testCase)
+
+    result = testCase.TestData.Result;
+
+    verifyError( ...
+        testCase, ...
+        @() spectralab.plot.transmission( ...
+            result, ...
+            Parent=42), ...
+        "spectralab:plot:transmission:InvalidParent");
+end
+
+
+function testRejectsMissingResultSection(testCase)
+
+    verifyError( ...
+        testCase, ...
+        @() spectralab.plot.transmission(struct()), ...
+        "spectralab:plot:transmission:MissingResult");
+end
+
+
+function testRejectsMissingWavelength(testCase)
+
+    result = testCase.TestData.Result;
+    result.Result = rmfield(result.Result, "WavelengthNm");
+
+    verifyError( ...
+        testCase, ...
+        @() spectralab.plot.transmission(result), ...
+        "spectralab:plot:transmission:MissingField");
+end
+
+
+function testRejectsMissingValue(testCase)
+
+    result = testCase.TestData.Result;
+    result.Result = rmfield(result.Result, "Value");
+
+    verifyError( ...
+        testCase, ...
+        @() spectralab.plot.transmission(result), ...
+        "spectralab:plot:transmission:MissingField");
+end
+
+
+function testRejectsSizeMismatch(testCase)
+
+    result = testCase.TestData.Result;
+    result.Result.Value = result.Result.Value(1:end-1);
+
+    verifyError( ...
+        testCase, ...
+        @() spectralab.plot.transmission(result), ...
+        "spectralab:plot:transmission:SizeMismatch");
 end

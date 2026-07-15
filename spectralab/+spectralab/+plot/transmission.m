@@ -1,81 +1,133 @@
-function lineHandle = transmission(wavelengthNm, transmittance, options)
-%TRANSMISSION Plot spectral transmittance.
+function h = transmission(result, options)
+%TRANSMISSION Plot a SpectraLab transmission-analysis result.
 %
-%   spectralab.plot.transmission(wavelengthNm, transmittance)
+%   h = spectralab.plot.transmission(result)
 %
-%   h = spectralab.plot.transmission(...)
+%   h = spectralab.plot.transmission(result, ...
+%       Parent=ax, ...
+%       Title="Transmission spectrum", ...
+%       LineWidth=1.5, ...
+%       Color="r", ...
+%       LineStyle="-", ...
+%       Marker="none", ...
+%       DisplayName="Sample", ...
+%       ShowGrid=true)
 %
-%   returns the MATLAB Line object.
+%   The function returns the MATLAB line handle. This permits additional
+%   customization using standard MATLAB graphics properties.
 %
-%   Name-value options
-%   ------------------
-%   Title
-%       Default: "Transmission spectrum".
-%
-%   LineWidth
-%       Default: 1.5.
-%
-%   ShowGrid
-%       Default: true.
-%
-%   Parent
-%       Parent axes.
-%
-%   See also spectralab.analysis.transmission
-%            spectralab.plot.opticalDensity
-%            spectralab.plot.spectrum
+%   Several results may be plotted in the same axes by supplying Parent.
 
     arguments
-        wavelengthNm {mustBeNumeric, mustBeReal}
-        transmittance {mustBeNumeric, mustBeReal}
+        result
 
-        options.Title (1,1) string = "Transmission spectrum"
-        options.LineWidth (1,1) double ...
-            {mustBePositive, mustBeFinite} = 1.5
-        options.ShowGrid (1,1) logical = true
         options.Parent = []
+        options.Title (1,1) string = "Transmission spectrum"
+        options.LineWidth (1,1) double {mustBePositive} = 1.5
+        options.Color = []
+        options.LineStyle (1,1) string = "-"
+        options.Marker (1,1) string = "none"
+        options.DisplayName (1,1) string = ""
+        options.ShowGrid (1,1) logical = true
     end
 
-    try
-        lineHandle = plotSpectralSeries( ...
-            wavelengthNm, ...
-            transmittance, ...
-            "Transmission", ...
-            "Transmission spectrum", ...
-            "spectralab:plot:transmission", ...
-            Title=options.Title, ...
-            LineWidth=options.LineWidth, ...
-            ShowGrid=options.ShowGrid, ...
-            Parent=options.Parent);
+    validateTransmissionResult(result);
 
-    catch exception
-        throwMappedException(exception);
+    ax = resolveAxes(options.Parent);
+
+    plotArguments = { ...
+        "LineWidth", options.LineWidth, ...
+        "LineStyle", options.LineStyle, ...
+        "Marker", options.Marker};
+
+    if ~isempty(options.Color)
+        plotArguments(end+1:end+2) = {"Color", options.Color};
     end
+
+    if strlength(options.DisplayName) > 0
+        plotArguments(end+1:end+2) = { ...
+            "DisplayName", options.DisplayName};
+    end
+
+    h = plot( ...
+        ax, ...
+        result.Result.WavelengthNm, ...
+        result.Result.Value, ...
+        plotArguments{:});
+
+    xlabel(ax, "Wavelength (nm)");
+    ylabel(ax, "Transmission");
+
+    if strlength(options.Title) > 0
+        title(ax, options.Title);
+    end
+
+    grid(ax, matlab.lang.OnOffSwitchState(options.ShowGrid));
+    box(ax, "on");
 end
 
 
-function throwMappedException(exception)
-% Preserve the established public error identifiers.
+function ax = resolveAxes(parent)
 
-    identifier = string(exception.identifier);
+    if isempty(parent)
+        fig = figure;
+        ax = axes(fig);
+        return
+    end
 
-    mappings = [
-        "spectralab:plot:transmission:EmptyValues", ...
-        "spectralab:plot:transmission:EmptyTransmission";
-        "spectralab:plot:transmission:NonFiniteValues", ...
-        "spectralab:plot:transmission:NonFiniteTransmission"
-    ];
+    if ~isa(parent, "matlab.graphics.axis.Axes") || ~isvalid(parent)
+        error( ...
+            "spectralab:plot:transmission:InvalidParent", ...
+            "Parent must be a valid MATLAB axes object.");
+    end
 
-    for index = 1:size(mappings, 1)
-        if identifier == mappings(index, 1)
-            mapped = MException( ...
-                mappings(index, 2), ...
-                "%s", ...
-                exception.message);
+    ax = parent;
+end
 
-            throwAsCaller(mapped);
+
+function validateTransmissionResult(result)
+
+    if ~isstruct(result)
+        error( ...
+            "spectralab:plot:transmission:InvalidResult", ...
+            "Input must be a SpectraLab transmission result structure.");
+    end
+
+    if ~isfield(result, "Result") || ~isstruct(result.Result)
+        error( ...
+            "spectralab:plot:transmission:MissingResult", ...
+            "Input does not contain the required Result section.");
+    end
+
+    requiredFields = ["WavelengthNm", "Value"];
+
+    for fieldName = requiredFields
+        if ~isfield(result.Result, fieldName)
+            error( ...
+                "spectralab:plot:transmission:MissingField", ...
+                "Result.%s is required.", ...
+                fieldName);
         end
     end
 
-    rethrow(exception);
+    wavelength = result.Result.WavelengthNm;
+    value = result.Result.Value;
+
+    if ~isnumeric(wavelength) || ~isvector(wavelength)
+        error( ...
+            "spectralab:plot:transmission:InvalidWavelength", ...
+            "Result.WavelengthNm must be a numeric vector.");
+    end
+
+    if ~isnumeric(value) || ~isvector(value)
+        error( ...
+            "spectralab:plot:transmission:InvalidValue", ...
+            "Result.Value must be a numeric vector.");
+    end
+
+    if numel(wavelength) ~= numel(value)
+        error( ...
+            "spectralab:plot:transmission:SizeMismatch", ...
+            "Result.WavelengthNm and Result.Value must contain the same number of elements.");
+    end
 end

@@ -27,7 +27,5 @@
 
 ## Plot
 
-- `spectralab.plot.overlay`
-- `spectralab.plot.compare`
 
 - `spectralab.plot.spectrum`
