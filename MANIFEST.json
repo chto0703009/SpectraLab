@@ -1,0 +1,10 @@
+{
+  "package": "SpectraLab CIE CRI test-colour samples",
+  "dataset": {
+    "filename": "CIE_srf_cri.csv",
+    "doi": "10.25039/CIE.DS.wuiuu9cz",
+    "source": "CIE 13.3:1995",
+    "sha256": "f461decedb5c18800c61a6923240c71f6cf91fd23ac94865133cbfdb7e05c0ad",
+    "license": "CC BY-SA 4.0"
+  }
+}
