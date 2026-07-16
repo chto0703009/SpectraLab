@@ -154,7 +154,7 @@ filter = spectralab.core.SpectralFilter.fromFunction( ...
 - One stable interface for all spectral weighting functions.
 - Reuse of validated interpolation and wavelength-range handling.
 - Consistent metadata and provenance.
-- Consistent plotting through `spectralab.plot.filterResponse`.
+- Weighted responses are returned as ordinary spectral data and may be plotted using SpectraLab’s standard plotting facilities.
 - Easier addition of new standards without changing analysis algorithms.
 - Clear separation between scientific identity and implementation mechanics.
 
