@@ -13,131 +13,108 @@ function h = spectrum(spec, options)
 %       Marker="none", ...
 %       DisplayName="Reference", ...
 %       ShowGrid=true, ...
-%       ShowSummary=true)
+%       ShowSummary=true, ...
+%       SummaryLocation="east")
 %
-%   The function returns the MATLAB line handle. Additional graphics
-%   properties may therefore be changed directly:
-%
-%       h = spectralab.plot.spectrum(spec);
-%       h.MarkerSize = 8;
-%
-%   Several spectra may be plotted in the same axes by supplying Parent.
+%   SummaryLocation may be "east", "west", "northeast", "northwest",
+%   "southeast", or "southwest".
 
     arguments
         spec (1,1) spectralab.core.Spectrum
-
         options.Parent = []
         options.Normalize (1,1) logical = false
         options.Title (1,1) string = ""
-        options.LineWidth (1,1) double {mustBePositive} = 1.5
+        options.LineWidth (1,1) double {mustBePositive, mustBeFinite} = 1.5
         options.Color = []
         options.LineStyle (1,1) string = "-"
         options.Marker (1,1) string = "none"
         options.DisplayName (1,1) string = ""
         options.ShowGrid (1,1) logical = true
         options.ShowSummary (1,1) logical = true
+        options.SummaryLocation (1,1) string {mustBeMember(options.SummaryLocation, ...
+            ["east", "west", "northeast", "northwest", "southeast", "southwest"])} = "east"
     end
 
-    ax = resolveAxes(options.Parent, spec.Label);
+    errorPrefix = "spectralab:plot:spectrum";
+    ax = resolveAxes(options.Parent, errorPrefix, spec.Label);
 
     if options.Normalize
         y = spec.normalizedPower();
-        yLabel = "Relative spectral power";
+        yLabelText = "Relative spectral power";
     else
         y = spec.Power;
-        yLabel = "Spectral power";
+        yLabelText = "Spectral power";
     end
 
-    plotArguments = { ...
-        "LineWidth", options.LineWidth, ...
-        "LineStyle", options.LineStyle, ...
-        "Marker", options.Marker};
+    [wavelengthNm, y] = validateXY( ...
+        spec.WavelengthNm, y, errorPrefix, ...
+        "Spectrum wavelengths", "Spectrum power", false);
 
-    if ~isempty(options.Color)
-        plotArguments(end+1:end+2) = {"Color", options.Color};
+    plotArguments = lineArguments(options);
+    h = plot(ax, wavelengthNm, y, plotArguments{:});
+
+    titleText = options.Title;
+    if strlength(titleText) == 0 && isempty(options.Parent)
+        titleText = spec.Label;
     end
 
-    if strlength(options.DisplayName) > 0
-        plotArguments(end+1:end+2) = { ...
-            "DisplayName", options.DisplayName};
-    end
-
-    h = plot( ...
-        ax, ...
-        spec.WavelengthNm, ...
-        y, ...
-        plotArguments{:});
-
-    xlabel(ax, "Wavelength (nm)");
-    ylabel(ax, yLabel);
-
-    if strlength(options.Title) > 0
-        title(ax, options.Title, "Interpreter", "none");
-    elseif isempty(options.Parent)
-        title(ax, spec.Label, "Interpreter", "none");
-    end
-
-    grid(ax, matlab.lang.OnOffSwitchState(options.ShowGrid));
-    box(ax, "on");
+    styleAxes(ax, "Wavelength (nm)", yLabelText, titleText, options.ShowGrid);
 
     if options.ShowSummary
-        addSummaryText(ax, spec, y, options.Normalize);
+        addSummaryText(ax, spec, options.SummaryLocation);
     end
 end
 
 
-function ax = resolveAxes(parent, label)
-
-    if isempty(parent)
-        fig = figure("Name", char(label));
-        ax = axes(fig);
-        return
-    end
-
-    if ~isa(parent, "matlab.graphics.axis.Axes") || ~isvalid(parent)
-        error( ...
-            "spectralab:plot:spectrum:InvalidParent", ...
-            "Parent must be a valid MATLAB axes object.");
-    end
-
-    ax = parent;
-end
-
-
-function addSummaryText(ax, spec, y, normalize)
+function addSummaryText(ax, spec, location)
 
     ss = spec.summaryStruct();
-
     info = sprintf( ...
         "Peak: %.0f nm\nSamples: %d\nPower: %.4g", ...
-        ss.peak_wavelength_nm, ...
-        ss.samples, ...
-        ss.integrated_power);
+        ss.peak_wavelength_nm, ss.samples, ss.integrated_power);
 
-    wavelength = spec.WavelengthNm;
+    [x, y, horizontalAlignment, verticalAlignment] = summaryPosition(location);
 
-    x = min(wavelength) + 0.63 * range(wavelength);
-
-    if normalize
-        yTop = 0.88;
-    else
-        yRange = range(y);
-
-        if yRange == 0
-            yTop = y(1);
-        else
-            yTop = min(y) + 0.88 * yRange;
-        end
-    end
-
-    text( ...
-        ax, ...
-        x, ...
-        yTop, ...
-        info, ...
+    text(ax, x, y, info, ...
+        "Units", "normalized", ...
+        "HorizontalAlignment", horizontalAlignment, ...
+        "VerticalAlignment", verticalAlignment, ...
         "BackgroundColor", "w", ...
         "EdgeColor", [0.8 0.8 0.8], ...
         "Margin", 6, ...
         "FontSize", 9, ...
-        "HandleVisibility", "off");
+        "Interpreter", "none", ...
+        "HandleVisibility", "off", ...
+        "Tag", "SpectraLabSummary");
+end
+
+
+function [x, y, horizontalAlignment, verticalAlignment] = summaryPosition(location)
+
+    switch location
+        case "east"
+            x = 0.98; y = 0.50;
+            horizontalAlignment = "right";
+            verticalAlignment = "middle";
+        case "west"
+            x = 0.02; y = 0.50;
+            horizontalAlignment = "left";
+            verticalAlignment = "middle";
+        case "northeast"
+            x = 0.98; y = 0.98;
+            horizontalAlignment = "right";
+            verticalAlignment = "top";
+        case "northwest"
+            x = 0.02; y = 0.98;
+            horizontalAlignment = "left";
+            verticalAlignment = "top";
+        case "southeast"
+            x = 0.98; y = 0.02;
+            horizontalAlignment = "right";
+            verticalAlignment = "bottom";
+        case "southwest"
+            x = 0.02; y = 0.02;
+            horizontalAlignment = "left";
+            verticalAlignment = "bottom";
+    end
 end
