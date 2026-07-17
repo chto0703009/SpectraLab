@@ -96,3 +96,53 @@ function verifyPeak(testCase, filter, expectedWavelength)
         filter.WavelengthNm(index), ...
         expectedWavelength);
 end
+
+
+function testStatusMPeaks(testCase)
+
+    blue = spectralab.filters.statusM.blue();
+    green = spectralab.filters.statusM.green();
+    red = spectralab.filters.statusM.red();
+
+    verifyPeak(testCase, blue, 450);
+    verifyPeak(testCase, green, 540);
+    verifyPeak(testCase, red, 640);
+end
+
+
+function testStatusMIsNormalized(testCase)
+
+    filters = { ...
+        spectralab.filters.statusM.blue(), ...
+        spectralab.filters.statusM.green(), ...
+        spectralab.filters.statusM.red()};
+
+    for index = 1:numel(filters)
+        verifyEqual(testCase, max(filters{index}.Value), 1, ...
+            "AbsTol", 1e-14);
+
+        verifyGreaterThanOrEqual( ...
+            testCase, ...
+            min(filters{index}.Value), ...
+            0);
+    end
+end
+
+
+function testStatusMMetadata(testCase)
+
+    red = spectralab.filters.statusM.red();
+
+    verifyEqual( ...
+        testCase, ...
+        red.Unit, ...
+        "relative spectral product");
+
+    verifyTrue( ...
+        testCase, ...
+        contains(red.Source, "ISO 5-3"));
+
+    verifyTrue( ...
+        testCase, ...
+        contains(red.Name, "Status M"));
+end
