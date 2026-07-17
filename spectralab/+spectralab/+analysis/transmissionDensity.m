@@ -1,258 +1,355 @@
-function result = transmissionDensity(reference, sample, filter, options)
-%TRANSMISSIONDENSITY Calculate filtered transmission density.
+function result = transmissionDensity(reference, sample, weightingFilter, options)
+%TRANSMISSIONDENSITY Calculate spectrally weighted transmission density.
 %
-%   result = spectralab.analysis.transmissionDensity( ...
-%       reference, sample, filter)
+%   RESULT = spectralab.analysis.transmissionDensity( ...
+%       REFERENCE, SAMPLE, WEIGHTINGFILTER)
 %
-%   The function follows the canonical SpectraLab analysis pipeline:
+%   calculates the effective transmission through SAMPLE relative to
+%   REFERENCE using the supplied spectral weighting filter:
 %
-%       reference + sample
-%               ↓
-%       analysis.transmission
-%               ↓
-%       analysis.filterResponse
-%               ↓
-%       normalized integration
-%               ↓
-%       transmission density
+%       T_eff = integral(T(lambda) W(lambda) dlambda) ...
+%               / integral(W(lambda) dlambda)
 %
-%   The effective filtered transmission is:
+%       D = -log10(T_eff)
 %
-%       T = integral(transmission .* filter) / integral(filter)
-%
-%   and transmission density is:
-%
-%       D = -log10(T)
-%
-%   reference and sample are passed directly to
-%   spectralab.analysis.transmission and may therefore use any input type
-%   supported by that function.
+%   REFERENCE and SAMPLE are processed by
+%   spectralab.analysis.transmission. Consequently, all wavelength
+%   alignment and optional spectral refinement follow the canonical
+%   transmission implementation.
 %
 %   Name-value options
 %   ------------------
-%   WavelengthRange
-%       Optional [minimum maximum] interval in nm. The interval must lie
-%       completely within the valid transmission/filter overlap.
+%   Resample
+%       false:
+%           The reference and sample wavelength grids must be identical.
+%           The measured samples are used directly.
 %
-%   WarnBelowTransmission
-%       Emit a warning when effective transmission is below this positive
-%       threshold. Set to 0 to disable. Default: 1e-4.
+%       true:
+%           The reference and sample spectra are always interpolated onto
+%           a refined wavelength grid, even when their original grids are
+%           identical.
 %
-%   WarnAboveDensity
-%       Emit a warning when density exceeds this threshold. Set to Inf to
-%       disable. Default: 4.
+%   RefinementFactor
+%       Positive integer controlling the density of the refined wavelength
+%       grid. The default is 4.
 %
-%   WarnAboveOne
-%       Emit one wrapper-level warning when the final effective filtered
-%       transmission exceeds 1. Default: true.
+%   InterpolationMethod
+%       Interpolation method forwarded to
+%       spectralab.analysis.transmission. The default is "pchip".
 %
-%   Output
-%   ------
-%   result.Transmission
-%       Canonical spectral transmission result.
+%   FilterInterpolationMethod
+%       Interpolation method used to align the weighting filter with the
+%       transmission wavelength grid. The default is "linear".
 %
-%   result.FilterResponse
-%       Wavelength-dependent weighted transmission result.
+%   The returned structure contains:
 %
-%   result.Result.EffectiveTransmission
-%       Scalar normalized filtered transmission.
+%       result.Result.Density
+%       result.Result.EffectiveTransmission
+%       result.Result.WavelengthNm
+%       result.Result.Transmission
+%       result.Result.Weight
 %
-%   result.Result.Density
-%       Scalar transmission density.
+%   and provenance copied from the underlying transmission analysis.
+%
+%   See also:
+%       spectralab.analysis.transmission
+%       spectralab.analysis.whiteDensity
+%       spectralab.analysis.statusADensity
 
     arguments
         reference
         sample
-        filter (1,1) spectralab.core.SpectralFilter
+        weightingFilter
 
-        options.WavelengthRange (1,2) double = [NaN NaN]
+        options.Resample (1,1) logical = false
 
-        options.WarnBelowTransmission (1,1) double ...
-            {mustBeNonnegative} = 1e-4
+        options.RefinementFactor (1,1) double ...
+            {mustBeInteger, mustBeGreaterThanOrEqual( ...
+            options.RefinementFactor, 1)} = 4
 
-        options.WarnAboveDensity (1,1) double = 4
+        options.InterpolationMethod (1,1) string ...
+            {mustBeMember(options.InterpolationMethod, ...
+            ["linear", "pchip", "spline", "makima"])} = "pchip"
 
-        options.WarnAboveOne (1,1) logical = false
+        options.FilterInterpolationMethod (1,1) string ...
+            {mustBeMember(options.FilterInterpolationMethod, ...
+            ["linear", "pchip", "spline", "makima"])} = "linear"
     end
 
-    % Suppress wavelength-level above-unity warnings here. This higher-level
-    % analysis reports only anomalies relevant to its final scalar result.
+
+    %% Calculate canonical spectral transmission
+
     transmissionResult = spectralab.analysis.transmission( ...
         reference, ...
         sample, ...
+        Resample=options.Resample, ...
+        RefinementFactor=options.RefinementFactor, ...
+        InterpolationMethod=options.InterpolationMethod, ...
         WarnAboveOne=false);
 
-    validateTransmissionResult(transmissionResult);
 
-    if all(isfinite(options.WavelengthRange))
+    %% Read the transmission spectrum
 
-        response = spectralab.analysis.filterResponse( ...
-            transmissionResult, ...
-            filter, ...
-            WavelengthRange=options.WavelengthRange);
+    wavelengthNm = transmissionResult.Result.WavelengthNm(:);
+    transmissionValue = transmissionResult.Result.Value(:);
 
-    elseif any(isfinite(options.WavelengthRange))
+    validateTransmissionSpectrum(wavelengthNm, transmissionValue);
 
+
+    %% Read and validate the weighting filter
+
+    filterWavelengthNm = weightingFilter.WavelengthNm(:);
+    filterValue = weightingFilter.Value(:);
+
+    validateWeightingFilter(filterWavelengthNm, filterValue);
+
+
+    %% Determine common wavelength range
+
+    commonMinimumNm = max( ...
+        wavelengthNm(1), ...
+        filterWavelengthNm(1));
+
+    commonMaximumNm = min( ...
+        wavelengthNm(end), ...
+        filterWavelengthNm(end));
+
+    if commonMinimumNm >= commonMaximumNm
         error( ...
-            "spectralab:analysis:transmissionDensity:InvalidRange", ...
-            "WavelengthRange must contain two finite values or be omitted.");
-
-    else
-
-        response = spectralab.analysis.filterResponse( ...
-            transmissionResult, ...
-            filter);
+            "spectralab:analysis:transmissionDensity:NoCommonRange", ...
+            "The transmission spectrum and weighting filter have no " + ...
+            "common wavelength range.");
     end
 
-    wavelength = response.Result.WavelengthNm(:);
-    weightedTransmission = response.Result.Value(:);
-    filterValue = response.Result.FilterValue(:);
 
-    numerator = trapz( ...
-        wavelength, ...
+    %% Restrict the transmission grid to the common range
+
+    inCommonRange = ...
+        wavelengthNm >= commonMinimumNm & ...
+        wavelengthNm <= commonMaximumNm;
+
+    densityWavelengthNm = wavelengthNm(inCommonRange);
+    densityTransmission = transmissionValue(inCommonRange);
+
+    if numel(densityWavelengthNm) < 2
+        error( ...
+            "spectralab:analysis:transmissionDensity:InsufficientSamples", ...
+            "At least two wavelength samples are required within the " + ...
+            "common wavelength range.");
+    end
+
+
+    %% Align the weighting filter with the transmission grid
+
+    densityWeight = interp1( ...
+        filterWavelengthNm, ...
+        filterValue, ...
+        densityWavelengthNm, ...
+        options.FilterInterpolationMethod);
+
+    if any(~isfinite(densityWeight))
+        error( ...
+            "spectralab:analysis:transmissionDensity:" + ...
+            "FilterInterpolationFailed", ...
+            "The weighting filter could not be evaluated over the " + ...
+            "complete transmission wavelength range.");
+    end
+
+
+    %% Calculate effective transmission
+
+    weightedTransmission = densityTransmission .* densityWeight;
+
+    weightIntegral = trapz( ...
+        densityWavelengthNm, ...
+        densityWeight);
+
+    if ~isfinite(weightIntegral) || weightIntegral <= 0
+        error( ...
+            "spectralab:analysis:transmissionDensity:InvalidWeightIntegral", ...
+            "The integrated weighting filter must be finite and " + ...
+            "greater than zero.");
+    end
+
+    weightedTransmissionIntegral = trapz( ...
+        densityWavelengthNm, ...
         weightedTransmission);
 
-    denominator = trapz( ...
-        wavelength, ...
-        filterValue);
+    effectiveTransmission = ...
+        weightedTransmissionIntegral / weightIntegral;
 
-    if ~isfinite(denominator) || denominator <= 0
+
+    %% Calculate density and issue physical warnings
+
+    if effectiveTransmission < 0
         error( ...
-            "spectralab:analysis:transmissionDensity:InvalidFilterIntegral", ...
-            "The integrated filter weighting must be finite and positive.");
+            "spectralab:analysis:transmissionDensity:" + ...
+            "NegativeEffectiveTransmission", ...
+            "The calculated effective transmission is negative.");
     end
 
-    effectiveTransmission = numerator / denominator;
+    if effectiveTransmission == 0
+        density = Inf;
 
-    if ~isfinite(effectiveTransmission) || effectiveTransmission <= 0
-        error( ...
-            "spectralab:analysis:transmissionDensity:InvalidTransmission", ...
-            "The effective filtered transmission must be finite and positive.");
+    else
+        density = -log10(effectiveTransmission);
     end
 
-    density = -log10(effectiveTransmission);
-
-    if options.WarnAboveOne && effectiveTransmission > 1
+    if effectiveTransmission > 1
         warning( ...
-            "spectralab:analysis:transmissionDensity:AboveUnity", ...
-            "Effective filtered transmission exceeds 1. Check the reference measurement, sample measurement, instrument stability, and measurement geometry.");
+            "spectralab:analysis:transmissionDensity:" + ...
+            "SampleAboveReference", ...
+            "The effective transmission is %.6g, which is greater " + ...
+            "than one. The sample signal exceeds the reference signal " + ...
+            "within the weighted wavelength range.", ...
+            effectiveTransmission);
     end
 
-    if options.WarnBelowTransmission > 0 && ...
-            effectiveTransmission < options.WarnBelowTransmission
 
-        warning( ...
-            "spectralab:analysis:transmissionDensity:LowTransmission", ...
-            "Effective transmission %.6g is below the warning threshold %.6g.", ...
-            effectiveTransmission, ...
-            options.WarnBelowTransmission);
-    end
-
-    if isfinite(options.WarnAboveDensity) && ...
-            density > options.WarnAboveDensity
-
-        warning( ...
-            "spectralab:analysis:transmissionDensity:HighDensity", ...
-            "Transmission density %.6g exceeds the warning threshold %.6g.", ...
-            density, ...
-            options.WarnAboveDensity);
-    end
+    %% Build result
 
     result = struct();
-    result.Type = "TransmissionDensity";
 
-    result.Filter = filter.summaryStruct();
-    result.Transmission = transmissionResult;
-    result.FilterResponse = response;
-
-    result.Range = struct();
-    result.Range.EffectiveRangeNm = ...
-        response.Range.EffectiveRangeNm;
-    result.Range.SampleCount = ...
-        response.Range.SampleCount;
-
-    result.Processing = struct();
-
-    result.Processing.Pipeline = ...
-        "transmission -> filterResponse -> normalized trapezoidal integration -> -log10";
-
-    result.Processing.IntegrationMethod = ...
-        "trapezoidal";
-
-    result.Processing.Normalization = ...
-        "integral(filter)";
-
-    result.Processing.DensityDefinition = ...
-        "-log10(effective transmission)";
-
-    result.Processing.WarnBelowTransmission = ...
-        options.WarnBelowTransmission;
-
-    result.Processing.WarnAboveDensity = ...
-        options.WarnAboveDensity;
-
-    result.Processing.WarnAboveOne = ...
-        options.WarnAboveOne;
+    result.Analysis = "Transmission density";
 
     result.Result = struct();
-    result.Result.WeightedIntegral = numerator;
-    result.Result.FilterIntegral = denominator;
-    result.Result.EffectiveTransmission = effectiveTransmission;
-    result.Result.Transmittance = effectiveTransmission;
+
     result.Result.Density = density;
+    result.Result.EffectiveTransmission = effectiveTransmission;
+
+    result.Result.WavelengthNm = densityWavelengthNm;
+    result.Result.Transmission = densityTransmission;
+    result.Result.Weight = densityWeight;
+    result.Result.WeightedTransmission = weightedTransmission;
+
+    result.Result.WeightIntegral = weightIntegral;
+    result.Result.WeightedTransmissionIntegral = ...
+        weightedTransmissionIntegral;
+
+    result.Result.WavelengthRangeNm = [ ...
+        densityWavelengthNm(1), ...
+        densityWavelengthNm(end)];
+
+
+    %% Preserve transmission provenance
+
+    result.Provenance = struct();
+
+    result.Provenance.TransmissionIdentity = ...
+        transmissionResult.Identity;
+
+    result.Provenance.TransmissionDefinition = ...
+        transmissionResult.Definition;
+
+    result.Provenance.TransmissionParameters = ...
+        transmissionResult.Parameters;
+
+    result.Provenance.TransmissionSource = ...
+        transmissionResult.Source;
+
+    result.Provenance.Alignment = ...
+        transmissionResult.Parameters.Alignment;
+
+    result.Provenance.Resampled = ...
+        transmissionResult.Parameters.Resampled;
+
+    result.Provenance.RefinementFactor = ...
+        transmissionResult.Parameters.RefinementFactor;
+
+    result.Provenance.InterpolationMethod = ...
+        transmissionResult.Parameters.InterpolationMethod;
+
+    result.Provenance.FilterInterpolationMethod = ...
+        options.FilterInterpolationMethod;
+
+    result.Provenance.FilterWavelengthRangeNm = [ ...
+        filterWavelengthNm(1), ...
+        filterWavelengthNm(end)];
+
+    result.Provenance.CalculationWavelengthRangeNm = ...
+        result.Result.WavelengthRangeNm;
 end
 
 
-function validateTransmissionResult(result)
+function validateTransmissionSpectrum(wavelengthNm, value)
 
-    if ~isstruct(result)
+    if numel(wavelengthNm) ~= numel(value)
         error( ...
-            "spectralab:analysis:transmissionDensity:InvalidTransmissionResult", ...
-            "analysis.transmission must return a result structure.");
+            "spectralab:analysis:transmissionDensity:" + ...
+            "InvalidTransmissionSpectrum", ...
+            "The transmission wavelength and value vectors must have " + ...
+            "the same number of elements.");
     end
 
-    if ~isfield(result, "Result") || ~isstruct(result.Result)
+    if numel(wavelengthNm) < 2
         error( ...
-            "spectralab:analysis:transmissionDensity:MissingResult", ...
-            "The transmission result is missing its Result section.");
+            "spectralab:analysis:transmissionDensity:" + ...
+            "InvalidTransmissionSpectrum", ...
+            "The transmission spectrum must contain at least two samples.");
     end
 
-    requiredFields = ["WavelengthNm", "Value"];
-
-    for fieldName = requiredFields
-
-        if ~isfield(result.Result, fieldName)
-            error( ...
-                "spectralab:analysis:transmissionDensity:MissingField", ...
-                "Transmission Result.%s is required.", ...
-                fieldName);
-        end
+    if any(~isfinite(wavelengthNm)) || ...
+            any(diff(wavelengthNm) <= 0)
+        error( ...
+            "spectralab:analysis:transmissionDensity:" + ...
+            "InvalidTransmissionWavelengths", ...
+            "Transmission wavelengths must be finite and strictly " + ...
+            "increasing.");
     end
 
-    wavelength = result.Result.WavelengthNm(:);
-    value = result.Result.Value(:);
-
-    if isempty(wavelength) || isempty(value)
+    if any(~isfinite(value))
         error( ...
-            "spectralab:analysis:transmissionDensity:EmptyTransmissionResult", ...
-            "The transmission result must not be empty.");
+            "spectralab:analysis:transmissionDensity:" + ...
+            "InvalidTransmissionValues", ...
+            "Transmission values must be finite.");
+    end
+end
+
+
+function validateWeightingFilter(wavelengthNm, value)
+
+    if numel(wavelengthNm) ~= numel(value)
+        error( ...
+            "spectralab:analysis:transmissionDensity:" + ...
+            "InvalidWeightingFilter", ...
+            "The filter wavelength and value vectors must have the " + ...
+            "same number of elements.");
     end
 
-    if numel(wavelength) ~= numel(value)
+    if numel(wavelengthNm) < 2
         error( ...
-            "spectralab:analysis:transmissionDensity:SizeMismatch", ...
-            "Transmission wavelength and value vectors must have equal length.");
+            "spectralab:analysis:transmissionDensity:" + ...
+            "InvalidWeightingFilter", ...
+            "The weighting filter must contain at least two samples.");
     end
 
-    if any(~isfinite(wavelength)) || any(~isfinite(value))
+    if any(~isfinite(wavelengthNm)) || ...
+            any(diff(wavelengthNm) <= 0)
         error( ...
-            "spectralab:analysis:transmissionDensity:NonFiniteTransmissionResult", ...
-            "Transmission wavelength and value vectors must be finite.");
+            "spectralab:analysis:transmissionDensity:" + ...
+            "InvalidFilterWavelengths", ...
+            "Filter wavelengths must be finite and strictly increasing.");
     end
 
-    if any(diff(wavelength) <= 0)
+    if any(~isfinite(value))
         error( ...
-            "spectralab:analysis:transmissionDensity:WavelengthNotIncreasing", ...
-            "Transmission wavelengths must be strictly increasing.");
+            "spectralab:analysis:transmissionDensity:" + ...
+            "InvalidFilterValues", ...
+            "Filter values must be finite.");
+    end
+
+    if any(value < 0)
+        error( ...
+            "spectralab:analysis:transmissionDensity:" + ...
+            "NegativeFilterValues", ...
+            "The weighting filter must not contain negative values.");
+    end
+
+    if ~any(value > 0)
+        error( ...
+            "spectralab:analysis:transmissionDensity:" + ...
+            "ZeroWeightingFilter", ...
+            "The weighting filter must contain at least one value " + ...
+            "greater than zero.");
     end
 end

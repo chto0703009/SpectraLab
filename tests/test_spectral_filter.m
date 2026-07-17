@@ -25,13 +25,19 @@ end
 
 function testEvaluatesTabulatedFilter(testCase)
 
+    wavelengthNm = [400 500 600];
+    value = [0 1 0];
+
     filter = spectralab.core.SpectralFilter.fromTable( ...
-        [400 500 600], ...
-        [0 1 0]);
+        wavelengthNm, ...
+        value);
 
     actual = filter.evaluate([450 500 550]);
 
-    verifyEqual(testCase, actual, [0.5 1.0 0.5], "AbsTol", 1e-12);
+    expected = [0.75 1.0 0.75];
+
+    verifyEqual(testCase, actual, expected, ...
+        "AbsTol", 1e-12);
 end
 
 

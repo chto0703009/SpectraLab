@@ -136,7 +136,9 @@ classdef SpectralFilter
             arguments
                 obj (1,1) spectralab.core.SpectralFilter
                 wavelengthNm double
-                options.InterpolationMethod (1,1) string = "linear"
+				options.InterpolationMethod (1,1) string ...
+				    {mustBeMember(options.InterpolationMethod, ...
+				        ["pchip", "makima", "spline", "linear"])} = "pchip"
             end
 
             originalSize = size(wavelengthNm);

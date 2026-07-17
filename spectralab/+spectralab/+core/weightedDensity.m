@@ -41,6 +41,16 @@ function result = weightedDensity(referenceInput, sampleInput, weightingInput, o
 
         options.WeightingName (1,1) string = "Weighted density"
         options.WarnAboveOne (1,1) logical = true
+
+        options.Resample (1,1) logical = false
+
+        options.RefinementFactor (1,1) double ...
+            {mustBeInteger, ...
+             mustBeGreaterThanOrEqual(options.RefinementFactor, 1)} = 4
+
+        options.InterpolationMethod (1,1) string ...
+            {mustBeMember(options.InterpolationMethod, ...
+                ["pchip", "makima", "spline"])} = "pchip"
     end
 
     reference = localSpectrumData(referenceInput, "reference");
@@ -50,6 +60,18 @@ function result = weightedDensity(referenceInput, sampleInput, weightingInput, o
     localValidateSignal(reference, "reference");
     localValidateSignal(sample, "sample");
     localValidateWeighting(weighting);
+    if options.Resample
+
+        reference = localResampleData( ...
+            reference, ...
+            options.RefinementFactor, ...
+            options.InterpolationMethod);
+
+        sample = localResampleData( ...
+            sample, ...
+            options.RefinementFactor, ...
+            options.InterpolationMethod);
+    end
 
     minimumWavelength = max([
         min(reference.WavelengthNm)
@@ -149,8 +171,10 @@ function result = weightedDensity(referenceInput, sampleInput, weightingInput, o
         "ReferenceWeightedValue", referenceWeightedValue, ...
         "SampleWeightedValue", sampleWeightedValue, ...
         "WavelengthRangeNm", [wavelengthNm(1), wavelengthNm(end)], ...
-        "WeightingName", options.WeightingName);
-end
+        "WeightingName", options.WeightingName, ...
+        "Resampled", options.Resample, ...
+        "RefinementFactor", options.RefinementFactor, ...
+        "InterpolationMethod", options.InterpolationMethod);end
 
 
 function data = localSpectrumData(inputValue, inputName)
@@ -342,3 +366,49 @@ function text = upperFirst(text)
 
     text = string(text);
 end
+	
+	
+	function result = localResampleData(data, refinementFactor, method)
+
+	    if refinementFactor == 1
+	        result = data;
+	        return
+	    end
+
+	    originalWavelengthNm = data.WavelengthNm;
+	    originalValue = data.Value;
+
+	    numberOfIntervals = numel(originalWavelengthNm) - 1;
+	    numberOfPoints = numberOfIntervals * refinementFactor + 1;
+
+	    refinedWavelengthNm = zeros(numberOfPoints, 1);
+
+	    outputIndex = 1;
+
+	    for intervalIndex = 1:numberOfIntervals
+
+	        intervalPoints = linspace( ...
+	            originalWavelengthNm(intervalIndex), ...
+	            originalWavelengthNm(intervalIndex + 1), ...
+	            refinementFactor + 1);
+
+	        refinedWavelengthNm( ...
+	            outputIndex : outputIndex + refinementFactor - 1) = ...
+	            intervalPoints(1:end-1);
+
+	        outputIndex = outputIndex + refinementFactor;
+	    end
+
+	    refinedWavelengthNm(end) = originalWavelengthNm(end);
+
+	    refinedValue = interp1( ...
+	        originalWavelengthNm, ...
+	        originalValue, ...
+	        refinedWavelengthNm, ...
+	        method);
+
+	    result = struct( ...
+	        "WavelengthNm", refinedWavelengthNm, ...
+	        "Value", refinedValue);
+
+	end
