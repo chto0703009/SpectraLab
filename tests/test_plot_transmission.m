@@ -263,3 +263,23 @@ function testRejectsSizeMismatch(testCase)
         @() spectralab.plot.transmission(result), ...
         "spectralab:plot:transmission:SizeMismatch");
 end
+		
+
+		function testPreservesHoldState(testCase)
+
+		    result = testCase.TestData.Result;
+
+		    fig = figure;
+		    ax = axes(fig);
+
+		    hold(ax, "on");
+		    holdStateBefore = ishold(ax);
+
+		    spectralab.plot.transmission( ...
+		        result, ...
+		        Parent=ax);
+
+		    holdStateAfter = ishold(ax);
+
+		    verifyEqual(testCase, holdStateAfter, holdStateBefore);
+		end

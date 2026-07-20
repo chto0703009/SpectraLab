@@ -295,3 +295,24 @@ function summaryText = findSummaryText(ax)
 
     summaryText = allText(isSummary);
 end
+
+
+	function testPreservesHoldState(testCase)
+
+	    spec = testCase.TestData.Spec;
+
+	    fig = figure;
+	    ax = axes(fig);
+
+	    hold(ax, "on");
+	    holdStateBefore = ishold(ax);
+
+	    spectralab.plot.spectrum( ...
+	        spec, ...
+	        Parent=ax, ...
+	        ShowSummary=false);
+
+	    holdStateAfter = ishold(ax);
+
+	    verifyEqual(testCase, holdStateAfter, holdStateBefore);
+	end

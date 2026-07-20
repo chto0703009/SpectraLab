@@ -126,3 +126,56 @@ function testRejectsSizeMismatch(testCase)
             testCase.TestData.Density(1:end-1)), ...
         "spectralab:plot:opticalDensity:SizeMismatch");
 end
+		
+		function testAddsTwoDensityCurvesToSameAxes(testCase)
+
+		    wavelength = testCase.TestData.WavelengthNm;
+		    density1 = testCase.TestData.Density;
+		    density2 = 0.8 .* density1;
+
+		    fig = figure;
+		    ax = axes(fig);
+
+		    hold(ax, "on");
+
+		    h1 = spectralab.plot.opticalDensity( ...
+		        wavelength, ...
+		        density1, ...
+		        Parent=ax, ...
+		        DisplayName="First");
+
+		    h2 = spectralab.plot.opticalDensity( ...
+		        wavelength, ...
+		        density2, ...
+		        Parent=ax, ...
+		        LineStyle="--", ...
+		        DisplayName="Second");
+
+		    hold(ax, "off");
+
+		    verifyEqual(testCase, h1.Parent, ax);
+		    verifyEqual(testCase, h2.Parent, ax);
+		    verifyEqual(testCase, numel(findobj(ax, "Type", "line")), 2);
+		end
+
+
+		function testPreservesHoldState(testCase)
+
+		    wavelength = testCase.TestData.WavelengthNm;
+		    density = testCase.TestData.Density;
+
+		    fig = figure;
+		    ax = axes(fig);
+
+		    hold(ax, "on");
+		    holdStateBefore = ishold(ax);
+
+		    spectralab.plot.opticalDensity( ...
+		        wavelength, ...
+		        density, ...
+		        Parent=ax);
+
+		    holdStateAfter = ishold(ax);
+
+		    verifyEqual(testCase, holdStateAfter, holdStateBefore);
+		end		

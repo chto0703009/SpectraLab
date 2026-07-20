@@ -86,3 +86,4 @@ function txt = findSummary(ax)
     txt = findall(ax, "Type", "text", "Tag", "SpectraLabSummary");
     assert(isscalar(txt), "Expected exactly one SpectraLab summary text object.");
 end
+

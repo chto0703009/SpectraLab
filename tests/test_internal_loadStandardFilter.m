@@ -12,7 +12,7 @@ function testLoadsLinearValues(testCase)
         500 0.5
         600 1.0]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename));
 
     filter = spectralab.filters.internal.loadStandardFilter( ...
         filename, ...
@@ -32,7 +32,7 @@ function testNormalizesValues(testCase)
         500 4
         600 1]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename));
 
     filter = spectralab.filters.internal.loadStandardFilter(filename);
 
@@ -51,7 +51,7 @@ function testCanPreserveOriginalScale(testCase)
         500 4
         600 1]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename)); 
 
     filter = spectralab.filters.internal.loadStandardFilter( ...
         filename, ...
@@ -68,7 +68,7 @@ function testConvertsLog10Values(testCase)
         500  0
         600 -Inf]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename)); 
 
     filter = spectralab.filters.internal.loadStandardFilter( ...
         filename, ...
@@ -90,7 +90,7 @@ function testAcceptsAbsoluteFilename(testCase)
         500 1
         600 0]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename)); 
 
     filter = spectralab.filters.internal.loadStandardFilter(filename);
 
@@ -120,7 +120,7 @@ function testRejectsInvalidColumnCount(testCase)
         400 0.1 1
         500 0.2 2]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename)); 
 
     verifyError( ...
         testCase, ...
@@ -136,7 +136,7 @@ function testRejectsNonIncreasingWavelengths(testCase)
         500 0.2
         500 0.3]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename)); 
 
     verifyError( ...
         testCase, ...
@@ -152,7 +152,7 @@ function testRejectsNegativeLinearValues(testCase)
         500 -0.2
         600  0.3]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename)); 
 
     verifyError( ...
         testCase, ...
@@ -168,7 +168,7 @@ function testRejectsNonFiniteWavelengths(testCase)
         NaN 0.2
         600 0.3]);
 
-    cleanup = onCleanup(@() localDelete(filename)); %#ok<NASGU>
+    cleanup = onCleanup(@() localDelete(filename)); 
 
     verifyError( ...
         testCase, ...

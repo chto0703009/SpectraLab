@@ -22,16 +22,33 @@ arguments
     archive (1,1) struct
 end
 
+
 errors = strings(0,1);
 warnings = strings(0,1);
 
-required = ["Identity","Version","Measurement", ...
-    "Metadata","Instrument","Quality"];
+required = [ ...
+    "Identity", ...
+    "Version", ...
+    "Measurement", ...
+    "Metadata", ...
+    "Instrument", ...
+    "Quality" ...
+];
 
-for field = required
-    if ~isfield(archive, field)
-        errors(end+1,1) = "Missing required section: " + field;
-    end
+missingRequired = required(~isfield(archive, required));
+
+if ~isempty(missingRequired)
+    errors = "Missing required section: " + missingRequired(:);
+end
+
+result = makeResult(false, errors, warnings, "", "");
+
+if ~isempty(errors)
+    return
+end
+		
+if ~isempty(missingRequired)
+    errors = "Missing required section: " + missingRequired(:);
 end
 
 result = makeResult(false, errors, warnings, "", "");

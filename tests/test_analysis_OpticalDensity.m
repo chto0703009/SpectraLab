@@ -1,4 +1,4 @@
-function tests = test_analysis_optical_density
+function tests = test_analysis_OpticalDensity
 %TEST_ANALYSIS_OPTICAL_DENSITY Tests for spectral optical-density analysis.
 
     tests = functiontests(localfunctions);

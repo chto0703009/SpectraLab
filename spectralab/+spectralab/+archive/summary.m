@@ -26,22 +26,22 @@ end
 identityLines = [
     "Identity"
     "--------"
-    "UUID          : " + displayValue(readText(archive.Identity, ["UUID"]))
-    "Created       : " + displayValue(readDate(archive.Identity, ["Created"]))
-    "Created by    : " + displayValue(readText(archive.Identity, ["CreatedBy"]))
+    "UUID          : " + displayValue(readText(archive.Identity, "UUID"))
+    "Created       : " + displayValue(readDate(archive.Identity, "Created"))
+    "Created by    : " + displayValue(readText(archive.Identity, "CreatedBy"))
     "Content hash  : " + displayValue(shortHash( ...
-        readText(archive.Identity, ["ContentHash"])))
+        readText(archive.Identity, "ContentHash")))
 ];
 
 versionLines = [
     "Version"
     "-------"
-    "Format        : " + displayValue(readText(archive.Version, ["Format"]))
-    "Archive       : " + displayValue(readText(archive.Version, ["Version"]))
-    "Software      : " + displayValue(readText(archive.Version, ["Software"]))
+    "Format        : " + displayValue(readText(archive.Version, "Format"))
+    "Archive       : " + displayValue(readText(archive.Version, "Version"))
+    "Software      : " + displayValue(readText(archive.Version, "Software"))
 ];
 
-wavelength = readNumeric(archive.Measurement, ["Wavelength"]);
+wavelength = readNumeric(archive.Measurement, "Wavelength");
 sampleCount = numel(wavelength);
 
 if sampleCount > 0
@@ -55,13 +55,13 @@ measurementLines = [
     "Measurement"
     "-----------"
     "Name          : " + displayValue(readText( ...
-        archive.Measurement, ["Name"]))
+        archive.Measurement, "Name"))
     "Operator      : " + displayValue(readText( ...
-        archive.Measurement, ["Operator"]))
+        archive.Measurement, "Operator"))
     "Timestamp     : " + displayValue(readDate( ...
-        archive.Measurement, ["Timestamp"]))
+        archive.Measurement, "Timestamp"))
     "Unit          : " + displayValue(readText( ...
-        archive.Measurement, ["Unit"]))
+        archive.Measurement, "Unit"))
     "Samples       : " + string(sampleCount)
     "Range         : " + rangeText
 ];
@@ -70,45 +70,45 @@ instrumentLines = [
     "Instrument"
     "----------"
     "Name          : " + displayValue(readText( ...
-        archive.Instrument, ["Name"]))
+        archive.Instrument, "Name"))
     "Driver        : " + displayValue(readText( ...
-        archive.Instrument, ["Driver"]))
+        archive.Instrument, "Driver"))
     "Serial number : " + displayValue(readText( ...
-        archive.Instrument, ["SerialNumber"]))
+        archive.Instrument, "SerialNumber"))
     "Calibration ID: " + displayValue(readText( ...
-        archive.Instrument, ["CalibrationID"]))
+        archive.Instrument, "CalibrationID"))
 ];
 
 metadataLines = [
     "Metadata"
     "--------"
     "Project       : " + displayValue(readText( ...
-        archive.Metadata, ["Project"]))
+        archive.Metadata, "Project"))
     "Sample ID     : " + displayValue(readText( ...
-        archive.Metadata, ["SampleID"]))
+        archive.Metadata, "SampleID"))
     "Description   : " + displayValue(readText( ...
-        archive.Metadata, ["Description"]))
+        archive.Metadata, "Description"))
     "Laboratory    : " + displayValue(readText( ...
-        archive.Metadata, ["Laboratory"]))
+        archive.Metadata, "Laboratory"))
     "Tags          : " + displayValue(readTags( ...
-        archive.Metadata, ["Tags"]))
+        archive.Metadata, "Tags"))
     "Comment       : " + displayValue(readText( ...
-        archive.Metadata, ["Comment"]))
+        archive.Metadata, "Comment"))
 ];
 
 qualityLines = [
     "Quality"
     "-------"
     "Valid         : " + displayLogical(readLogical( ...
-        archive.Quality, ["Valid"]))
+        archive.Quality, "Valid"))
     "Warning       : " + displayValue(readText( ...
-        archive.Quality, ["Warning"]))
+        archive.Quality, "Warning"))
     "Saturated     : " + displayLogical(readLogical( ...
-        archive.Quality, ["Saturated"]))
+        archive.Quality, "Saturated"))
     "Signal level  : " + displayNumeric(readNumeric( ...
-        archive.Quality, ["SignalLevel"]))
+        archive.Quality, "SignalLevel"))
     "Comment       : " + displayValue(readText( ...
-        archive.Quality, ["Comment"]))
+        archive.Quality, "Comment"))
 ];
 
 historyCount = 0;

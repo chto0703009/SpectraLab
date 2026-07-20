@@ -1,0 +1,42 @@
+
+>> calculate_rgb_white_density_StatusA
+
+Status A and white density — C41P160bl-CSLWh
+--------------------------------------------
+Reference : CS_Lite_White
+Sample    : C41P160bl-CSLWh
+
+Spectral processing
+-------------------
+Alignment           : Canonical spectral resampling
+Resampled           : true
+Interpolation method: pchip
+Refinement factor   : 4
+Effective range     : 380.0–730.0 nm
+
+Status A red   : D = 0.4544   T = 0.351238
+Status A green : D = 0.7440   T = 0.180314
+Status A blue  : D = 0.9643   T = 0.108560
+White          : D = 0.6087   T = 0.246216
+
+>> calculate_rgb_white_density_statM
+
+Status M and white density — C41P160bl-CSLWh
+--------------------------------------------
+Reference : CS_Lite_White
+Sample    : C41P160bl-CSLWh
+
+Spectral processing
+-------------------
+Alignment           : Canonical spectral resampling
+Resampled           : true
+Interpolation method: pchip
+Refinement factor   : 4
+Effective range     : 380.0–730.0 nm
+
+Status M red   : D = 0.5669   T = 0.271095
+Status M green : D = 0.7225   T = 0.189435
+Status M blue  : D = 0.9398   T = 0.114870
+White          : D = 0.6087   T = 0.246216
+
+>> 

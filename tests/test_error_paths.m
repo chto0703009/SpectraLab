@@ -2,7 +2,7 @@
 
 failed = false;
 try
-    spectralab.core.Spectrum([400 410], [1], "bad");
+    spectralab.core.Spectrum([400 410], 1, "bad");
 catch ME
     failed = strcmp(ME.identifier, "SpectraLab:Spectrum:SizeMismatch");
 end
