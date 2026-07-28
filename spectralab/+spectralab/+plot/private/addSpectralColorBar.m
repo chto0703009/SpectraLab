@@ -1,39 +1,80 @@
-function barHandle = addSpectralColorBar(ax, xData, yData, colourData)
-%ADDSPECTRALCOLORBAR Example implementation that preserves existing graphics.
+function barHandle = addSpectralColorBar(ax)
+%ADDSPECTRALCOLORBAR Add a thin wavelength colour guide to an axes.
 %
-% This template demonstrates the important pattern needed to avoid deleting
-% previously plotted graphics when the spectral colour bar is added.
+%   barHandle = addSpectralColorBar(ax)
+%
+%   The guide spans the current x-axis range. Wavelengths outside
+%   380–730 nm are black. Existing graphics, axis limits, and hold
+%   state are preserved.
 
     arguments
         ax (1,1) matlab.graphics.axis.Axes
-        xData
-        yData
-        colourData
     end
 
-    wasHeld = ishold(ax);
-    cleanup = onCleanup(@()restoreHold(ax, wasHeld));
+    originalXLimits = xlim(ax);
+    originalYLimits = ylim(ax);
+    originalHoldState = ishold(ax);
 
-    hold(ax,"on");
+    cleanup = onCleanup(@()restoreAxesState( ...
+        ax, originalXLimits, originalYLimits, originalHoldState)); %#ok<NASGU>
 
-    barHandle = image(ax, ...
-        "XData", xData, ...
-        "YData", yData, ...
-        "CData", colourData, ...
+    hold(ax, "on");
+
+    delete(findall(ax, "Tag", "SpectraLabSpectralColorBar"));
+
+    wavelengthNm = linspace(originalXLimits(1), originalXLimits(2), 512);
+    rgb = zeros(numel(wavelengthNm), 3);
+
+    visible = wavelengthNm >= 380 & wavelengthNm <= 730;
+    if any(visible)
+        rgb(visible,:) = visibleWavelengthRGB(wavelengthNm(visible).');
+    end
+
+    barHeight = 0.025 * diff(originalYLimits);
+    if ~(isfinite(barHeight) && barHeight > 0)
+        barHeight = 1;
+    end
+
+    lowerY = originalYLimits(1);
+    upperY = lowerY + barHeight;
+
+    xData = repmat(wavelengthNm, 2, 1);
+    yData = [
+        repmat(lowerY, 1, numel(wavelengthNm))
+        repmat(upperY, 1, numel(wavelengthNm))
+    ];
+    zData = zeros(size(xData));
+
+    colourData = repmat( ...
+        reshape(rgb, 1, numel(wavelengthNm), 3), ...
+        2, 1, 1);
+
+    barHandle = surface(ax, ...
+        xData, ...
+        yData, ...
+        zData, ...
+        colourData, ...
+        "FaceColor", "texturemap", ...
+        "EdgeColor", "none", ...
+        "HandleVisibility", "off", ...
         "Tag", "SpectraLabSpectralColorBar");
 
-    uistack(barHandle,"bottom");
+    uistack(barHandle, "bottom");
 end
 
-function restoreHold(ax, wasHeld)
 
-    if ~isgraphics(ax,"axes")
+function restoreAxesState(ax, xLimits, yLimits, holdState)
+
+    if ~isgraphics(ax, "axes")
         return
     end
 
-    if wasHeld
-        hold(ax,"on");
+    xlim(ax, xLimits);
+    ylim(ax, yLimits);
+
+    if holdState
+        hold(ax, "on");
     else
-        hold(ax,"off");
+        hold(ax, "off");
     end
 end

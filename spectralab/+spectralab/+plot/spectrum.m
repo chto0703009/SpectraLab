@@ -54,8 +54,14 @@ function h = spectrum(spec, options)
         spec.WavelengthNm, y, errorPrefix, ...
         "Spectrum wavelengths", "Spectrum power", false);
 
-    plotArguments = lineArguments(options);
-    h = plot(ax, wavelengthNm, y, plotArguments{:});
+	originalHoldState = ishold(ax);
+	holdCleanup = onCleanup( ...
+	    @() restoreHoldState(ax, originalHoldState)); %#ok<NASGU>
+
+	hold(ax, "on");
+
+	plotArguments = lineArguments(options);
+	h = plot(ax, wavelengthNm, y, plotArguments{:});
 
     titleText = options.Title;
     if strlength(titleText) == 0 && isempty(options.Parent)
@@ -152,4 +158,18 @@ function applyYLimits(ax, requestedLimits)
             "YLimits must contain two strictly increasing values.");
     end
     ylim(ax, requestedLimits);
+end
+	
+	
+function restoreHoldState(ax, holdState)
+
+	    if ~isgraphics(ax, "axes")
+	        return
+	    end
+
+	    if holdState
+	        hold(ax, "on");
+	    else
+	        hold(ax, "off");
+	    end
 end
