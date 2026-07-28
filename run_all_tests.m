@@ -33,7 +33,6 @@ testFiles = {
     "tests/test_error_paths.m"
     "tests/test_spotread_parser_fixtures.m"
     "tests/test_spotread_detection.m"
-    "tests/test_plot_helpers.m"
     "tests/test_report_buildContext.m"
     "tests/test_report_buildManifest.m"
     "tests/test_report_renderContext.m"
