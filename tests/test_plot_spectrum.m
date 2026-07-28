@@ -316,3 +316,136 @@ end
 
 	    verifyEqual(testCase, holdStateAfter, holdStateBefore);
 	end
+
+function testSpectralColorBarIsShownByDefault(testCase)
+
+    spec = testCase.TestData.Spec;
+
+    h = spectralab.plot.spectrum( ...
+        spec, ...
+        ShowSummary=false);
+
+    bars = findall(h.Parent, "Tag", "SpectraLabSpectralColorBar");
+
+    verifyEqual(testCase, numel(bars), 1);
+    verifyClass(testCase, bars, "matlab.graphics.primitive.Surface");
+end
+
+
+function testSpectralColorBarCanBeHidden(testCase)
+
+    spec = testCase.TestData.Spec;
+
+    h = spectralab.plot.spectrum( ...
+        spec, ...
+        ShowSummary=false, ...
+        ShowSpectralColorBar=false);
+
+    bars = findall(h.Parent, "Tag", "SpectraLabSpectralColorBar");
+
+    verifyEmpty(testCase, bars);
+end
+
+
+function testSpectralColorBarSpansDisplayedWavelengthRange(testCase)
+
+    spec = testCase.TestData.Spec;
+
+    h = spectralab.plot.spectrum( ...
+        spec, ...
+        ShowSummary=false);
+
+    bar = findall(h.Parent, "Tag", "SpectraLabSpectralColorBar");
+
+    verifyEqual(testCase, min(bar.XData, [], "all"), h.Parent.XLim(1), ...
+        "AbsTol", 1e-12);
+    verifyEqual(testCase, max(bar.XData, [], "all"), h.Parent.XLim(2), ...
+        "AbsTol", 1e-12);
+    verifyGreaterThanOrEqual(testCase, bar.CData, 0);
+    verifyLessThanOrEqual(testCase, bar.CData, 1);
+end
+
+
+function testSpectralColorBarIsBlackOutsideVisibleRange(testCase)
+
+    spec = testCase.TestData.Spec;
+    fig = figure;
+    ax = axes(fig);
+
+    h = spectralab.plot.spectrum( ...
+        spec, ...
+        Parent=ax, ...
+        ShowSummary=false);
+    xlim(ax, [350 750]);
+
+    % Recreate the guide after the explicit x-limit change.
+    spectralab.plot.spectrum( ...
+        spec, ...
+        Parent=ax, ...
+        ShowSummary=false);
+
+    bar = findall(h.Parent, "Tag", "SpectraLabSpectralColorBar");
+    firstColour = squeeze(bar.CData(1,1,:)).';
+    lastColour = squeeze(bar.CData(1,end,:)).';
+
+    verifyEqual(testCase, firstColour, [0 0 0], "AbsTol", 1e-12);
+    verifyEqual(testCase, lastColour, [0 0 0], "AbsTol", 1e-12);
+end
+
+
+function testSpectralColorBarPreservesAxesAndHoldState(testCase)
+
+    spec = testCase.TestData.Spec;
+
+    baselineFigure = figure;
+    baselineAxes = axes(baselineFigure);
+    spectralab.plot.spectrum( ...
+        spec, ...
+        Parent=baselineAxes, ...
+        ShowSummary=false, ...
+        ShowSpectralColorBar=false);
+
+    expectedXLimits = baselineAxes.XLim;
+    expectedYLimits = baselineAxes.YLim;
+
+    fig = figure;
+    ax = axes(fig);
+    hold(ax, "on");
+
+    h = spectralab.plot.spectrum( ...
+        spec, ...
+        Parent=ax, ...
+        ShowSummary=false);
+
+    verifyEqual(testCase, h.Parent.XLim, expectedXLimits, "AbsTol", 1e-12);
+    verifyEqual(testCase, h.Parent.YLim, expectedYLimits, "AbsTol", 1e-12);
+    verifyTrue(testCase, ishold(ax));
+end
+
+function testDefaultYLimStartsAtZero(testCase)
+
+    spec = testCase.TestData.Spec;
+    h = spectralab.plot.spectrum(spec, ShowSummary=false);
+
+    verifyEqual(testCase, h.Parent.YLim(1), 0, "AbsTol", 1e-12);
+end
+
+
+function testCustomYLimitsCanBeRequested(testCase)
+
+    spec = testCase.TestData.Spec;
+    h = spectralab.plot.spectrum( ...
+        spec, YLimits=[0.2 0.8], ShowSummary=false);
+
+    verifyEqual(testCase, h.Parent.YLim, [0.2 0.8], "AbsTol", 1e-12);
+end
+
+
+function testDefaultLineWidthIsOne(testCase)
+
+    spec = testCase.TestData.Spec;
+    h = spectralab.plot.spectrum(spec, ShowSummary=false);
+
+    verifyEqual(testCase, h.LineWidth, 1.0, "AbsTol", 1e-12);
+end
+

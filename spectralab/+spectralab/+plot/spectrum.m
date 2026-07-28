@@ -7,13 +7,15 @@ function h = spectrum(spec, options)
 %       Parent=ax, ...
 %       Normalize=false, ...
 %       Title="Measured spectrum", ...
-%       LineWidth=1.5, ...
+%       LineWidth=1.0, ...
 %       Color="r", ...
 %       LineStyle="-", ...
 %       Marker="none", ...
 %       DisplayName="Reference", ...
 %       ShowGrid=true, ...
 %       ShowSummary=true, ...
+%       ShowSpectralColorBar=true, ...
+%       YLimits=[0 1], ...
 %       SummaryLocation="east")
 %
 %   SummaryLocation may be "east", "west", "northeast", "northwest",
@@ -24,13 +26,15 @@ function h = spectrum(spec, options)
         options.Parent = []
         options.Normalize (1,1) logical = false
         options.Title (1,1) string = ""
-        options.LineWidth (1,1) double {mustBePositive, mustBeFinite} = 1.5
+        options.LineWidth (1,1) double {mustBePositive, mustBeFinite} = 1.0
         options.Color = []
         options.LineStyle (1,1) string = "-"
         options.Marker (1,1) string = "none"
         options.DisplayName (1,1) string = ""
         options.ShowGrid (1,1) logical = true
         options.ShowSummary (1,1) logical = true
+        options.ShowSpectralColorBar (1,1) logical = true
+        options.YLimits = []
         options.SummaryLocation (1,1) string {mustBeMember(options.SummaryLocation, ...
             ["east", "west", "northeast", "northwest", "southeast", "southwest"])} = "east"
     end
@@ -59,9 +63,16 @@ function h = spectrum(spec, options)
     end
 
     styleAxes(ax, "Wavelength (nm)", yLabelText, titleText, options.ShowGrid);
+    applyYLimits(ax, options.YLimits);
 
     if options.ShowSummary
         addSummaryText(ax, spec, options.SummaryLocation);
+    end
+
+    if options.ShowSpectralColorBar
+        addSpectralColorBar(ax);
+    else
+        delete(findall(ax, "Tag", "SpectraLabSpectralColorBar"));
     end
 end
 
@@ -117,4 +128,28 @@ function [x, y, horizontalAlignment, verticalAlignment] = summaryPosition(locati
             horizontalAlignment = "left";
             verticalAlignment = "bottom";
     end
+end
+
+
+function applyYLimits(ax, requestedLimits)
+
+    if isempty(requestedLimits)
+        limits = ylim(ax);
+        upper = limits(2);
+        if ~(isfinite(upper) && upper > 0)
+            upper = 1;
+        end
+        ylim(ax, [0 upper]);
+        return
+    end
+
+    validateattributes(requestedLimits, {'numeric'}, ...
+        {'real', 'finite', 'vector', 'numel', 2}, ...
+        "spectralab.plot.spectrum", "YLimits");
+    requestedLimits = double(requestedLimits(:).');
+    if requestedLimits(2) <= requestedLimits(1)
+        error("spectralab:plot:spectrum:InvalidYLimits", ...
+            "YLimits must contain two strictly increasing values.");
+    end
+    ylim(ax, requestedLimits);
 end

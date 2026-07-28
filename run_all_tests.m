@@ -34,6 +34,22 @@ testFiles = {
     "tests/test_spotread_parser_fixtures.m"
     "tests/test_spotread_detection.m"
     "tests/test_plot_helpers.m"
+    "tests/test_report_buildContext.m"
+    "tests/test_report_buildManifest.m"
+    "tests/test_report_renderContext.m"
+    "tests/test_report_renderManifest.m"
+    "tests/test_report_documentModel.m"
+    "tests/test_report_documentContent.m"
+    "tests/test_report_renderContract.m"
+    "tests/test_report_layoutMetrics.m"
+    "tests/test_report_layoutEngine.m"
+    "tests/test_report_resultsTable.m"
+    "tests/test_report_figureElement.m"
+    "tests/test_report_pdfBackend.m"
+    "tests/test_report_pngExport.m"
+    "tests/test_report_informationBox.m"
+    "tests/test_report_figureCaption.m"
+    "tests/test_report_referenceReport.m"
 };
 
 nPass = 0;

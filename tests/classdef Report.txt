@@ -1,0 +1,49 @@
+classdef Report
+
+    properties (SetAccess = immutable)
+        Title (1,1) string
+        Analysis (1,1) string
+        Result
+        Figure
+        SourceArchives (:,1) string
+        MeasurementMetadata (1,1) struct
+        Method (1,1) string
+        Standard (1,1) string
+        Interpolation (1,1) string
+        Resampling (1,1) string
+        SpectraLabVersion (1,1) string
+        Created (1,1) datetime
+    end
+
+    methods
+        function obj = Report(arguments)
+            arguments
+                arguments.Title (1,1) string
+                arguments.Analysis (1,1) string
+                arguments.Result
+                arguments.Figure = []
+                arguments.SourceArchives (:,1) string = strings(0,1)
+                arguments.MeasurementMetadata (1,1) struct = struct()
+                arguments.Method (1,1) string = ""
+                arguments.Standard (1,1) string = ""
+                arguments.Interpolation (1,1) string = ""
+                arguments.Resampling (1,1) string = ""
+                arguments.SpectraLabVersion (1,1) string = ""
+                arguments.Created (1,1) datetime = datetime("now")
+            end
+
+            obj.Title = arguments.Title;
+            obj.Analysis = arguments.Analysis;
+            obj.Result = arguments.Result;
+            obj.Figure = arguments.Figure;
+            obj.SourceArchives = arguments.SourceArchives;
+            obj.MeasurementMetadata = arguments.MeasurementMetadata;
+            obj.Method = arguments.Method;
+            obj.Standard = arguments.Standard;
+            obj.Interpolation = arguments.Interpolation;
+            obj.Resampling = arguments.Resampling;
+            obj.SpectraLabVersion = arguments.SpectraLabVersion;
+            obj.Created = arguments.Created;
+        end
+    end
+end
