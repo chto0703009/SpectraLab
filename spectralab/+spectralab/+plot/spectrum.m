@@ -138,13 +138,47 @@ end
 
 
 function applyYLimits(ax, requestedLimits)
+%APPLYYLIMITS Apply requested or automatic y-axis limits.
+%
+% Automatic limits start at zero and provide 5 percent headroom above the
+% highest plotted spectrum value. Explicit YLimits are respected exactly.
 
     if isempty(requestedLimits)
-        limits = ylim(ax);
-        upper = limits(2);
-        if ~(isfinite(upper) && upper > 0)
-            upper = 1;
+        lineHandles = findall(ax, "Type", "line");
+
+        maximumValue = NaN;
+
+        for k = 1:numel(lineHandles)
+            yData = double(lineHandles(k).YData);
+
+            if isempty(yData)
+                continue
+            end
+
+            finiteValues = yData(isfinite(yData));
+
+            if isempty(finiteValues)
+                continue
+            end
+
+            lineMaximum = max(finiteValues, [], "all");
+
+            if ~isfinite(maximumValue) || lineMaximum > maximumValue
+                maximumValue = lineMaximum;
+            end
         end
+
+        if isfinite(maximumValue) && maximumValue > 0
+            upper = 1.05 * maximumValue;
+        else
+            limits = ylim(ax);
+            upper = limits(2);
+
+            if ~(isfinite(upper) && upper > 0)
+                upper = 1;
+            end
+        end
+
         ylim(ax, [0 upper]);
         return
     end
@@ -152,15 +186,18 @@ function applyYLimits(ax, requestedLimits)
     validateattributes(requestedLimits, {'numeric'}, ...
         {'real', 'finite', 'vector', 'numel', 2}, ...
         "spectralab.plot.spectrum", "YLimits");
+
     requestedLimits = double(requestedLimits(:).');
+
     if requestedLimits(2) <= requestedLimits(1)
         error("spectralab:plot:spectrum:InvalidYLimits", ...
             "YLimits must contain two strictly increasing values.");
     end
+
     ylim(ax, requestedLimits);
 end
-	
-	
+
+
 function restoreHoldState(ax, holdState)
 
 	    if ~isgraphics(ax, "axes")
