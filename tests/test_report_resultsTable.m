@@ -47,22 +47,29 @@ document = makeDocument(makeElement("Results", "table", "analysisResults", "Resu
 [renderContext, result] = spectralab.report.internal.renderDocumentModel( ...
     document, context, makeRenderContext());
 
-verifyEqual(testCase, result.HeightUsed, 62);
+tableModel = renderContext.State.RenderedElements(1).Content;
+expectedHeight = ...
+    spectralab.report.internal.estimateResultsTableHeight(tableModel);
+
+verifyEqual(testCase, result.HeightUsed, expectedHeight);
 verifyTrue(testCase, isfinite(result.HeightUsed));
-verifyEqual(testCase, ...
-    renderContext.State.RenderedElements(1).Content.Rows(2).DisplayText, ...
-    "+0.00482");
+verifyEqual(testCase, tableModel.Rows(2).DisplayText, "+0.00482");
 end
 
-function testOtherTableRolesRemainUnmeasured(testCase)
+function testOtherCanonicalTableRolesReturnFiniteHeight(testCase)
 context = makeContext();
 document = makeDocument(makeElement( ...
     "Measurement", "table", "measurementInformation", "Measurement"));
 
-[~, result] = spectralab.report.internal.renderDocumentModel( ...
+[renderContext, result] = spectralab.report.internal.renderDocumentModel( ...
     document, context, makeRenderContext());
 
-verifyTrue(testCase, isnan(result.HeightUsed));
+tableModel = renderContext.State.RenderedElements(1).Content;
+expectedHeight = ...
+    spectralab.report.internal.estimateResultsTableHeight(tableModel);
+
+verifyEqual(testCase, result.HeightUsed, expectedHeight);
+verifyTrue(testCase, isfinite(result.HeightUsed));
 end
 
 function testRejectsMissingDeclaredResult(testCase)

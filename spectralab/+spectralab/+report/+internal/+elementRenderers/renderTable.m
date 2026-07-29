@@ -2,8 +2,8 @@ function [renderContext, result] = renderTable( ...
         element, context, renderContext)
 %RENDERTABLE Render one table document element.
 %
-% RP-010 implements the analysisResults role. Other table roles remain
-% intentionally unmeasured until their dedicated reporting steps.
+% All canonical report table roles produce measured table models suitable
+% for deterministic layout and page-breaking.
 
 if string(element.Role) == "informationBox"
     boxModel = spectralab.report.internal.buildInformationBox(context);
