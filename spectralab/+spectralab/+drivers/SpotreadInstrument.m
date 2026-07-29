@@ -6,6 +6,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
     % manual-safe spotread session.
 
     properties
+        InstrumentId (1,1) string = "i1Pro2"
         Executable (1,1) string = ""
         MeasurementOptions (1,1) string = "-e -s"
         CalibrationOptions (1,1) string = "-e"
@@ -20,6 +21,12 @@ classdef SpotreadInstrument < spectralab.core.Instrument
     methods
         function obj = SpotreadInstrument(varargin)
             p = inputParser;
+
+            addParameter( ...
+                p, ...
+                "InstrumentId", ...
+                "i1Pro2", ...
+                @(x) ischar(x) || isstring(x));
 
             addParameter( ...
                 p, ...
@@ -53,6 +60,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
 
             parse(p, varargin{:});
 
+            obj.InstrumentId = string(p.Results.InstrumentId);
             obj.Executable = string(p.Results.Executable);
             obj.MeasurementOptions = string(p.Results.MeasurementOptions);
             obj.CalibrationOptions = string(p.Results.CalibrationOptions);
@@ -62,9 +70,17 @@ classdef SpotreadInstrument < spectralab.core.Instrument
 
         function info = getInfo(obj)
             info = struct();
-            info.name = "ArgyllCMS spotread instrument";
+
+            % Physical instrument identity exposed to archives, reports,
+            % sessions and other public SpectraLab interfaces.
+            info.name = obj.InstrumentId;
+            info.instrument_id = obj.InstrumentId;
+
+            % Implementation provenance. These fields describe how the
+            % physical instrument is operated and are not its identity.
             info.driver = "spectralab.drivers.SpotreadInstrument";
-            info.backend = "manual-safe-one-spotread-session";
+            info.backend = "ArgyllCMS spotread";
+            info.backend_mode = "manual-safe-one-spotread-session";
             info.executable = obj.Executable;
             info.python_executable = obj.PythonExecutable;
             info.measurement_options = obj.MeasurementOptions;
@@ -92,7 +108,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                     "    startup\n\n" + ...
                     "Advanced option: pass the executable path with:\n" + ...
                     "    spectralab.drivers.createInstrument(" + ...
-                    """spotread"", ""Executable"", " + ...
+                    """i1Pro2"", ""Executable"", " + ...
                     """/path/to/spotread"")");
             end
 
@@ -113,7 +129,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                     "    startup\n\n" + ...
                     "Advanced option: pass the executable path with:\n" + ...
                     "    spectralab.drivers.createInstrument(" + ...
-                    """spotread"", ""PythonExecutable"", " + ...
+                    """i1Pro2"", ""PythonExecutable"", " + ...
                     """/path/to/python3"")");
             end
 
@@ -170,7 +186,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             obj.requireCalibration();
 
             if nargin < 2 || strlength(string(label)) == 0
-                label = "Spotread spectrum";
+                label = obj.InstrumentId + " spectrum";
             end
 
             if nargin < 3 || strlength(string(mode)) == 0

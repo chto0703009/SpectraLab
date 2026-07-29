@@ -1,10 +1,10 @@
-% SpectraLab spotread/i1Pro2 example
+% SpectraLab i1Pro2 measurement example
 %
 % Requires ArgyllCMS spotread and connected instrument.
 
 startup
 
-inst = spectralab.drivers.createInstrument("spotread");
+inst = spectralab.drivers.createInstrument("i1Pro2");
 sess = spectralab.core.Session(inst);
 
 sess = sess.open();

@@ -18,7 +18,7 @@ if isempty(which("spectralab.drivers.createInstrument"))
          "    measure_led"]);
 end
 
-inst = spectralab.drivers.createInstrument("spotread");
+inst = spectralab.drivers.createInstrument("i1Pro2");
 
 sess = spectralab.core.Session(inst);
 sess = sess.open();
