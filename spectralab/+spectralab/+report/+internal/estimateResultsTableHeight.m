@@ -10,11 +10,10 @@ if ~isfield(tableModel, "Rows") || ~isstruct(tableModel.Rows)
         "Results table must contain a Rows structure array.");
 end
 
-titleHeight = 22;
-verticalGap = 28;
-rowHeight = 18;
-spaceAfter = 8;
+style = spectralab.report.internal.createReportStyle();
 
-height = titleHeight + verticalGap + ...
-    numel(tableModel.Rows) * rowHeight + spaceAfter;
+height = style.Box.TitleHeight + ...
+    style.ResultsTable.VerticalGap + ...
+    numel(tableModel.Rows) * style.ResultsTable.RowHeight + ...
+    style.ResultsTable.SpaceAfter;
 end
