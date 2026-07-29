@@ -22,6 +22,14 @@ verifyEqual(testCase, style.Text.FontName, "Helvetica");
 verifyEqual(testCase, style.Text.HeadingFontSize, 16);
 verifyEqual(testCase, style.Text.ParagraphFontSize, 10);
 verifyEqual(testCase, style.Text.Margin, 0);
+verifyEqual(testCase, style.PageFrame.FontName, "Helvetica");
+verifyEqual(testCase, style.PageFrame.HeaderTitleFontSize, 12);
+verifyEqual(testCase, style.PageFrame.HeaderInformationFontSize, 8);
+verifyEqual(testCase, style.PageFrame.FooterFontSize, 7);
+verifyEqual(testCase, style.PageFrame.TextMargin, 0);
+verifyEqual(testCase, style.PageFrame.RuleOffset, 8);
+verifyEqual(testCase, style.PageFrame.RuleColor, [0.55 0.55 0.55]);
+verifyEqual(testCase, style.PageFrame.RuleLineWidth, 0.5);
 end
 
 function testResultsHeightUsesCanonicalStyle(testCase)
