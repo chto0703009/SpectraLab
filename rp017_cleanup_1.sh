@@ -83,29 +83,12 @@ git diff --check
 echo
 echo "=== Focused report tests ==="
 
-"$MATLAB_BIN" -batch '
-results = runtests([
-    "tests/test_report_buildManifest.m"
-    "tests/test_report_documentModel.m"
-    "tests/test_report_documentContent.m"
-    "tests/test_report_renderContract.m"
-    "tests/test_report_layoutEngine.m"
-    "tests/test_report_pdfBackend.m"
-    "tests/test_report_pngExport.m"
-    "tests/test_report_referenceReport.m"
-]);
-disp(table(results));
-assert(all([results.Passed]), "Focused report tests failed.");
-'
+"$MATLAB_BIN" -batch "results = runtests([\"tests/test_report_buildManifest.m\"; \"tests/test_report_documentModel.m\"; \"tests/test_report_documentContent.m\"; \"tests/test_report_renderContract.m\"; \"tests/test_report_layoutEngine.m\"; \"tests/test_report_pdfBackend.m\"; \"tests/test_report_pngExport.m\"; \"tests/test_report_referenceReport.m\"]); disp(table(results)); assert(all([results.Passed]), \"Focused report tests failed.\");"
 
 echo
 echo "=== Full regression suite ==="
 
-"$MATLAB_BIN" -batch '
-results = runtests("tests");
-disp(table(results));
-assert(all([results.Passed]), "Regression test suite failed.");
-'
+"$MATLAB_BIN" -batch "results = runtests(\"tests\"); disp(table(results)); assert(all([results.Passed]), \"Regression test suite failed.\");"
 
 echo
 echo "=== Cleanup check ==="
