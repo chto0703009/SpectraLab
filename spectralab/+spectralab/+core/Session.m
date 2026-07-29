@@ -9,6 +9,7 @@ classdef Session
         Comment (1,1) string = ""
         Project (1,1) string = ""
         SampleID (1,1) string = ""
+        AudibleFeedback (1,1) logical = false
     end
 
     methods
@@ -19,6 +20,7 @@ classdef Session
                 options.Comment (1,1) string = ""
                 options.Project (1,1) string = ""
                 options.SampleID (1,1) string = ""
+                options.AudibleFeedback = []
             end
 
             if isempty(instrument)
@@ -40,6 +42,12 @@ classdef Session
                 options.Project, "Project", MaxLength=200);
             obj.SampleID = spectralab.core.validateMetadataText( ...
                 options.SampleID, "SampleID", MaxLength=200);
+
+            obj.AudibleFeedback = ...
+                spectralab.core.Session.resolveAudibleFeedback( ...
+                    instrument, ...
+                    options.AudibleFeedback);
+
             obj = obj.log("Session created.");
 
             if strlength(obj.Operator) > 0
@@ -97,13 +105,26 @@ classdef Session
             %   recommended in scripts that require user action.
             obj.Instrument.requireOpen();
             mode = spectralab.core.Session.parseInteractionMode(varargin{:});
-            cal = obj.Instrument.calibrate(mode);
 
-            if ~isa(cal, "spectralab.core.Calibration") || ~cal.IsValid
-                obj.State = "CALIBRATION_FAILED";
-                error("SpectraLab:Session:CalibrationFailed", ...
-                    "Calibration failed or returned invalid calibration.");
+            obj.playAudibleFeedback("start");
+
+            try
+                cal = obj.Instrument.calibrate(mode);
+
+                if ~isa(cal, "spectralab.core.Calibration") || ~cal.IsValid
+                    obj.State = "CALIBRATION_FAILED";
+
+                    error( ...
+                        "SpectraLab:Session:CalibrationFailed", ...
+                        "Calibration failed or returned invalid calibration.");
+                end
+
+            catch ME
+                obj.playAudibleFeedback("error");
+                rethrow(ME)
             end
+
+            obj.playAudibleFeedback("success");
 
             obj.State = "CALIBRATED";
             obj = obj.log("Calibration OK.");
@@ -170,6 +191,7 @@ classdef Session
             details.comment = obj.Comment;
             details.project = obj.Project;
             details.sample_id = obj.SampleID;
+            details.audible_feedback = obj.AudibleFeedback;
             details.history = obj.History;
 
             status = spectralab.core.Status.ok("Session status.", details);
@@ -192,12 +214,24 @@ classdef Session
             obj.Instrument.requireCalibration();
 
             mode = spectralab.core.Session.parseInteractionMode(varargin{:});
-            spec = obj.Instrument.measure(label, mode);
 
-            if ~isa(spec, "spectralab.core.Spectrum")
-                error("SpectraLab:Session:InvalidMeasurement", ...
-                    "Instrument returned invalid measurement object.");
+            obj.playAudibleFeedback("start");
+
+            try
+                spec = obj.Instrument.measure(label, mode);
+
+                if ~isa(spec, "spectralab.core.Spectrum")
+                    error( ...
+                        "SpectraLab:Session:InvalidMeasurement", ...
+                        "Instrument returned invalid measurement object.");
+                end
+
+            catch ME
+                obj.playAudibleFeedback("error");
+                rethrow(ME)
             end
+
+            obj.playAudibleFeedback("success");
 
             spec = spec.withMetadataField("Operator", obj.Operator);
             spec = spec.withMetadataField("Comment", obj.Comment);
@@ -235,6 +269,29 @@ classdef Session
     end
 
     methods (Static, Access = private)
+        function enabled = resolveAudibleFeedback(instrument, requestedValue)
+            %RESOLVEAUDIBLEFEEDBACK Resolve the session UX default.
+            %
+            % Physical instruments use audible feedback by default.
+            % Mock instruments remain quiet unless explicitly enabled.
+
+            if isempty(requestedValue)
+                enabled = ~isa( ...
+                    instrument, ...
+                    "spectralab.drivers.MockInstrument");
+
+                return
+            end
+
+            if ~(islogical(requestedValue) && isscalar(requestedValue))
+                error( ...
+                    "SpectraLab:Session:InvalidAudibleFeedback", ...
+                    "AudibleFeedback must be true or false.");
+            end
+
+            enabled = requestedValue;
+        end
+
         function mode = parseInteractionMode(varargin)
             %PARSEINTERACTIONMODE  Parse and validate measurement mode.
             %
@@ -350,6 +407,16 @@ classdef Session
     end
 
     methods (Access = private)
+        function playAudibleFeedback(obj, eventName)
+            %PLAYAUDIBLEFEEDBACK Play optional non-critical UX feedback.
+
+            if ~obj.AudibleFeedback
+                return
+            end
+
+            spectralab.ui.playFeedback(eventName);
+        end
+
         function obj = log(obj, msg)
             stamp = string(datetime("now", "Format", "yyyy-MM-dd HH:mm:ss"));
             obj.History(end+1,1) = stamp + "  " + string(msg);
