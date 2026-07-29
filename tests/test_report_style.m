@@ -18,6 +18,10 @@ verifyEqual(testCase, style.InformationBox.VerticalGap, 8);
 verifyEqual(testCase, style.InformationBox.RowHeight, 16);
 verifyEqual(testCase, style.InformationBox.SectionGap, 8);
 verifyEqual(testCase, style.InformationBox.BoxPadding, 12);
+verifyEqual(testCase, style.Text.FontName, "Helvetica");
+verifyEqual(testCase, style.Text.HeadingFontSize, 16);
+verifyEqual(testCase, style.Text.ParagraphFontSize, 10);
+verifyEqual(testCase, style.Text.Margin, 0);
 end
 
 function testResultsHeightUsesCanonicalStyle(testCase)
