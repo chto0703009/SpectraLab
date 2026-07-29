@@ -32,6 +32,9 @@ verifyEqual(testCase, style.PageFrame.RuleColor, [0.55 0.55 0.55]);
 verifyEqual(testCase, style.PageFrame.RuleLineWidth, 0.5);
 verifyEqual(testCase, style.Figure.BottomPadding, 40);
 verifyEqual(testCase, style.Figure.TopPadding, 24);
+verifyEqual(testCase, style.Caption.FontSize, 9);
+verifyEqual(testCase, style.Caption.FontAngle, "italic");
+verifyEqual(testCase, style.Caption.Margin, 0);
 end
 
 function testResultsHeightUsesCanonicalStyle(testCase)
