@@ -15,8 +15,7 @@ registry = [ ...
     makeEntry("figure",      "figure",    "primaryFigure")
     makeEntry("figureCaption", "caption", "primaryFigureCaption")
     makeEntry("warnings",    "list",      "reportWarnings")
-    makeEntry("provenance",  "table",     "provenance")
-    makeEntry("footer",      "paragraph", "reportFooter")];
+    makeEntry("provenance",  "table",     "provenance")];
 end
 
 function entry = makeEntry(component, elementType, role)

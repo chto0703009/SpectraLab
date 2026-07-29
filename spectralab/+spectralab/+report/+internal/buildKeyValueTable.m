@@ -8,6 +8,7 @@ end
 
 switch role
     case "measurementInformation"
+        titleText = "Measurement";
         rows = [ ...
             row("Measurement", valueAt(context, "Measurement.Name"))
             row("Project", valueAt(context, "Measurement.Project"))
@@ -15,6 +16,7 @@ switch role
             row("Operator", valueAt(context, "Measurement.Operator"))
             row("Date", valueAt(context, "Measurement.Date"))];
     case "analysisInformation"
+        titleText = "Analysis";
         rows = [ ...
             row("Analysis ID", valueAt(context, "Analysis.AnalysisId"))
             row("Analysis", valueAt(context, "Analysis.Name"))
@@ -22,6 +24,7 @@ switch role
             row("Standard", valueAt(context, "Analysis.Standard"))
             row("Definition", valueAt(context, "Analysis.DefinitionVersion"))];
     case "provenance"
+        titleText = "Provenance";
         rows = [ ...
             row("Archive", valueAt(context, "Archive.Filename"))
             row("Archive UUID", valueAt(context, "Archive.UUID"))
@@ -37,8 +40,8 @@ switch role
 end
 
 model = struct("Format","SLAB-REPORT-KEY-VALUE-TABLE", ...
-    "Version","1.0","Role",role,"Columns",["Label","Value"], ...
-    "Rows",rows);
+    "Version","1.0","Role",role,"Title",titleText, ...
+    "Columns",["Label","Value"],"Rows",rows);
 end
 
 function r = row(label, value)

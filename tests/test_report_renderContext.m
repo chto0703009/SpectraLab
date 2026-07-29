@@ -20,6 +20,24 @@ function testCreatesHiddenFigureForFigureSection(testCase)
         string(renderContext.Graphics.Figure.Visible), "off");
 end
 
+function testContainsPageFrameModel(testCase)
+
+    renderContext = spectralab.report.internal.createRenderContext( ...
+        makeContext(), makeManifest(false));
+
+    verifyEqual(testCase, renderContext.PageFrame.Format, ...
+        "SLAB-REPORT-PAGE-FRAME");
+    verifyEqual(testCase, renderContext.PageFrame.HeaderLeft, ...
+        "SpectraLab");
+    verifyEqual(testCase, renderContext.PageFrame.HeaderRight, ...
+        "White Density");
+    verifyEqual(testCase, renderContext.PageFrame.FooterLeft, ...
+        "Report ID RPT-001");
+    verifyEqual(testCase, renderContext.PageFrame.FooterCenter, ...
+        "SpectraLab 0.8.0-test");
+end
+
+
 function testCanShowFigureExplicitly(testCase)
 
     renderContext = spectralab.report.internal.createRenderContext( ...
@@ -49,8 +67,8 @@ function testContainsOnlyTemporaryState(testCase)
     verifyFalse(testCase, isfield(renderContext, "ReportManifest"));
     verifyFalse(testCase, isfield(renderContext, "Result"));
     verifyEqual(testCase, renderContext.TemporaryFiles, strings(0,1));
-    verifyEqual(testCase, renderContext.State.CurrentPage, 0);
-    verifyTrue(testCase, isnan(renderContext.State.CursorY));
+    verifyEqual(testCase, renderContext.State.CurrentPage, 1);
+    verifyEqual(testCase, renderContext.State.CursorY, 0);
 end
 
 function testReleaseRemovesOwnedResources(testCase)
@@ -73,10 +91,14 @@ end
 
 function context = makeContext()
 
+    context.Analysis = struct( ...
+        "Name", "White Density");
+
     context.Report = struct( ...
         "Format", "SLAB-REPORT", ...
         "Version", "1.0", ...
-        "ReportId", "");
+        "ReportId", "RPT-001", ...
+        "SpectraLabVersion", "0.8.0-test");
 end
 
 function manifest = makeManifest(hasFigure)

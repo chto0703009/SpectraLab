@@ -17,8 +17,7 @@ function testBuildsCanonicalSectionOrder(testCase)
         "Analysis"
         "Results"
         "Figure"
-        "Provenance"
-        "Footer"]);
+        "Provenance"]);
 end
 
 function testReferencesContextWithoutCopyingData(testCase)
@@ -33,8 +32,7 @@ function testReferencesContextWithoutCopyingData(testCase)
         "Analysis"
         "Result"
         "Analysis"
-        "Archive"
-        "Report"]);
+        "Archive"]);
 
     verifyFalse(testCase, isfield(manifest, "Result"));
     verifyFalse(testCase, isfield(manifest, "Archive"));

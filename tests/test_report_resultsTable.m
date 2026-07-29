@@ -11,6 +11,7 @@ tableModel = spectralab.report.internal.buildResultsTable( ...
 
 verifyEqual(testCase, tableModel.Format, "SLAB-REPORT-TABLE");
 verifyEqual(testCase, tableModel.Version, "1.0");
+verifyEqual(testCase, tableModel.Title, "Results");
 verifyEqual(testCase, tableModel.Columns, ["Label", "Value"]);
 verifyEqual(testCase, [tableModel.Rows.Field], ["CCT", "Duv", "Ra"]);
 verifyEqual(testCase, [tableModel.Rows.Label], ["CCT", "Duv", "Ra"]);

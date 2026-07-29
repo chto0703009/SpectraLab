@@ -7,6 +7,7 @@ function testBuildsFixedMetadataAndDynamicResults(testCase)
 context = makeContext();
 model = spectralab.report.internal.buildInformationBox(context);
 verifyEqual(testCase, model.Format, "SLAB-REPORT-INFORMATION-BOX");
+verifyEqual(testCase, model.Title, "Information");
 verifyEqual(testCase, [model.MetadataRows.Label], ["Measurement","Project","Sample","Operator","Date","Instrument","Analysis","Method","Archive"]);
 verifyEqual(testCase, [model.ResultRows.Field], ["CCT","Duv","Ra"]);
 verifyEqual(testCase, model.ResultRows(2).DisplayText, "+0.00482");

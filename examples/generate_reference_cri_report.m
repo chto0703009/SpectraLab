@@ -15,9 +15,24 @@ end
 if ~isfolder(outputFolder), mkdir(outputFolder); end
 pdfFile = fullfile(outputFolder,"SpectraLab_CRI_reference_report.pdf");
 pngFile = fullfile(outputFolder,"SpectraLab_CRI_reference_figure.png");
-if isfile(pdfFile) || isfile(pngFile)
+existingFiles = strings(0,1);
+
+if isfile(pdfFile)
+    existingFiles(end+1,1) = pdfFile; %#ok<AGROW>
+end
+
+if isfile(pngFile)
+    existingFiles(end+1,1) = pngFile; %#ok<AGROW>
+end
+
+if ~isempty(existingFiles)
+    fileList = "  " + strjoin(existingFiles, newline + "  ");
+
     error("SpectraLab:Report:ReportFileAlreadyExists", ...
-        "Delete the existing reference PDF and PNG before generating them again.");
+        "SpectraLab refused to overwrite existing report output file(s):" + ...
+        newline + "%s" + newline + newline + ...
+        "Delete the existing file(s) or choose another output folder.", ...
+        fileList);
 end
 
 wavelengthNm = (380:10:730).';
