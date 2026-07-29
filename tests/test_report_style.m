@@ -21,6 +21,7 @@ verifyFalse(testCase, isfield(style.PageFrame, "RuleLineWidth"));
 verifyEqual(testCase, style.Font.Name, "Helvetica");
 verifyEqual(testCase, style.Font.WeightBold, "bold");
 verifyEqual(testCase, style.Font.WeightNormal, "normal");
+verifyEqual(testCase, style.Font.AngleItalic, "italic");
 verifyEqual(testCase, style.Box.TitleHeight, 22);
 verifyEqual(testCase, style.ResultsTable.VerticalGap, 28);
 verifyEqual(testCase, style.ResultsTable.RowHeight, 18);
@@ -42,8 +43,8 @@ verifyEqual(testCase, style.PageFrame.RuleOffset, 8);
 verifyEqual(testCase, style.Figure.BottomPadding, 40);
 verifyEqual(testCase, style.Figure.TopPadding, 24);
 verifyEqual(testCase, style.Caption.FontSize, 9);
-verifyEqual(testCase, style.Caption.FontAngle, "italic");
 verifyEqual(testCase, style.Caption.Margin, 0);
+verifyFalse(testCase, isfield(style.Caption, "FontAngle"));
 end
 
 function testResultsHeightUsesCanonicalStyle(testCase)
