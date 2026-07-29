@@ -9,6 +9,7 @@ style = spectralab.report.internal.createReportStyle();
 
 verifyEqual(testCase, style.Format, "SLAB-REPORT-STYLE");
 verifyEqual(testCase, style.Version, "1.0");
+verifyEqual(testCase, style.Appearance.BackgroundColor, "white");
 verifyEqual(testCase, style.Font.Name, "Helvetica");
 verifyEqual(testCase, style.Font.WeightBold, "bold");
 verifyEqual(testCase, style.Font.WeightNormal, "normal");
