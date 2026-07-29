@@ -10,6 +10,8 @@ style = spectralab.report.internal.createReportStyle();
 verifyEqual(testCase, style.Format, "SLAB-REPORT-STYLE");
 verifyEqual(testCase, style.Version, "1.0");
 verifyEqual(testCase, style.Font.Name, "Helvetica");
+verifyEqual(testCase, style.Font.WeightBold, "bold");
+verifyEqual(testCase, style.Font.WeightNormal, "normal");
 verifyEqual(testCase, style.Box.TitleHeight, 22);
 verifyEqual(testCase, style.ResultsTable.VerticalGap, 28);
 verifyEqual(testCase, style.ResultsTable.RowHeight, 18);
