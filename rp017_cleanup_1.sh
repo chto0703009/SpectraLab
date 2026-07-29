@@ -3,6 +3,12 @@ set -euo pipefail
 
 EXPECTED_BRANCH="v0.8.0-dev"
 COMMIT_MESSAGE="Remove obsolete pre-DocumentModel report pipeline"
+MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2025b.app/bin/matlab}"
+
+if [[ ! -x "$MATLAB_BIN" ]]; then
+    echo "ERROR: MATLAB executable not found: $MATLAB_BIN"
+    exit 1
+fi
 
 echo
 echo "=== RP-017 Cleanup 1 ==="
@@ -77,7 +83,7 @@ git diff --check
 echo
 echo "=== Focused report tests ==="
 
-matlab -batch '
+"$MATLAB_BIN" -batch '
 results = runtests([
     "tests/test_report_buildManifest.m"
     "tests/test_report_documentModel.m"
@@ -95,7 +101,7 @@ assert(all([results.Passed]), "Focused report tests failed.");
 echo
 echo "=== Full regression suite ==="
 
-matlab -batch '
+"$MATLAB_BIN" -batch '
 results = runtests("tests");
 disp(table(results));
 assert(all([results.Passed]), "Regression test suite failed.");
