@@ -578,6 +578,7 @@ annotation(fig, "textbox", pos, ...
 end
 
 function drawReportFigure(fig, layout, placement, model, renderContext)
+style = spectralab.report.internal.createReportStyle();
 if ~isstruct(model) || ~isfield(model, "Width") || ~isfield(model, "Height")
     error("SpectraLab:Report:InvalidPDFFigure", ...
         "PDF figure element does not contain a valid figure model.");
@@ -593,8 +594,8 @@ end
 width = min(double(model.Width), layout.ContentWidth);
 height = double(placement.Height);
 pos = normalizedBox(layout, placement, width);
-figureBottomPadding = 40;
-figureTopPadding = 24;
+figureBottomPadding = style.Figure.BottomPadding;
+figureTopPadding = style.Figure.TopPadding;
 pos(2) = pos(2) + figureBottomPadding / layout.PageHeight;
 pos(4) = max( ...
     pos(4) - ...

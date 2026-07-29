@@ -30,6 +30,8 @@ verifyEqual(testCase, style.PageFrame.TextMargin, 0);
 verifyEqual(testCase, style.PageFrame.RuleOffset, 8);
 verifyEqual(testCase, style.PageFrame.RuleColor, [0.55 0.55 0.55]);
 verifyEqual(testCase, style.PageFrame.RuleLineWidth, 0.5);
+verifyEqual(testCase, style.Figure.BottomPadding, 40);
+verifyEqual(testCase, style.Figure.TopPadding, 24);
 end
 
 function testResultsHeightUsesCanonicalStyle(testCase)
