@@ -208,10 +208,7 @@ function data = localSpectrumData(inputValue, inputName)
 
     error( ...
         "spectralab:core:weightedDensity:InvalidInput", ...
-        [ ...
-            "%s input must provide WavelengthNm and Value, or be a " ...
-            "valid SpectraLab archive." ...
-        ], ...
+        "%s input must provide WavelengthNm and Value or Power, or be a valid SpectraLab archive.", ...
         upperFirst(inputName));
 end
 
@@ -230,15 +227,22 @@ end
 
 function tf = localHasSpectralData(inputValue)
 
+    if isa(inputValue, "spectralab.core.Spectrum")
+        tf = true;
+        return
+    end
+
     if isobject(inputValue)
         tf = isprop(inputValue, "WavelengthNm") && ...
-             isprop(inputValue, "Value");
+             (isprop(inputValue, "Value") || ...
+              isprop(inputValue, "Power"));
         return
     end
 
     if isstruct(inputValue)
         tf = isfield(inputValue, "WavelengthNm") && ...
-             isfield(inputValue, "Value");
+             (isfield(inputValue, "Value") || ...
+              isfield(inputValue, "Power"));
         return
     end
 
@@ -248,9 +252,23 @@ end
 
 function data = localExtractSpectralData(inputValue)
 
+    if isobject(inputValue) && isprop(inputValue, "Value")
+        value = inputValue.Value;
+    elseif isobject(inputValue) && isprop(inputValue, "Power")
+        value = inputValue.Power;
+    elseif isstruct(inputValue) && isfield(inputValue, "Value")
+        value = inputValue.Value;
+    elseif isstruct(inputValue) && isfield(inputValue, "Power")
+        value = inputValue.Power;
+    else
+        error( ...
+            "spectralab:core:weightedDensity:InvalidInput", ...
+            "Spectral data must provide Value or Power.");
+    end
+
     data = struct( ...
         "WavelengthNm", double(inputValue.WavelengthNm(:)), ...
-        "Value", double(inputValue.Value(:)));
+        "Value", double(value(:)));
 end
 
 

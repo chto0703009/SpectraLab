@@ -1,11 +1,15 @@
-function info = generate(archiveFile, specificationOrAnalysisId, outputFolder, options)
-%GENERATE Generate a SpectraLab report from a saved archive.
+function info = generate(archiveFiles, specificationOrAnalysisId, outputFolder, options)
+%GENERATE Generate a SpectraLab report from one or two saved archives.
 %
 %   info = spectralab.report.generate( ...
 %       archiveFile, analysisId, outputFolder)
 %
 %   info = spectralab.report.generate( ...
-%       archiveFile, specification, outputFolder)
+%       [referenceArchiveFile, sampleArchiveFile], ...
+%       analysisId, outputFolder)
+%
+%   info = spectralab.report.generate( ...
+%       archiveFiles, specification, outputFolder)
 %
 % RP-019 provides the public orchestration pipeline.
 % RP-020 resolves canonical report specifications from AnalysisId values.
@@ -17,7 +21,7 @@ function info = generate(archiveFile, specificationOrAnalysisId, outputFolder, o
 % Figure-producing report orchestration is added in the next isolated step.
 
 arguments
-    archiveFile {mustBeTextScalar}
+    archiveFiles
     specificationOrAnalysisId
     outputFolder {mustBeTextScalar}
     options.ShowFigure (1,1) logical = false
@@ -25,11 +29,13 @@ arguments
     options.GenerationTime (1,1) datetime = datetime("now")
 end
 
-archiveFile = string(archiveFile);
+archiveFiles = normalizeArchiveFiles(archiveFiles);
 outputFolder = string(outputFolder);
 
 specification = resolveSpecification(specificationOrAnalysisId);
+specification = normalizeInputRoles(specification);
 validateSpecification(specification);
+validateArchiveCount(archiveFiles, specification.InputRoles);
 
 if specification.AnalysisDefinition.HasFigure && ...
         (~isfield(specification, "FigureRenderer") || ...
@@ -42,14 +48,15 @@ if ~isfolder(outputFolder)
     mkdir(outputFolder);
 end
 
-archive = spectralab.archive.load( ...
-    archiveFile, Quiet=true, Validation="error");
+archives = loadArchives(archiveFiles);
+result = specification.AnalysisRunner(archives{:});
 
-result = specification.AnalysisRunner(archive);
+primaryArchiveFile = archiveFiles(end);
+primaryArchive = archives{end};
 
 context = spectralab.report.internal.buildContext( ...
-    archiveFile, ...
-    archive, ...
+    primaryArchiveFile, ...
+    primaryArchive, ...
     specification.AnalysisDefinition, ...
     result, ...
     outputFolder, ...
@@ -70,10 +77,10 @@ pngFile = "";
 
 if specification.AnalysisDefinition.HasFigure
     specification.FigureRenderer( ...
-        renderContext.Graphics.Axes, archive, result);
+        renderContext.Graphics.Axes, archives{:}, result);
 
     pngFile = buildPngFilename( ...
-        outputFolder, archiveFile, ...
+        outputFolder, primaryArchiveFile, ...
         specification.AnalysisDefinition.AnalysisId);
 end
 
@@ -91,12 +98,15 @@ if specification.AnalysisDefinition.HasFigure
 end
 
 pdfFile = buildPdfFilename( ...
-    outputFolder, archiveFile, specification.AnalysisDefinition.AnalysisId);
+    outputFolder, primaryArchiveFile, ...
+    specification.AnalysisDefinition.AnalysisId);
 
 pdfInfo = spectralab.report.internal.exportPDF( ...
     pdfFile, layoutPlan, renderContext);
 
 info = struct( ...
+    "ArchiveFiles", archiveFiles, ...
+    "InputRoles", specification.InputRoles, ...
     "PDFFile", pdfFile, ...
     "PNGFile", pngFile, ...
     "PDF", pdfInfo, ...
@@ -119,6 +129,7 @@ if ischar(value) || (isstring(value) && isscalar(value) && ~ismissing(value))
     entry = spectralab.report.internal.resolveAnalysisSpecification(value);
 
     specification = struct( ...
+        "InputRoles", entry.InputRoles, ...
         "AnalysisDefinition", entry.DefinitionFactory(), ...
         "AnalysisRunner", entry.AnalysisRunner, ...
         "FigureRenderer", entry.FigureRenderer);
@@ -130,10 +141,70 @@ error("SpectraLab:Report:InvalidSpecification", ...
      "report specification structure."]);
 end
 
+function archiveFiles = normalizeArchiveFiles(value)
+%NORMALIZEARCHIVEFILES Validate and normalize one or two archive paths.
+
+if ischar(value)
+    value = string(value);
+end
+
+if ~isstring(value) || isempty(value) || ...
+        ~isvector(value) || any(ismissing(value))
+    error("SpectraLab:Report:InvalidArchiveFiles", ...
+        "Archive input must be one or two file paths.");
+end
+
+archiveFiles = reshape(value, 1, []);
+
+if numel(archiveFiles) < 1 || numel(archiveFiles) > 2 || ...
+        any(strlength(strtrim(archiveFiles)) == 0)
+    error("SpectraLab:Report:InvalidArchiveFiles", ...
+        "Archive input must contain one or two non-empty file paths.");
+end
+end
+
+function specification = normalizeInputRoles(specification)
+%NORMALIZEINPUTROLES Preserve the transitional one-archive contract.
+
+if ~isfield(specification, "InputRoles")
+    specification.InputRoles = "Measurement";
+end
+
+roles = string(specification.InputRoles);
+
+if isempty(roles) || ~isvector(roles) || any(ismissing(roles))
+    error("SpectraLab:Report:InvalidSpecification", ...
+        "InputRoles must be a non-empty string vector.");
+end
+
+specification.InputRoles = reshape(roles, 1, []);
+end
+
+function validateArchiveCount(archiveFiles, inputRoles)
+%VALIDATEARCHIVECOUNT Require one archive for each declared input role.
+
+if numel(archiveFiles) ~= numel(inputRoles)
+    error("SpectraLab:Report:ArchiveCountMismatch", ...
+        "Analysis requires %d archive input(s) with roles: %s.", ...
+        numel(inputRoles), strjoin(inputRoles, ", "));
+end
+end
+
+function archives = loadArchives(archiveFiles)
+%LOADARCHIVES Load and validate all requested archives.
+
+archives = cell(1, numel(archiveFiles));
+
+for k = 1:numel(archiveFiles)
+    archives{k} = spectralab.archive.load( ...
+        archiveFiles(k), Quiet=true, Validation="error");
+end
+end
+
 function validateSpecification(specification)
 %VALIDATESPECIFICATION Validate the explicit RP-019 specification.
 
-required = ["AnalysisDefinition", "AnalysisRunner"];
+required = ["InputRoles", "AnalysisDefinition", "AnalysisRunner"];
 
 for fieldName = required
     if ~isfield(specification, fieldName)
