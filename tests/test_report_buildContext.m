@@ -25,7 +25,19 @@ function testBuildsDataOnlyContext(testCase)
     verifyEqual(testCase, context.Archive.Filename, "reference.mat");
     verifyEqual(testCase, context.Archive.UUID, archive.Identity.UUID);
     verifyEqual(testCase, context.Measurement, archive.Measurement);
-    verifyEqual(testCase, context.Metadata, archive.Metadata);
+    verifyEqual(testCase, context.MeasurementInformation.Name, ...
+        archive.Measurement.Name);
+    verifyEqual(testCase, context.MeasurementInformation.Project, ...
+        archive.Metadata.Project);
+    verifyEqual(testCase, context.MeasurementInformation.Sample, ...
+        archive.Metadata.SampleID);
+    verifyEqual(testCase, context.MeasurementInformation.Operator, ...
+        archive.Measurement.Operator);
+    verifyEqual(testCase, context.MeasurementInformation.Date, ...
+        archive.Measurement.Timestamp);
+    verifyEqual(testCase, context.MeasurementInformation.Comment, ...
+        archive.Metadata.Comment);
+    verifyFalse(testCase, isfield(context, "Metadata"));
     verifyEqual(testCase, context.Instrument, archive.Instrument);
     verifyEqual(testCase, context.Quality, archive.Quality);
     verifyEqual(testCase, context.Analysis, definition);

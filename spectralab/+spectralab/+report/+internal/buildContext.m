@@ -49,7 +49,7 @@ context.Archive = struct( ...
     "Filename", archiveFilename);
 
 context.Measurement = archive.Measurement;
-context.Metadata = archive.Metadata;
+context.MeasurementInformation = buildMeasurementInformation(archive);
 context.Instrument = archive.Instrument;
 context.Quality = archive.Quality;
 context.Analysis = analysisDefinition;
@@ -62,6 +62,93 @@ context.Report = struct( ...
     "GenerationTime", options.GenerationTime, ...
     "ReportId", "", ...
     "Warnings", strings(0,1));
+end
+
+function information = buildMeasurementInformation(archive)
+%BUILDMEASUREMENTINFORMATION Assemble trusted measurement information.
+%
+% MeasurementInformation is a report-specific presentation structure.
+% Its values are derived automatically from the archive's canonical
+% Measurement and Metadata sections.
+
+information = struct( ...
+    "Name", firstArchiveValue(archive, [ ...
+        "Measurement.Name"]), ...
+    "Project", firstArchiveValue(archive, [ ...
+        "Measurement.Project"
+        "Metadata.Project"]), ...
+    "Sample", firstArchiveValue(archive, [ ...
+        "Measurement.Sample"
+        "Metadata.Sample"
+        "Metadata.SampleID"]), ...
+    "Operator", firstArchiveValue(archive, [ ...
+        "Measurement.Operator"
+        "Metadata.Operator"]), ...
+    "Date", firstArchiveValue(archive, [ ...
+        "Measurement.Date"
+        "Measurement.MeasurementDate"
+        "Measurement.Timestamp"
+        "Metadata.Date"]), ...
+    "Comment", firstArchiveValue(archive, [ ...
+        "Measurement.Comment"
+        "Metadata.Comment"]));
+end
+
+function value = firstArchiveValue(archive, paths)
+%FIRSTARCHIVEVALUE Return the preferred existing archive value.
+%
+% The first non-empty value has priority. If all existing candidates are
+% empty, preserve the first existing value so its original data type is
+% retained, for example string empty rather than numeric empty.
+
+value = [];
+hasFallback = false;
+fallback = [];
+
+for path = paths.'
+    parts = split(path, ".");
+    candidate = archive;
+    found = true;
+
+    for part = parts.'
+        if ~isstruct(candidate) || ...
+                ~isscalar(candidate) || ...
+                ~isfield(candidate, part)
+            found = false;
+            break
+        end
+
+        candidate = candidate.(part);
+    end
+
+    if found && ~hasFallback
+        fallback = candidate;
+        hasFallback = true;
+    end
+
+    if found && ~isEmptyReportValue(candidate)
+        value = candidate;
+        return
+    end
+end
+
+if hasFallback
+    value = fallback;
+end
+end
+
+function tf = isEmptyReportValue(value)
+%ISEMPTYREPORTVALUE Identify absent descriptive values.
+
+if isempty(value)
+    tf = true;
+elseif isstring(value) && isscalar(value)
+    tf = strlength(strip(value)) == 0;
+elseif ischar(value) && (isrow(value) || isempty(value))
+    tf = strlength(strip(string(value))) == 0;
+else
+    tf = false;
+end
 end
 
 function validateArchiveFields(archive)

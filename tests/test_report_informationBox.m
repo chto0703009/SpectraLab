@@ -8,7 +8,7 @@ context = makeContext();
 model = spectralab.report.internal.buildInformationBox(context);
 verifyEqual(testCase, model.Format, "SLAB-REPORT-INFORMATION-BOX");
 verifyEqual(testCase, model.Title, "Information");
-verifyEqual(testCase, [model.MetadataRows.Label], ["Measurement","Project","Sample","Operator","Date","Instrument","Analysis","Method","Archive"]);
+verifyEqual(testCase, [model.MeasurementInformationRows.Label], ["Measurement","Project","Sample","Operator","Date","Instrument","Analysis","Method","Archive"]);
 verifyEqual(testCase, [model.ResultRows.Field], ["CCT","Duv","Ra"]);
 verifyEqual(testCase, model.ResultRows(2).DisplayText, "+0.00482");
 end
@@ -16,11 +16,11 @@ end
 function testMissingMetadataUsesEmDash(testCase)
 context = makeContext();
 context.Measurement = struct("Name","Lamp");
-context.Metadata = struct();
+context.MeasurementInformation = struct("Name","Lamp");
 context.Instrument = struct();
 model = spectralab.report.internal.buildInformationBox(context);
-verifyEqual(testCase, model.MetadataRows(2).DisplayText, "—");
-verifyEqual(testCase, model.MetadataRows(6).DisplayText, "—");
+verifyEqual(testCase, model.MeasurementInformationRows(2).DisplayText, "—");
+verifyEqual(testCase, model.MeasurementInformationRows(6).DisplayText, "—");
 end
 
 function testResultOrderFollowsAnalysisDefinition(testCase)
@@ -53,7 +53,7 @@ verifyEqual(testCase,context,before);
 end
 
 function testRejectsIncompleteContext(testCase)
-context=rmfield(makeContext(),"Metadata");
+context=rmfield(makeContext(),"MeasurementInformation");
 verifyError(testCase,@() spectralab.report.internal.buildInformationBox(context),"SpectraLab:Report:InvalidInformationBoxContext");
 end
 
@@ -66,8 +66,14 @@ end
 
 function context=makeContext()
 context.Archive=struct("Filename","lamp.mat","UUID","u","ContentHash","h");
-context.Measurement=struct("Name","Lamp","Project","LED tables","Sample","Light Pad 940","Operator","Christer","Date",datetime(2026,7,28,10,0,0));
-context.Metadata=struct();
+context.Measurement=struct("Name","Lamp");
+context.MeasurementInformation=struct( ...
+    "Name","Lamp", ...
+    "Project","LED tables", ...
+    "Sample","Light Pad 940", ...
+    "Operator","Christer", ...
+    "Date",datetime(2026,7,28,10,0,0), ...
+    "Comment","");
 context.Instrument=struct("Name","X-Rite i1Pro 2");
 context.Result=struct("CCT",5045.123,"Duv",0.004821987,"Ra",95.4321);
 context.Analysis=struct("AnalysisId","ANL-CRI","Name","Color Rendering Index","Method","CIE 13.3","Standard","CIE 13.3","DefinitionVersion","1","HasFigure",false,"ResultFields",[field("CCT","CCT","K","%.0f");field("Duv","Duv","","%+.5f");field("Ra","Ra","","%.1f")]);
