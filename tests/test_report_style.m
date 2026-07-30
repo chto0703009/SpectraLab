@@ -35,7 +35,7 @@ verifyEqual(testCase, style.Text.ParagraphFontSize, 10);
 verifyEqual(testCase, style.Text.Margin, 0);
 verifyFalse(testCase, isfield(style.Text, "FontName"));
 verifyFalse(testCase, isfield(style.PageFrame, "FontName"));
-verifyEqual(testCase, style.PageFrame.HeaderTitleFontSize, 12);
+verifyEqual(testCase, style.PageFrame.HeaderTitleFontSize, 15);
 verifyEqual(testCase, style.PageFrame.HeaderInformationFontSize, 8);
 verifyEqual(testCase, style.PageFrame.FooterFontSize, 7);
 verifyEqual(testCase, style.PageFrame.TextMargin, 0);

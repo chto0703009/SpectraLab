@@ -12,8 +12,24 @@ end
 
 style = spectralab.report.internal.createReportStyle();
 
+lineCount = sum(arrayfun(@rowLineCount, tableModel.Rows));
+
 height = style.Box.TitleHeight + ...
     style.ResultsTable.VerticalGap + ...
-    numel(tableModel.Rows) * style.ResultsTable.RowHeight + ...
+    lineCount * style.ResultsTable.RowHeight + ...
     style.ResultsTable.SpaceAfter;
+end
+
+
+function count = rowLineCount(row)
+
+count = 1;
+
+if isfield(row, "LineCount")
+    candidate = double(row.LineCount);
+
+    if isscalar(candidate) && isfinite(candidate) && candidate >= 1
+        count = candidate;
+    end
+end
 end

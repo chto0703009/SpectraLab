@@ -27,8 +27,10 @@ switch role
         titleText = "Provenance";
         rows = [ ...
             row("Archive", valueAt(context, "Archive.Filename"))
-            row("Archive UUID", valueAt(context, "Archive.UUID"))
-            row("Content hash", valueAt(context, "Archive.ContentHash"))
+            row("Archive UUID", ...
+                displayArchiveUUID(valueAt(context, "Archive.UUID")), 2)
+            row("Content hash", ...
+                displayContentHash(valueAt(context, "Archive.ContentHash")), 2)
             row("Archive format", joinValues(valueAt(context,"Archive.Format"), valueAt(context,"Archive.Version")))
             row("Report format", joinValues(valueAt(context,"Report.Format"), valueAt(context,"Report.Version")))
             row("SpectraLab", valueAt(context, "Report.SpectraLabVersion"))
@@ -44,8 +46,16 @@ model = struct("Format","SLAB-REPORT-KEY-VALUE-TABLE", ...
     "Columns",["Label","Value"],"Rows",rows);
 end
 
-function r = row(label, value)
-r = struct("Label",string(label),"DisplayText",displayValue(value));
+function r = row(label, value, lineCount)
+
+if nargin < 3
+    lineCount = 1;
+end
+
+r = struct( ...
+    "Label", string(label), ...
+    "DisplayText", displayValue(value), ...
+    "LineCount", lineCount);
 end
 
 function value = valueAt(context, path)
@@ -78,6 +88,42 @@ if ismissing(text) || strlength(strtrim(text)) == 0
     text = "—";
 end
 end
+
+function text = displayArchiveUUID(value)
+
+text = displayValue(value);
+
+if text == "—"
+    return
+end
+
+characters = char(text);
+
+if numel(characters) == 36
+    text = string(sprintf("%s\n%s", ...
+        characters(1:18), ...
+        characters(19:36)));
+end
+end
+
+
+function text = displayContentHash(value)
+
+text = displayValue(value);
+
+if text == "—"
+    return
+end
+
+characters = char(text);
+
+if numel(characters) == 64
+    text = string(sprintf("%s\n%s", ...
+        characters(1:32), ...
+        characters(33:64)));
+end
+end
+
 
 function text = joinValues(a,b)
 a = displayValue(a); b = displayValue(b);

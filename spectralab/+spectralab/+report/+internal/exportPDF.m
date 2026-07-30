@@ -193,17 +193,22 @@ footerCenter = [left + contentWidth/3 footerY contentWidth/3 footerHeight];
 footerRight = [left + 2*contentWidth/3 footerY contentWidth/3 footerHeight];
 
 drawPageFrameText(fig, headerLeft, model.HeaderLeft, ...
-    "left", style.PageFrame.HeaderTitleFontSize, "bold", style);
+    "left", style.PageFrame.HeaderTitleFontSize, ...
+    style.Font.WeightBold, style.Font.AngleItalic, style);
 drawPageFrameText(fig, headerRight, model.HeaderRight, ...
-    "right", style.PageFrame.HeaderInformationFontSize, "normal", style);
+    "right", style.PageFrame.HeaderInformationFontSize, ...
+    style.Font.WeightNormal, "normal", style);
 
 drawPageFrameText(fig, footerLeft, model.FooterLeft, ...
-    "left", style.PageFrame.FooterFontSize, "normal", style);
+    "left", style.PageFrame.FooterFontSize, ...
+    style.Font.WeightNormal, "normal", style);
 drawPageFrameText(fig, footerCenter, model.FooterCenter, ...
-    "center", style.PageFrame.FooterFontSize, "normal", style);
+    "center", style.PageFrame.FooterFontSize, ...
+    style.Font.WeightNormal, "normal", style);
 drawPageFrameText(fig, footerRight, ...
     "Page " + string(page) + " of " + string(pageCount), ...
-    "right", style.PageFrame.FooterFontSize, "normal", style);
+    "right", style.PageFrame.FooterFontSize, ...
+    style.Font.WeightNormal, "normal", style);
 
 headerRuleY = 1 - layout.MarginTop / layout.PageHeight + ...
     style.PageFrame.RuleOffset / layout.PageHeight;
@@ -221,7 +226,8 @@ end
 
 
 function drawPageFrameText( ...
-        fig, position, content, alignment, fontSize, fontWeight, style)
+        fig, position, content, alignment, fontSize, ...
+        fontWeight, fontAngle, style)
 
 annotation(fig, "textbox", position, ...
     "String", char(string(content)), ...
@@ -229,6 +235,7 @@ annotation(fig, "textbox", position, ...
     "FontName", style.Font.Name, ...
     "FontSize", fontSize, ...
     "FontWeight", fontWeight, ...
+    "FontAngle", fontAngle, ...
     "HorizontalAlignment", alignment, ...
     "VerticalAlignment", "middle", ...
     "EdgeColor", "none", ...
@@ -377,6 +384,9 @@ style = spectralab.report.internal.createReportStyle();
         return
     end
 
+    rowLineCounts = arrayfun(@resultsTableRowLineCount, rows);
+    totalLineCount = sum(rowLineCounts);
+
     boxWidth = layout.ContentWidth * style.Box.WidthFraction;
     verticalGap = style.ResultsTable.VerticalGap;
 
@@ -402,16 +412,20 @@ style = spectralab.report.internal.createReportStyle();
         innerPlacement.Height - 2 * padding, ...
         1);
 
-    rowHeight = innerPlacement.Height / rowCount;
+    lineHeight = innerPlacement.Height / totalLineCount;
 
     labelWidth = boxWidth * style.ResultsTable.LabelWidthFraction;
     valueWidth = boxWidth - labelWidth;
 
+    lineOffset = 0;
+
     for k = 1:rowCount
         rowPlacement = innerPlacement;
         rowPlacement.Y = ...
-            innerPlacement.Y + (k - 1) * rowHeight;
-        rowPlacement.Height = rowHeight;
+            innerPlacement.Y + lineOffset * lineHeight;
+        rowPlacement.Height = rowLineCounts(k) * lineHeight;
+
+        lineOffset = lineOffset + rowLineCounts(k);
 
         labelPosition = normalizedBox( ...
             layout, ...
@@ -450,6 +464,20 @@ style = spectralab.report.internal.createReportStyle();
             "Margin", style.Box.CellMargin, ...
             "FitBoxToText", "off");
     end
+end
+
+
+function count = resultsTableRowLineCount(row)
+
+count = 1;
+
+if isfield(row, "LineCount")
+    candidate = double(row.LineCount);
+
+    if isscalar(candidate) && isfinite(candidate) && candidate >= 1
+        count = candidate;
+    end
+end
 end
 
 
