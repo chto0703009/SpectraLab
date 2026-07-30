@@ -1,26 +1,24 @@
-function info = generate(archiveFile, specification, outputFolder, options)
+function info = generate(archiveFile, specificationOrAnalysisId, outputFolder, options)
 %GENERATE Generate a SpectraLab report from a saved archive.
+%
+%   info = spectralab.report.generate( ...
+%       archiveFile, analysisId, outputFolder)
 %
 %   info = spectralab.report.generate( ...
 %       archiveFile, specification, outputFolder)
 %
-% RP-019 public report orchestration.
+% RP-019 provides the public orchestration pipeline.
+% RP-020 resolves canonical report specifications from AnalysisId values.
 %
-% The specification is explicit in RP-019 and must contain:
-%
-%   AnalysisDefinition   Trusted report-facing analysis definition.
-%   AnalysisRunner       Function handle called as:
-%
-%                            result = AnalysisRunner(archive)
-%
-% RP-020 will assign canonical report specifications to AnalysisId values.
+% A scalar specification structure remains supported as an internal and
+% transitional contract.
 %
 % This initial RP-019 implementation supports analyses without figures.
 % Figure-producing report orchestration is added in the next isolated step.
 
 arguments
     archiveFile {mustBeTextScalar}
-    specification (1,1) struct
+    specificationOrAnalysisId
     outputFolder {mustBeTextScalar}
     options.ShowFigure (1,1) logical = false
     options.OpenPDF (1,1) logical = false
@@ -30,6 +28,7 @@ end
 archiveFile = string(archiveFile);
 outputFolder = string(outputFolder);
 
+specification = resolveSpecification(specificationOrAnalysisId);
 validateSpecification(specification);
 
 if specification.AnalysisDefinition.HasFigure && ...
@@ -106,6 +105,29 @@ info = struct( ...
     "Manifest", manifest, ...
     "Document", document, ...
     "LayoutPlan", layoutPlan);
+end
+
+function specification = resolveSpecification(value)
+%RESOLVESPECIFICATION Resolve an explicit specification or AnalysisId.
+
+if isstruct(value) && isscalar(value)
+    specification = value;
+    return
+end
+
+if ischar(value) || (isstring(value) && isscalar(value) && ~ismissing(value))
+    entry = spectralab.report.internal.resolveAnalysisSpecification(value);
+
+    specification = struct( ...
+        "AnalysisDefinition", entry.DefinitionFactory(), ...
+        "AnalysisRunner", entry.AnalysisRunner, ...
+        "FigureRenderer", entry.FigureRenderer);
+    return
+end
+
+error("SpectraLab:Report:InvalidSpecification", ...
+    ["Second argument must be an AnalysisId text scalar or a scalar " ...
+     "report specification structure."]);
 end
 
 function validateSpecification(specification)
