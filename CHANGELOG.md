@@ -13,6 +13,14 @@ Every public release represents a verified engineering milestone rather than a c
 Development for the next maintenance release starts from the verified
 v0.8.0 release baseline.
 
+### Planned
+
+- RP-021: replace mandatory ENTER-controlled Spotread operation with a
+  bounded one-shot calibration and measurement workflow using `-O`.
+- Create archives only from complete, validated measurement spectra.
+- Evaluate `-H` as an explicit high-resolution option after the standard
+  one-shot workflow has passed physical i1Pro2 verification.
+
 ---
 
 ## Versioning Policy
