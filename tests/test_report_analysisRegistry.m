@@ -7,15 +7,21 @@ end
 function testCreatesRegistryWithMeasuredSpectrum(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
+analysisIds = registryAnalysisIds(registry);
+analysisNames = strings(1, numel(registry));
+
+for k = 1:numel(registry)
+    analysisNames(k) = registry(k).AnalysisDefinition.Name;
+end
 
 verifyEqual(testCase, numel(registry), 8);
 verifyEqual(testCase, ...
-    [registry.AnalysisId], ...
+    analysisIds, ...
     ["ANL-SPECTRUM", "ANL-CRI", "ANL-001", ...
      "ANL-002", "ANL-004", "ANL-005", ...
      "ANL-008", "ANL-007"]);
 verifyEqual(testCase, ...
-    [registry.Name], ...
+    analysisNames, ...
     ["Measured Spectrum", "Color Rendering Index", ...
      "Transmission", "Optical Density", ...
      "White Density", "Status A Density", ...
@@ -31,9 +37,11 @@ verifyEqual(testCase, registry(8).InputRoles, ["Reference", "Sample"]);
 verifyTrue(testCase, all(arrayfun(@(x) ...
     isa(x.AnalysisRunner, "function_handle"), registry)));
 verifyTrue(testCase, all(arrayfun(@(x) ...
+    x.AnalysisDefinition.HasFigure == ...
     isa(x.FigureRenderer, "function_handle"), registry)));
-verifyTrue(testCase, all(arrayfun(@(x) ...
-    isa(x.DefinitionFactory, "function_handle"), registry)));
+verifyFalse(testCase, isfield(registry, "DefinitionFactory"));
+verifyFalse(testCase, isfield(registry, "AnalysisId"));
+verifyFalse(testCase, isfield(registry, "Name"));
 end
 
 function testAnalysisIdsAreUnique(testCase)
@@ -41,7 +49,7 @@ function testAnalysisIdsAreUnique(testCase)
 registry = spectralab.report.internal.createAnalysisRegistry();
 
 verifyEqual(testCase, ...
-    numel(unique([registry.AnalysisId])), ...
+    numel(unique(registryAnalysisIds(registry))), ...
     numel(registry));
 end
 
@@ -50,9 +58,11 @@ function testResolvesMeasuredSpectrum(testCase)
 entry = spectralab.report.internal.resolveAnalysisSpecification( ...
     "ANL-SPECTRUM");
 
-verifyEqual(testCase, entry.AnalysisId, "ANL-SPECTRUM");
+verifyEqual(testCase, ...
+    entry.AnalysisDefinition.AnalysisId, ...
+    "ANL-SPECTRUM");
 
-definition = entry.DefinitionFactory();
+definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, definition.AnalysisId, "ANL-SPECTRUM");
 verifyTrue(testCase, definition.HasFigure);
@@ -66,9 +76,9 @@ function testResolvesCri(testCase)
 entry = spectralab.report.internal.resolveAnalysisSpecification( ...
     "ANL-CRI");
 
-verifyEqual(testCase, entry.AnalysisId, "ANL-CRI");
+verifyEqual(testCase, entry.AnalysisDefinition.AnalysisId, "ANL-CRI");
 
-definition = entry.DefinitionFactory();
+definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, definition.AnalysisId, "ANL-CRI");
 verifyTrue(testCase, definition.HasFigure);
@@ -81,7 +91,7 @@ end
 function testCriRunnerReturnsReportFields(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
-entry = registry([registry.AnalysisId] == "ANL-CRI");
+entry = findEntry(registry, "ANL-CRI");
 
 archive = makeCriArchive();
 result = entry.AnalysisRunner(archive);
@@ -94,10 +104,31 @@ verifyTrue(testCase, isfinite(result.Duv));
 verifyTrue(testCase, isfinite(result.Ra));
 end
 
+function testSpectrumReportFiguresIncludeSummaryAndLegend(testCase)
+
+registry = spectralab.report.internal.createAnalysisRegistry();
+archive = makeCriArchive();
+
+for analysisId = ["ANL-SPECTRUM", "ANL-CRI"]
+    entry = findEntry(registry, analysisId);
+    fig = figure("Visible", "off");
+    cleanup = onCleanup(@() close(fig)); %#ok<NASGU>
+    ax = axes("Parent", fig);
+
+    entry.FigureRenderer(ax, archive, struct());
+
+    verifyNotEmpty(testCase, ...
+        findall(ax, "Tag", "SpectraLabSummary"));
+    verifyNotEmpty(testCase, findall(fig, "Type", "legend"));
+
+    clear cleanup
+end
+end
+
 function testResolvesTransmission(testCase)
 
 entry = spectralab.report.internal.resolveAnalysisSpecification("ANL-001");
-definition = entry.DefinitionFactory();
+definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, entry.InputRoles, ["Reference", "Sample"]);
 verifyEqual(testCase, definition.AnalysisId, "ANL-001");
@@ -111,7 +142,7 @@ end
 function testTransmissionRunnerReturnsReportFields(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
-entry = registry([registry.AnalysisId] == "ANL-001");
+entry = findEntry(registry, "ANL-001");
 
 reference = makeTransmissionArchive(ones(36,1), "Reference");
 sample = makeTransmissionArchive(0.5 .* ones(36,1), "Sample");
@@ -128,7 +159,7 @@ end
 function testResolvesOpticalDensity(testCase)
 
 entry = spectralab.report.internal.resolveAnalysisSpecification("ANL-002");
-definition = entry.DefinitionFactory();
+definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, entry.InputRoles, ["Reference", "Sample"]);
 verifyEqual(testCase, definition.AnalysisId, "ANL-002");
@@ -142,7 +173,7 @@ end
 function testOpticalDensityRunnerReturnsReportFields(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
-entry = registry([registry.AnalysisId] == "ANL-002");
+entry = findEntry(registry, "ANL-002");
 
 reference = makeTransmissionArchive(ones(36,1), "Reference");
 sample = makeTransmissionArchive(0.1 .* ones(36,1), "Sample");
@@ -160,7 +191,7 @@ end
 function testResolvesWhiteDensity(testCase)
 
 entry = spectralab.report.internal.resolveAnalysisSpecification("ANL-004");
-definition = entry.DefinitionFactory();
+definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, entry.InputRoles, ["Reference", "Sample"]);
 verifyEqual(testCase, definition.AnalysisId, "ANL-004");
@@ -173,7 +204,7 @@ end
 function testWhiteDensityRunnerReturnsReportFields(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
-entry = registry([registry.AnalysisId] == "ANL-004");
+entry = findEntry(registry, "ANL-004");
 
 reference = makeTransmissionArchive(ones(36,1), "Reference");
 sample = makeTransmissionArchive(0.1 .* ones(36,1), "Sample");
@@ -187,7 +218,7 @@ end
 function testResolvesStatusADensity(testCase)
 
 entry = spectralab.report.internal.resolveAnalysisSpecification("ANL-005");
-definition = entry.DefinitionFactory();
+definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, entry.InputRoles, ["Reference", "Sample"]);
 verifyEqual(testCase, definition.AnalysisId, "ANL-005");
@@ -202,7 +233,7 @@ end
 function testStatusADensityRunnerReturnsReportFields(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
-entry = registry([registry.AnalysisId] == "ANL-005");
+entry = findEntry(registry, "ANL-005");
 
 reference = makeTransmissionArchive(ones(36,1), "Reference");
 sample = makeTransmissionArchive(0.1 .* ones(36,1), "Sample");
@@ -225,7 +256,7 @@ end
 function testResolvesStatusMDensity(testCase)
 
 entry = spectralab.report.internal.resolveAnalysisSpecification("ANL-008");
-definition = entry.DefinitionFactory();
+definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, entry.InputRoles, ["Reference", "Sample"]);
 verifyEqual(testCase, definition.AnalysisId, "ANL-008");
@@ -240,7 +271,7 @@ end
 function testStatusMDensityRunnerReturnsReportFields(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
-entry = registry([registry.AnalysisId] == "ANL-008");
+entry = findEntry(registry, "ANL-008");
 
 reference = makeTransmissionArchive(ones(36,1), "Reference");
 sample = makeTransmissionArchive(0.1 .* ones(36,1), "Sample");
@@ -263,7 +294,7 @@ end
 function testResolvesIsoVisualDensity(testCase)
 
 entry = spectralab.report.internal.resolveAnalysisSpecification("ANL-007");
-definition = entry.DefinitionFactory();
+definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, entry.InputRoles, ["Reference", "Sample"]);
 verifyEqual(testCase, definition.AnalysisId, "ANL-007");
@@ -276,7 +307,7 @@ end
 function testIsoVisualDensityRunnerReturnsReportFields(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
-entry = registry([registry.AnalysisId] == "ANL-007");
+entry = findEntry(registry, "ANL-007");
 
 reference = makeTransmissionArchive(ones(36,1), "Reference");
 sample = makeTransmissionArchive(0.1 .* ones(36,1), "Sample");
@@ -285,6 +316,34 @@ result = entry.AnalysisRunner(reference, sample);
 
 verifyEqual(testCase, result.Density, 1, AbsTol=1e-12);
 verifyEqual(testCase, result.Transmittance, 0.1, AbsTol=1e-12);
+end
+
+function testListsPublicAnalysisSummaries(testCase)
+
+analyses = spectralab.report.listAnalyses();
+
+verifyEqual(testCase, numel(analyses), 8);
+verifyEqual(testCase, ...
+    [analyses.AnalysisId], ...
+    ["ANL-SPECTRUM", "ANL-CRI", "ANL-001", ...
+     "ANL-002", "ANL-004", "ANL-005", ...
+     "ANL-008", "ANL-007"]);
+verifyTrue(testCase, all(strlength([analyses.Description]) > 0));
+verifyFalse(testCase, isfield(analyses, "AnalysisRunner"));
+verifyFalse(testCase, isfield(analyses, "FigureRenderer"));
+end
+
+function testDescribesRegisteredAnalysis(testCase)
+
+description = spectralab.report.describeAnalysis("ANL-002");
+
+verifyEqual(testCase, description.AnalysisId, "ANL-002");
+verifyEqual(testCase, description.Name, "Optical Density");
+verifyEqual(testCase, description.InputRoles, ["Reference", "Sample"]);
+verifyTrue(testCase, description.HasFigure);
+verifyTrue(testCase, isfield(description, "FigureDefinition"));
+verifyFalse(testCase, isfield(description, "AnalysisRunner"));
+verifyFalse(testCase, isfield(description, "FigureRenderer"));
 end
 
 function testUnknownAnalysisIdIsRejected(testCase)
@@ -304,6 +363,20 @@ verifyError(testCase, @() ...
     spectralab.report.internal.resolveAnalysisSpecification( ...
         "ANL-SPECTRUM", registry), ...
     "SpectraLab:Report:DuplicateAnalysisId");
+end
+
+function entry = findEntry(registry, analysisId)
+
+entry = registry(registryAnalysisIds(registry) == analysisId);
+end
+
+function analysisIds = registryAnalysisIds(registry)
+
+analysisIds = strings(1, numel(registry));
+
+for k = 1:numel(registry)
+    analysisIds(k) = registry(k).AnalysisDefinition.AnalysisId;
+end
 end
 
 function archive = makeCriArchive()

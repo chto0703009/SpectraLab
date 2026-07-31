@@ -3,16 +3,16 @@
 
 startup
 
-%[fileName, folderName] = uigetfile( ...
-%    "*.mat", ...
-%    "Select the LED reference archive");
-%
-%if isequal(fileName,0)
-%    error("No LED archive selected.");
-%end
+[fileName, folderName] = uigetfile( ...
+    "*.mat", ...
+    "Select the LED reference archive");
 
-fileName="/Users/christer/Desktop/SpectraLab_v0.7.0-analysis/redfilter_csw_ref.mat"
-archive = spectralab.archive.load(fullfile(folderName,fileName));
+if isequal(fileName, 0)
+    error("SpectraLab:Example:SelectionCancelled", ...
+        "No LED archive selected.");
+end
+
+archive = spectralab.archive.load(fullfile(folderName, fileName));
 spec = spectralab.archive.restore(archive);
 
 assert(isa(spec,"spectralab.core.Spectrum"), ...

@@ -431,13 +431,13 @@ function testDefaultYLimStartsAtZero(testCase)
 end
 
 
-function testCustomYLimitsCanBeRequested(testCase)
+function testCustomYLimitsRetainZeroLowerLimit(testCase)
 
     spec = testCase.TestData.Spec;
     h = spectralab.plot.spectrum( ...
         spec, YLimits=[0.2 0.8], ShowSummary=false);
 
-    verifyEqual(testCase, h.Parent.YLim, [0.2 0.8], "AbsTol", 1e-12);
+    verifyEqual(testCase, h.Parent.YLim, [0 0.8], "AbsTol", 1e-12);
 end
 
 
@@ -448,4 +448,3 @@ function testDefaultLineWidthIsOne(testCase)
 
     verifyEqual(testCase, h.LineWidth, 1.0, "AbsTol", 1e-12);
 end
-

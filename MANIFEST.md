@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: MANIFEST.md
-Version: v0.4.0
-Status: FROZEN
+Version: v0.8.0
+Status: CURRENT
 -->
 
 # SpectraLab Release Manifest
@@ -22,8 +22,8 @@ A release is considered complete only when all required components are present a
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.4.0 |
-| Release type | Foundation Release |
+| Version | v0.8.0 |
+| Release type | Analysis and Reporting Release |
 | License | GNU General Public License v3 |
 | Primary environment | MATLAB |
 | Current instrument workflow | ArgyllCMS `spotread` with X-Rite i1Pro2 |
@@ -43,6 +43,10 @@ An official SpectraLab release shall contain the following components.
 - Core data model
 - Instrument drivers
 - Plotting utilities
+- Scientific analysis functions
+- Authoritative report analysis registry
+- PDF report generation
+- PNG report-figure export
 - I/O utilities
 - Environment verification
 - Structured error handling
@@ -181,7 +185,7 @@ The release itself should remain the authoritative engineering record.
 A typical official release has the conceptual form:
 
 ```text
-SpectraLab_v0_4_0/
+SpectraLab_v0.8.0/
     README.md
     LICENSE
     VERSION

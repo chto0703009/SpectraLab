@@ -1,8 +1,8 @@
-# ED-012 — ISO 5 Density Framework
+# ED-017 — ISO 5 Density Framework
 
 **Status:** Approved design  
 **Issue:** ANL-006  
-**Applies to:** SpectraLab v0.7.0-analysis and later  
+**Applies to:** SpectraLab v0.8.0 and later
 **Purpose:** Establish the architectural and standards framework for all photographic density analyses in SpectraLab.
 
 ## 1. Decision summary
@@ -29,7 +29,9 @@ This engineering decision defines:
 - the limits of any standards-conformance claim;
 - the extension pattern for future density types.
 
-This document does not yet define the numerical weighting data for ISO visual density or Status M density. Those are separate implementation issues.
+The numerical weighting data for ISO visual density and Status M density are
+implemented as versioned standard-filter datasets. Their numerical integrity
+is covered by the standard-filter regression tests.
 
 ## 3. Standards context
 
@@ -145,8 +147,8 @@ result = spectralab.analysis.isoVisualDensity(reference, sample);
 Purpose:
 
 - explicitly named ISO visual spectral density;
-- to be implemented under ANL-007;
-- shall use an approved ISO 5 spectral weighting dataset.
+- implemented under ANL-007;
+- uses the versioned ISO 5 spectral weighting dataset supplied with SpectraLab.
 
 ### 7.4 Status M density
 
@@ -157,8 +159,8 @@ result = spectralab.analysis.statusMDensity(reference, sample);
 Purpose:
 
 - Status M spectral density channels;
-- to be implemented under ANL-008;
-- shall use approved Status M spectral weighting data.
+- implemented under ANL-008;
+- uses the versioned Status M spectral weighting data supplied with SpectraLab.
 
 ### 7.5 Generic user weighting
 
@@ -327,9 +329,9 @@ ANL-002 Spectral optical density          Complete
 ANL-003 Common weighted-density engine    Complete
 ANL-004 White density                     Complete
 ANL-005 Status A RGB density              Complete
-ANL-006 ISO 5 density framework           Complete with ED-012
-ANL-007 ISO visual density                Planned
-ANL-008 Status M density                  Planned
+ANL-006 ISO 5 density framework           Complete with ED-017
+ANL-007 ISO visual density                Complete
+ANL-008 Status M density                  Complete
 ```
 
 ## 16. References
@@ -348,4 +350,4 @@ Approved:
 3. Keep all density calculations based on the common weighted-density engine.
 4. Separate spectral calculation from measurement-geometry compliance.
 5. Record enough provenance for later assessment.
-6. Proceed next with ANL-007 — ISO visual density.
+6. ANL-007 and ANL-008 are implemented and verified in v0.8.0.

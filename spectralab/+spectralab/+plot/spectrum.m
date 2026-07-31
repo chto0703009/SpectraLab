@@ -140,8 +140,9 @@ end
 function applyYLimits(ax, requestedLimits)
 %APPLYYLIMITS Apply requested or automatic y-axis limits.
 %
-% Automatic limits start at zero and provide 5 percent headroom above the
-% highest plotted spectrum value. Explicit YLimits are respected exactly.
+% All limits start at zero. Automatic limits provide 5 percent headroom
+% above the highest plotted spectrum value. An explicit YLimits value
+% controls the upper limit; its requested lower limit is ignored.
 
     if isempty(requestedLimits)
         lineHandles = findall(ax, "Type", "line");
@@ -189,12 +190,12 @@ function applyYLimits(ax, requestedLimits)
 
     requestedLimits = double(requestedLimits(:).');
 
-    if requestedLimits(2) <= requestedLimits(1)
+    if requestedLimits(2) <= requestedLimits(1) || requestedLimits(2) <= 0
         error("spectralab:plot:spectrum:InvalidYLimits", ...
             "YLimits must contain two strictly increasing values.");
     end
 
-    ylim(ax, requestedLimits);
+    ylim(ax, [0 requestedLimits(2)]);
 end
 
 

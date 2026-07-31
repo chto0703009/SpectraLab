@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: TROUBLESHOOTING.md
-Version: v0.6.0
-Status: FROZEN
+Version: v0.8.0
+Status: CURRENT
 -->
 
 # Troubleshooting SpectraLab

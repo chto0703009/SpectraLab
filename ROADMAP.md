@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v0.4.0
-Status: FROZEN
+Version: v0.8.0
+Status: CURRENT
 -->
 
 # Roadmap
@@ -33,6 +33,21 @@ These principles should remain stable even as the software evolves.
 ## Strategic Development Priorities
 
 The roadmap describes engineering priorities rather than detailed feature lists.
+
+---
+
+### Completed in v0.8.0
+
+Version 0.8.0 established the scientific analysis and reporting foundation:
+
+- spectral transmission and optical density;
+- white, Status A, ISO visual and Status M density;
+- CIE XYZ, xyY, CIELAB and colour rendering analyses;
+- a single authoritative registry for every reportable analysis;
+- deterministic PDF reporting and full-resolution PNG figure export.
+
+Future analysis and report development shall extend the authoritative registry
+rather than introduce separate report-specific definitions.
 
 ---
 

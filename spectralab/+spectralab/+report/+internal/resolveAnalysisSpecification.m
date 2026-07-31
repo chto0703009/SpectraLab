@@ -15,12 +15,23 @@ end
 
 analysisId = string(analysisId);
 
-if ~isfield(registry, "AnalysisId")
+if ~isfield(registry, "AnalysisDefinition") || ...
+        ~all(arrayfun(@(entry) ...
+            isstruct(entry.AnalysisDefinition) && ...
+            isscalar(entry.AnalysisDefinition) && ...
+            isfield(entry.AnalysisDefinition, "AnalysisId"), ...
+            registry))
     error("SpectraLab:Report:InvalidAnalysisRegistry", ...
-        "Analysis registry must contain AnalysisId.");
+        "Analysis registry must contain AnalysisDefinition.AnalysisId.");
 end
 
-matches = [registry.AnalysisId] == analysisId;
+registeredIds = strings(1, numel(registry));
+
+for k = 1:numel(registry)
+    registeredIds(k) = registry(k).AnalysisDefinition.AnalysisId;
+end
+
+matches = registeredIds == analysisId;
 
 if ~any(matches)
     error("SpectraLab:Report:UnknownAnalysisId", ...

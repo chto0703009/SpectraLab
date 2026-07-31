@@ -151,6 +151,15 @@ function testAxisLabels(testCase)
 end
 
 
+function testYAxisStartsAtZero(testCase)
+
+    result = testCase.TestData.Result;
+    h = spectralab.plot.transmission(result);
+
+    verifyEqual(testCase, h.Parent.YLim(1), 0, "AbsTol", 1e-12);
+end
+
+
 function testCustomTitle(testCase)
 
     result = testCase.TestData.Result;

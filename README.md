@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v0.6.0
-Status: FROZEN
+Version: v0.8.0
+Status: CURRENT
 -->
 
 # SpectraLab
@@ -23,7 +23,9 @@ Reliable measurements require reliable software.
 
 SpectraLab was developed to provide a clean separation between measurement, data management, visualisation, export and instrument communication. This makes user applications independent of specific instruments while allowing new devices to be added through dedicated drivers.
 
-The goal of the v0.6.0 release is long-term stability rather than rapid feature growth.
+The v0.8.0 release adds a verified scientific analysis and reporting
+workflow while preserving the long-term archive and measurement principles
+established by earlier releases.
 
 ---
 
@@ -33,6 +35,9 @@ The goal of the v0.6.0 release is long-term stability rather than rapid feature 
 - Stable public MATLAB API
 - Instrument-independent architecture
 - Publication-quality plotting
+- Registered scientific analyses
+- PDF reports with analysis-specific figures where applicable
+- Full-resolution PNG export of report figures
 - JSON-based measurement storage
 - CSV and text export
 - Automatic environment verification
@@ -44,7 +49,7 @@ The goal of the v0.6.0 release is long-term stability rather than rapid feature 
 
 ## Supported Environment
 
-The v0.6.0 release has been verified with the following environment.
+The v0.8.0 release has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|

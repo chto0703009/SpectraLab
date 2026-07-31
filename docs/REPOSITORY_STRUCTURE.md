@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: REPOSITORY_STRUCTURE.md
-Version: v0.6.0
-Status: FROZEN
+Version: v0.8.0
+Status: CURRENT
 -->
 
 # SpectraLab Repository Structure
@@ -94,6 +94,7 @@ Important package areas include:
     +drivers/
     +io/
     +plot/
+    +report/
     +ui/
 ```
 

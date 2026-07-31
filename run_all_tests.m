@@ -22,46 +22,38 @@ versionText = spectralab.version();
 fprintf("\nSpectraLab v%s test runner\n", versionText);
 fprintf("===================================\n\n");
 
-testFiles = {
-    "tests/test_core_spectrum.m"
-    "tests/test_core_collection.m"
-    "tests/test_status_and_result.m"
-    "tests/test_mock_workflow.m"
-    "tests/test_file_format_json.m"
-    "tests/test_collection_io.m"
-    "tests/test_export_csv_txt.m"
-    "tests/test_error_paths.m"
-    "tests/test_spotread_parser_fixtures.m"
-    "tests/test_spotread_detection.m"
-    "tests/test_report_buildContext.m"
-    "tests/test_report_buildManifest.m"
-    "tests/test_report_renderContext.m"
-    "tests/test_report_renderManifest.m"
-    "tests/test_report_documentModel.m"
-    "tests/test_report_documentContent.m"
-    "tests/test_report_renderContract.m"
-    "tests/test_report_layoutMetrics.m"
-    "tests/test_report_layoutEngine.m"
-    "tests/test_report_resultsTable.m"
-    "tests/test_report_figureElement.m"
-    "tests/test_report_pdfBackend.m"
-    "tests/test_report_pngExport.m"
-    "tests/test_report_informationBox.m"
-    "tests/test_report_figureCaption.m"
-    "tests/test_report_referenceReport.m"
-};
+testListing = dir(fullfile(rootDir, "tests", "test_*.m"));
+[~, testOrder] = sort({testListing.name});
+testListing = testListing(testOrder);
 
 nPass = 0;
 nFail = 0;
+nTestCases = 0;
 failures = strings(0,1);
 
-for k = 1:numel(testFiles)
-    tf = fullfile(rootDir, testFiles{k});
-    shortName = erase(erase(testFiles{k}, "tests/"), ".m");
-    fprintf("[%02d/%02d] %-32s", k, numel(testFiles), shortName);
+for k = 1:numel(testListing)
+    tf = fullfile(testListing(k).folder, testListing(k).name);
+    relativeFile = "tests/" + string(testListing(k).name);
+    shortName = erase(string(testListing(k).name), ".m");
+    fprintf("[%02d/%02d] %-40s", k, numel(testListing), shortName);
 
     try
-        testOutput = evalc("run(tf);");
+        sourceText = fileread(tf);
+        isFunctionBased = ~isempty(regexp( ...
+            sourceText, ...
+            "^\s*function\s+tests\s*=", ...
+            "once", ...
+            "lineanchors"));
+
+        if isFunctionBased
+            testOutput = evalc( ...
+                "fileResults = runtests(tf); assertSuccess(fileResults);");
+            nTestCases = nTestCases + numel(fileResults);
+        else
+            testOutput = evalc("run(tf);");
+            nTestCases = nTestCases + 1;
+        end
+
         nPass = nPass + 1;
         fprintf(" PASS\n");
         important = extractImportantOutput(testOutput);
@@ -70,7 +62,8 @@ for k = 1:numel(testFiles)
         end
     catch ME
         nFail = nFail + 1;
-        failures(end+1,1) = string(testFiles{k}) + " :: " + string(ME.identifier) + " :: " + string(ME.message); %#ok<SAGROW>
+        failures(end+1,1) = relativeFile + " :: " + ...
+            string(ME.identifier) + " :: " + string(ME.message); %#ok<SAGROW>
         fprintf(2," FAIL\n");
         fprintf(2, "          %s\n", ME.message);
     end
@@ -78,8 +71,9 @@ end
 
 fprintf("\n=====================================\n");
 fprintf("SpectraLab test summary\n");
-fprintf("  Passed: %d\n", nPass);
-fprintf("  Failed: %d\n", nFail);
+fprintf("  Test files passed: %d\n", nPass);
+fprintf("  Test files failed: %d\n", nFail);
+fprintf("  Test cases run:    %d\n", nTestCases);
 
 if nFail > 0
     fprintf(2, "\nFailures:\n");

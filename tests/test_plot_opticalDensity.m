@@ -94,6 +94,16 @@ function testAxisLabels(testCase)
 end
 
 
+function testYAxisStartsAtZero(testCase)
+
+    h = spectralab.plot.opticalDensity( ...
+        testCase.TestData.WavelengthNm, ...
+        testCase.TestData.Density);
+
+    verifyEqual(testCase, h.Parent.YLim(1), 0);
+end
+
+
 function testAllowsPositiveInfinity(testCase)
 
     density = testCase.TestData.Density;

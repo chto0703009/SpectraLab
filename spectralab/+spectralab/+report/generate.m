@@ -1,4 +1,4 @@
-function info = generate(archiveFiles, specificationOrAnalysisId, outputFolder, options)
+function info = generate(archiveFiles, analysisId, outputFolder, options)
 %GENERATE Generate a SpectraLab report from one or two saved archives.
 %
 %   info = spectralab.report.generate( ...
@@ -8,21 +8,14 @@ function info = generate(archiveFiles, specificationOrAnalysisId, outputFolder, 
 %       [referenceArchiveFile, sampleArchiveFile], ...
 %       analysisId, outputFolder)
 %
-%   info = spectralab.report.generate( ...
-%       archiveFiles, specification, outputFolder)
-%
 % RP-019 provides the public orchestration pipeline.
-% RP-020 resolves canonical report specifications from AnalysisId values.
-%
-% A scalar specification structure remains supported as an internal and
-% transitional contract.
-%
-% This initial RP-019 implementation supports analyses without figures.
-% Figure-producing report orchestration is added in the next isolated step.
+% RP-020 requires every reportable analysis to be resolved from the
+% canonical analysis registry. Ad-hoc specification structures are not
+% accepted by this public API.
 
 arguments
     archiveFiles
-    specificationOrAnalysisId
+    analysisId {mustBeTextScalar}
     outputFolder {mustBeTextScalar}
     options.ShowFigure (1,1) logical = false
     options.OpenPDF (1,1) logical = false
@@ -30,26 +23,20 @@ arguments
 end
 
 archiveFiles = normalizeArchiveFiles(archiveFiles);
+analysisId = string(analysisId);
 outputFolder = string(outputFolder);
 
-specification = resolveSpecification(specificationOrAnalysisId);
-specification = normalizeInputRoles(specification);
-validateSpecification(specification);
-validateArchiveCount(archiveFiles, specification.InputRoles);
-
-if specification.AnalysisDefinition.HasFigure && ...
-        (~isfield(specification, "FigureRenderer") || ...
-         ~isa(specification.FigureRenderer, "function_handle"))
-    error("SpectraLab:Report:FigureSpecificationRequired", ...
-        "A function-handle FigureRenderer is required when HasFigure=true.");
-end
+entry = spectralab.report.internal.resolveAnalysisSpecification(analysisId);
+definition = entry.AnalysisDefinition;
+validateArchiveCount(archiveFiles, entry.InputRoles);
 
 if ~isfolder(outputFolder)
     mkdir(outputFolder);
 end
 
 archives = loadArchives(archiveFiles);
-result = specification.AnalysisRunner(archives{:});
+result = entry.AnalysisRunner(archives{:});
+validateAnalysisResult(result, definition);
 
 primaryArchiveFile = archiveFiles(end);
 primaryArchive = archives{end};
@@ -57,7 +44,7 @@ primaryArchive = archives{end};
 context = spectralab.report.internal.buildContext( ...
     primaryArchiveFile, ...
     primaryArchive, ...
-    specification.AnalysisDefinition, ...
+    definition, ...
     result, ...
     outputFolder, ...
     ShowFigure=options.ShowFigure, ...
@@ -75,13 +62,13 @@ cleanup = onCleanup(@() ...
 pngInfo = struct();
 pngFile = "";
 
-if specification.AnalysisDefinition.HasFigure
-    specification.FigureRenderer( ...
+if definition.HasFigure
+    entry.FigureRenderer( ...
         renderContext.Graphics.Axes, archives{:}, result);
 
     pngFile = buildPngFilename( ...
         outputFolder, primaryArchiveFile, ...
-        specification.AnalysisDefinition.AnalysisId);
+        definition.AnalysisId);
 end
 
 [renderContext, renderResults] = ...
@@ -92,21 +79,22 @@ end
     spectralab.report.internal.layoutRenderResults( ...
         renderContext, renderResults);
 
-if specification.AnalysisDefinition.HasFigure
+if definition.HasFigure
     pngInfo = spectralab.report.internal.exportPNG( ...
         pngFile, renderContext);
 end
 
 pdfFile = buildPdfFilename( ...
     outputFolder, primaryArchiveFile, ...
-    specification.AnalysisDefinition.AnalysisId);
+    definition.AnalysisId);
 
 pdfInfo = spectralab.report.internal.exportPDF( ...
     pdfFile, layoutPlan, renderContext);
 
 info = struct( ...
     "ArchiveFiles", archiveFiles, ...
-    "InputRoles", specification.InputRoles, ...
+    "AnalysisId", definition.AnalysisId, ...
+    "InputRoles", entry.InputRoles, ...
     "PDFFile", pdfFile, ...
     "PNGFile", pngFile, ...
     "PDF", pdfInfo, ...
@@ -115,30 +103,23 @@ info = struct( ...
     "Manifest", manifest, ...
     "Document", document, ...
     "LayoutPlan", layoutPlan);
+
+if options.OpenPDF
+    openPdfFile(pdfFile);
+end
 end
 
-function specification = resolveSpecification(value)
-%RESOLVESPECIFICATION Resolve an explicit specification or AnalysisId.
+function openPdfFile(pdfFile)
+%OPENPDFFILE Ask MATLAB to open the completed report in the system viewer.
 
-if isstruct(value) && isscalar(value)
-    specification = value;
-    return
+try
+    open(char(pdfFile));
+catch exception
+    warning("SpectraLab:Report:PDFOpenFailed", ...
+        "The PDF report was created but could not be opened automatically.\n" + ...
+        "File: %s\nReason: %s", ...
+        pdfFile, exception.message);
 end
-
-if ischar(value) || (isstring(value) && isscalar(value) && ~ismissing(value))
-    entry = spectralab.report.internal.resolveAnalysisSpecification(value);
-
-    specification = struct( ...
-        "InputRoles", entry.InputRoles, ...
-        "AnalysisDefinition", entry.DefinitionFactory(), ...
-        "AnalysisRunner", entry.AnalysisRunner, ...
-        "FigureRenderer", entry.FigureRenderer);
-    return
-end
-
-error("SpectraLab:Report:InvalidSpecification", ...
-    ["Second argument must be an AnalysisId text scalar or a scalar " ...
-     "report specification structure."]);
 end
 
 function archiveFiles = normalizeArchiveFiles(value)
@@ -163,23 +144,6 @@ if numel(archiveFiles) < 1 || numel(archiveFiles) > 2 || ...
 end
 end
 
-function specification = normalizeInputRoles(specification)
-%NORMALIZEINPUTROLES Preserve the transitional one-archive contract.
-
-if ~isfield(specification, "InputRoles")
-    specification.InputRoles = "Measurement";
-end
-
-roles = string(specification.InputRoles);
-
-if isempty(roles) || ~isvector(roles) || any(ismissing(roles))
-    error("SpectraLab:Report:InvalidSpecification", ...
-        "InputRoles must be a non-empty string vector.");
-end
-
-specification.InputRoles = reshape(roles, 1, []);
-end
-
 function validateArchiveCount(archiveFiles, inputRoles)
 %VALIDATEARCHIVECOUNT Require one archive for each declared input role.
 
@@ -201,51 +165,21 @@ for k = 1:numel(archiveFiles)
 end
 end
 
-function validateSpecification(specification)
-%VALIDATESPECIFICATION Validate the explicit RP-019 specification.
+function validateAnalysisResult(result, definition)
+%VALIDATEANALYSISRESULT Enforce the registered result-field contract.
 
-required = ["InputRoles", "AnalysisDefinition", "AnalysisRunner"];
+if ~isstruct(result) || ~isscalar(result)
+    error("SpectraLab:Report:InvalidAnalysisResult", ...
+        "Registered analysis '%s' must return a scalar structure.", ...
+        definition.AnalysisId);
+end
 
-for fieldName = required
-    if ~isfield(specification, fieldName)
-        error("SpectraLab:Report:InvalidSpecification", ...
-            "Report specification is missing required field '%s'.", ...
-            fieldName);
+for fieldName = [definition.ResultFields.Field]
+    if ~isfield(result, fieldName)
+        error("SpectraLab:Report:InvalidAnalysisResult", ...
+            "Registered analysis '%s' did not return result field '%s'.", ...
+            definition.AnalysisId, fieldName);
     end
-end
-
-if ~isstruct(specification.AnalysisDefinition) || ...
-        ~isscalar(specification.AnalysisDefinition)
-    error("SpectraLab:Report:InvalidSpecification", ...
-        "AnalysisDefinition must be a scalar structure.");
-end
-
-if ~isa(specification.AnalysisRunner, "function_handle")
-    error("SpectraLab:Report:InvalidSpecification", ...
-        "AnalysisRunner must be a function handle.");
-end
-
-requiredDefinition = [ ...
-    "AnalysisId"
-    "Name"
-    "Method"
-    "Standard"
-    "DefinitionVersion"
-    "HasFigure"
-    "ResultFields"];
-
-for fieldName = requiredDefinition.'
-    if ~isfield(specification.AnalysisDefinition, fieldName)
-        error("SpectraLab:Report:InvalidSpecification", ...
-            "AnalysisDefinition is missing required field '%s'.", ...
-            fieldName);
-    end
-end
-
-if ~isscalar(specification.AnalysisDefinition.HasFigure) || ...
-        ~islogical(specification.AnalysisDefinition.HasFigure)
-    error("SpectraLab:Report:InvalidSpecification", ...
-        "AnalysisDefinition.HasFigure must be a logical scalar.");
 end
 end
 

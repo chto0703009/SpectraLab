@@ -1,56 +1,3 @@
-- Spectrum colour guides now span the displayed wavelength range and render regions outside 380–730 nm in black; corrected custom `YLimits` validation.
-
-## v0.8.0-dev — RP-016 Figure Caption
-### RP-017a visual reference corrections
-
-- Spectrum plots now start at y = 0 by default; `YLimits` can explicitly request another range.
-- The default spectrum line width is reduced from 1.5 to 1.0.
-- PDF reports embed the actual report-owned figure instead of a placeholder.
-- PDF export preserves the full A4 page canvas so the defined 20 mm margins are retained.
-
-
-- Added a canonical primary-figure caption model.
-- Added deterministic caption measurement and PDF rendering.
-- Added layout look-ahead so a figure and its caption remain on the same page.
-- Added regression tests for caption modelling, manifest order, rendering, and grouped pagination.
-
-### RP-017 - End-to-end reference report
-- Added `generate_reference_cri_report` to create a visual-review PDF and PNG.
-- Completed metadata, analysis, provenance, and footer presentation models needed by the standard manifest.
-- Added an end-to-end integration test for the complete reference-report pipeline.
-
-## Unreleased
-- Fixed report PNG export to preserve the declared figure canvas aspect ratio by using a fixed paper surface rather than tight content cropping.
-
-## v0.8.0-dev — RP-015 report figure PNG export
-
-- Added atomic full-resolution PNG export in the report layer.
-- PNG export uses the declared report figure geometry and a report-owned axes object.
-- Existing files are never overwritten.
-- Source figures and axes are preserved unchanged during export.
-- Plot functions remain free from file-export responsibility.
-
-
-### RP-014 spectral colour bar
-
-- Added a thin 380--730 nm wavelength colour guide to `spectralab.plot.spectrum`.
-- The guide is enabled by default and may be disabled with `ShowSpectralColorBar=false`.
-- The implementation preserves axes limits and hold state and contains no colourimetric claims.
-
-<!--
-
-## RP-009 — Automatic page breaking
-
-- Added automatic page breaks between measured document elements.
-- Added explicit rejection of elements taller than one A4 content area.
-- Kept all page-placement decisions inside the Layout Engine.
-
-SpectraLab Documentation
-Document: CHANGELOG.md
-Version: v0.6.0
-Status: CURRENT
--->
-
 # Changelog
 
 This changelog records the engineering significance of public SpectraLab releases.
@@ -77,10 +24,60 @@ Only public releases are recorded as release history.
 
 | Version | Release | Status |
 |---|---|---|
-| v0.6.0 | Scientific Archive and Metadata | Current |
-| v0.5.1 | Scientific Archive | Supported |
+| v0.8.0 | Analysis and Reporting | Current |
+| v0.6.0 | Scientific Archive and Metadata | Supported |
+| v0.5.1 | Scientific Archive | Historical |
 | v0.5.0 | Archive Architecture | Historical |
 | v0.4.0 | Foundation Release | Historical |
+
+---
+
+## Analysis and Reporting — v0.8.0
+
+SpectraLab v0.8.0 adds a verified scientific analysis and reporting layer
+above the established measurement and archive architecture.
+
+### Added
+
+- Spectral transmission and optical-density analysis.
+- A common weighted-density engine.
+- White, Status A, ISO visual and Status M density analysis.
+- CIE XYZ, xyY and CIELAB analysis with explicit provenance.
+- Colour rendering analysis and versioned CIE test-colour sample data.
+- A standard spectral-filter library with integrity verification.
+- Deterministic A4 PDF reports with structured metadata, results,
+  provenance, captions and page framing.
+- Full-resolution PNG export for analyses that define a primary figure.
+- A canonical analysis registry that is the sole authoritative definition
+  of every reportable analysis.
+- Public analysis discovery through `spectralab.report.listAnalyses` and
+  `spectralab.report.describeAnalysis`.
+- End-to-end reference-report examples and tests.
+
+### Improved
+
+- Spectrum plots include a wavelength colour guide from 380 to 730 nm.
+- All standard plot types start at y = 0 by default.
+- Report figures use labelled wavelength and quantity axes.
+- PDF output embeds the actual report-owned figure and preserves the
+  complete A4 canvas with defined margins.
+- Figure captions remain grouped with their figures during pagination.
+- The test runner discovers the complete regression suite automatically.
+
+### Compatibility
+
+- The public measurement and archive workflows remain compatible with the
+  established v0.x API.
+- CSV and text export remain available.
+- Historical release documentation and released archive formats are
+  preserved.
+
+### Verification
+
+- 65 test files passed.
+- 434 test cases passed with 0 failed and 0 incomplete.
+- The interactive X-Rite i1Pro2 workflow was verified through ArgyllCMS
+  `spotread`.
 
 ---
 

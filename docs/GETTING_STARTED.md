@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: GETTING_STARTED.md
-Version: v0.6.0
-Status: FROZEN
+Version: v0.8.0
+Status: CURRENT
 -->
 
 # Getting Started with SpectraLab
@@ -40,7 +40,7 @@ You need:
 - a supported spectrophotometer connected by USB,
 - the instrument's white reference for calibration.
 
-The v0.6.0 release has been verified with:
+The v0.8.0 release has been verified with:
 
 | Component | Recommended |
 |-----------|-------------|
@@ -106,12 +106,12 @@ startup
 Expected output is similar to:
 
 ```text
-SpectraLab 0.6.0
+SpectraLab 0.8.0
 Measure once. Save forever.
 Ready
 
 Project root:
-  /path/to/SpectraLab_v0_4_0
+  /path/to/SpectraLab_v0.8.0
 
 Status
   Project ........ OK
