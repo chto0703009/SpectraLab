@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-EXPECTED_BRANCH="v0.8.0-dev"
+EXPECTED_BRANCH="v0.8.1-dev"
 COMMIT_MESSAGE="Remove obsolete pre-DocumentModel report pipeline"
 MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2025b.app/bin/matlab}"
 

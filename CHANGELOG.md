@@ -8,6 +8,13 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
+## Unreleased - v0.8.1-dev
+
+Development for the next maintenance release starts from the verified
+v0.8.0 release baseline.
+
+---
+
 ## Versioning Policy
 
 SpectraLab uses version numbers to communicate release significance.
