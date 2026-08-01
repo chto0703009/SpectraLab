@@ -9,12 +9,21 @@ end
 switch role
     case "measurementInformation"
         titleText = "Measurement";
-        rows = [ ...
-            row("Measurement", valueAt(context, "Measurement.Name"))
-            row("Project", valueAt(context, "Measurement.Project"))
-            row("Sample", valueAt(context, "Measurement.Sample"))
-            row("Operator", valueAt(context, "Measurement.Operator"))
-            row("Date", valueAt(context, "Measurement.Date"))];
+        if hasTwoSources(context)
+            rows = pairMeasurementRows(context.SourceArchives);
+        else
+            rows = [ ...
+                row("Measurement", valueAt(context, ...
+                    "MeasurementInformation.Name"))
+                row("Project", valueAt(context, ...
+                    "MeasurementInformation.Project"))
+                row("Sample", valueAt(context, ...
+                    "MeasurementInformation.Sample"))
+                row("Operator", valueAt(context, ...
+                    "MeasurementInformation.Operator"))
+                row("Date", valueAt(context, ...
+                    "MeasurementInformation.Date"))];
+        end
     case "analysisInformation"
         titleText = "Analysis";
         rows = [ ...
@@ -25,13 +34,21 @@ switch role
             row("Definition", valueAt(context, "Analysis.DefinitionVersion"))];
     case "provenance"
         titleText = "Provenance";
+        if hasTwoSources(context)
+            sourceRows = pairProvenanceRows(context.SourceArchives);
+        else
+            sourceRows = [ ...
+                row("Archive", valueAt(context, "Archive.Filename"))
+                row("Archive UUID", ...
+                    displayArchiveUUID(valueAt(context, "Archive.UUID")), 2)
+                row("Content hash", ...
+                    displayContentHash(valueAt(context, "Archive.ContentHash")), 2)
+                row("Archive format", joinValues( ...
+                    valueAt(context,"Archive.Format"), ...
+                    valueAt(context,"Archive.Version")))];
+        end
         rows = [ ...
-            row("Archive", valueAt(context, "Archive.Filename"))
-            row("Archive UUID", ...
-                displayArchiveUUID(valueAt(context, "Archive.UUID")), 2)
-            row("Content hash", ...
-                displayContentHash(valueAt(context, "Archive.ContentHash")), 2)
-            row("Archive format", joinValues(valueAt(context,"Archive.Format"), valueAt(context,"Archive.Version")))
+            sourceRows
             row("Report format", joinValues(valueAt(context,"Report.Format"), valueAt(context,"Report.Version")))
             row("SpectraLab", valueAt(context, "Report.SpectraLabVersion"))
             row("Report ID", valueAt(context, "Report.ReportId"))
@@ -44,6 +61,44 @@ end
 model = struct("Format","SLAB-REPORT-KEY-VALUE-TABLE", ...
     "Version","1.0","Role",role,"Title",titleText, ...
     "Columns",["Label","Value"],"Rows",rows);
+end
+
+function tf = hasTwoSources(context)
+tf = isfield(context, "SourceArchives") && ...
+    isstruct(context.SourceArchives) && numel(context.SourceArchives) == 2;
+end
+
+function rows = pairMeasurementRows(sources)
+rows = repmat(row("", ""), 10, 1);
+index = 1;
+for source = sources
+    role = source.Role;
+    rows(index) = row(role + " measurement", ...
+        valueAt(source, "Measurement.Name")); index = index + 1;
+    rows(index) = row(role + " project", ...
+        valueAt(source, "Metadata.Project")); index = index + 1;
+    rows(index) = row(role + " sample", ...
+        valueAt(source, "Metadata.SampleID")); index = index + 1;
+    rows(index) = row(role + " operator", ...
+        valueAt(source, "Measurement.Operator")); index = index + 1;
+    rows(index) = row(role + " date", ...
+        valueAt(source, "Measurement.Timestamp")); index = index + 1;
+end
+end
+
+function rows = pairProvenanceRows(sources)
+rows = repmat(row("", ""), 8, 1);
+index = 1;
+for source = sources
+    role = source.Role;
+    rows(index) = row(role + " archive", source.Filename); index = index + 1;
+    rows(index) = row(role + " UUID", ...
+        displayArchiveUUID(source.UUID), 2); index = index + 1;
+    rows(index) = row(role + " content hash", ...
+        displayContentHash(source.ContentHash), 2); index = index + 1;
+    rows(index) = row(role + " format", ...
+        joinValues(source.Format, source.Version)); index = index + 1;
+end
 end
 
 function r = row(label, value, lineCount)

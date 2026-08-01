@@ -444,7 +444,7 @@ spec = sess.measure("LED spectrum", "Mode", "interactive");
 Supported mode names are:
 
 - `interactive`
-- `automatic` (reserved, not supported by the current Spotread workflow)
+- `automatic` (supported by the v0.8.1 Spotread one-shot workflow)
 
 ---
 
@@ -452,7 +452,8 @@ Supported mode names are:
 
 ### Meaning
 
-`automatic` mode was requested, but the current Spotread workflow requires user interaction.
+`automatic` mode was requested for an instrument driver that does not
+support bounded automatic process control.
 
 ### What to do
 
@@ -463,7 +464,8 @@ sess = sess.calibrate("Mode", "interactive");
 spec = sess.measure("LED spectrum", "Mode", "interactive");
 ```
 
-`automatic` mode is reserved for future instruments that can calibrate and measure without user input.
+For i1Pro2, run `startup` from v0.8.1-dev and use automatic mode. Other
+drivers may support only interactive mode.
 
 ---
 
@@ -471,7 +473,18 @@ spec = sess.measure("LED spectrum", "Mode", "interactive");
 
 ### Meaning
 
-The current Spotread driver operates in interactive mode.
+The Spotread driver supports bounded automatic mode and retains interactive
+mode as a fallback.
+
+## No usable light detected
+
+Automatic Spotread measurement rejects a spectrum whose peak and integrated
+signal are not positive. This commonly means that the i1Pro2 remains on its
+calibration tile, the source is off, or the sensor is not aimed at the source.
+
+Move the instrument to the illuminated source or sample and repeat only the
+measurement. No `Spectrum` or measurement archive is created from the rejected
+operation.
 
 During calibration and measurement, SpectraLab pauses and waits for user confirmation.
 

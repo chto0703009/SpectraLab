@@ -103,6 +103,21 @@ function testYAxisStartsAtZero(testCase)
     verifyEqual(testCase, h.Parent.YLim(1), 0);
 end
 
+function testShowsSpectralColorBarByDefault(testCase)
+h = spectralab.plot.opticalDensity( ...
+    testCase.TestData.WavelengthNm, testCase.TestData.Density);
+verifyEqual(testCase, numel(findall(h.Parent, ...
+    "Tag", "SpectraLabSpectralColorBar")), 1);
+end
+
+function testCanHideSpectralColorBar(testCase)
+h = spectralab.plot.opticalDensity( ...
+    testCase.TestData.WavelengthNm, testCase.TestData.Density, ...
+    ShowSpectralColorBar=false);
+verifyEmpty(testCase, findall(h.Parent, ...
+    "Tag", "SpectraLabSpectralColorBar"));
+end
+
 
 function testAllowsPositiveInfinity(testCase)
 

@@ -105,6 +105,7 @@ classdef Session
             %   recommended in scripts that require user action.
             obj.Instrument.requireOpen();
             mode = spectralab.core.Session.parseInteractionMode(varargin{:});
+            obj.requireSupportedInteractionMode(mode);
 
             obj.playAudibleFeedback("start");
 
@@ -121,6 +122,10 @@ classdef Session
 
             catch ME
                 obj.playAudibleFeedback("error");
+                if strcmp(ME.identifier, ...
+                        "SpectraLab:Spotread:NoLightDetected")
+                    throwAsCaller(ME)
+                end
                 rethrow(ME)
             end
 
@@ -214,6 +219,7 @@ classdef Session
             obj.Instrument.requireCalibration();
 
             mode = spectralab.core.Session.parseInteractionMode(varargin{:});
+            obj.requireSupportedInteractionMode(mode);
 
             obj.playAudibleFeedback("start");
 
@@ -302,9 +308,7 @@ classdef Session
             %       sess.calibrate("interactive")
             %       sess.calibrate("Mode", "interactive")
             %
-            %   "automatic" is reserved for future instruments. It is
-            %   recognized so users get a clear error instead of an
-            %   ambiguous option failure.
+            %   Support for "automatic" is decided by the selected driver.
 
             mode = "interactive";
 
@@ -381,14 +385,7 @@ classdef Session
             end
 
             if mode == "automatic"
-                error("SpectraLab:Session:AutomaticModeUnsupported", ...
-                    "ERROR [SPL-015]\n\n" + ...
-                    "Automatic mode is recognized, but is not supported by the current instrument workflow.\n\n" + ...
-                    "What to do:\n" + ...
-                    "Use interactive mode for instruments that require user placement and ENTER prompts:\n\n" + ...
-                    "    sess = sess.calibrate(""Mode"", ""interactive"");\n" + ...
-                    "    spec = sess.measure(""LED spectrum"", ""Mode"", ""interactive"");\n\n" + ...
-                    "Automatic mode is reserved for future instruments that can calibrate and measure without user input.");
+                return
             end
 
             error("SpectraLab:Session:UnknownInteractionMode", ...
@@ -397,7 +394,7 @@ classdef Session
                 "    %s\n\n" + ...
                 "Supported modes:\n\n" + ...
                 "    interactive\n" + ...
-                "    automatic  (reserved; not supported by the current instrument workflow)\n\n" + ...
+                "    automatic  (when supported by the selected driver)\n\n" + ...
                 "What to do:\n" + ...
                 "Use:\n\n" + ...
                 "    sess = sess.calibrate(""Mode"", ""interactive"");\n" + ...
@@ -407,6 +404,20 @@ classdef Session
     end
 
     methods (Access = private)
+        function requireSupportedInteractionMode(obj, mode)
+            if obj.Instrument.supportsInteractionMode(mode)
+                return
+            end
+
+            error("SpectraLab:Session:AutomaticModeUnsupported", ...
+                "ERROR [SPL-015]\n\n" + ...
+                "The selected instrument driver does not support mode '%s'.\n\n" + ...
+                "What to do:\n" + ...
+                "Use a mode supported by the instrument, for example:\n\n" + ...
+                "    sess = sess.calibrate(""Mode"", ""interactive"");", ...
+                mode);
+        end
+
         function playAudibleFeedback(obj, eventName)
             %PLAYAUDIBLEFEEDBACK Play optional non-critical UX feedback.
 

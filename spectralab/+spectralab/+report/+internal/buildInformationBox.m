@@ -18,22 +18,33 @@ for k = 1:numel(required)
     end
 end
 
-metadataRows = [ ...
-    makeRow("Measurement", firstValue(context, ...
-        ["MeasurementInformation.Name"]))
-    makeRow("Project", firstValue(context, ...
-        ["MeasurementInformation.Project"]))
-    makeRow("Sample", firstValue(context, ...
-        ["MeasurementInformation.Sample"]))
-    makeRow("Operator", firstValue(context, ...
-        ["MeasurementInformation.Operator"]))
-    makeRow("Date", firstValue(context, ...
-        ["MeasurementInformation.Date"]))
-    makeRow("Instrument", firstValue(context, ...
-        ["Instrument.Name","Instrument.Model","Instrument.Instrument"]))
-    makeRow("Analysis", firstValue(context, ["Analysis.Name"]))
-    makeRow("Method", firstValue(context, ["Analysis.Method"]))
-    makeRow("Archive", firstValue(context, ["Archive.Filename"]))];
+pairAnalysis = isPairArchiveAnalysis(context.Analysis);
+if pairAnalysis && ...
+        isfield(context, "SourceArchives")
+    metadataRows = pairInformationRows(context);
+elseif pairAnalysis
+    metadataRows = [ ...
+        makeRow("Analysis", firstValue(context, "Analysis.Name"))
+        makeRow("Method", firstValue(context, "Analysis.Method"))];
+else
+    metadataRows = [ ...
+        makeRow("Measurement", firstValue(context, ...
+            "MeasurementInformation.Name"))
+        makeRow("Project", firstValue(context, ...
+            "MeasurementInformation.Project"))
+        makeRow("Sample", firstValue(context, ...
+            "MeasurementInformation.Sample"))
+        makeRow("Operator", firstValue(context, ...
+            "MeasurementInformation.Operator"))
+        makeRow("Date", firstValue(context, ...
+            "MeasurementInformation.Date"))
+        makeRow("Instrument", firstValue(context, ...
+            ["Instrument.Name","Instrument.Model","Instrument.Instrument"]))
+        makeRow("Analysis", firstValue(context, "Analysis.Name"))
+        makeRow("Method", firstValue(context, "Analysis.Method"))];
+    metadataRows(end+1) = ...
+        makeRow("Archive", firstValue(context, "Archive.Filename"));
+end
 
 results = spectralab.report.internal.buildResultsTable( ...
     context.Result, context.Analysis);
@@ -45,6 +56,33 @@ model = struct( ...
     "Title", "Information", ...
     "MeasurementInformationRows", metadataRows, ...
     "ResultRows", results.Rows);
+end
+
+function tf = isPairArchiveAnalysis(analysis)
+tf = isfield(analysis, "AnalysisId") && ...
+    any(string(analysis.AnalysisId) == ["ANL-009", "ANL-010"]);
+end
+
+function rows = pairInformationRows(context)
+first = context.SourceArchives(1);
+second = context.SourceArchives(2);
+rows = [ ...
+    makeRow("Analysis", firstValue(context, "Analysis.Name"))
+    makeRow("Method", firstValue(context, "Analysis.Method"))
+    makeRow(first.Role + " archive", first.Filename)
+    makeRow(first.Role + " measurement", first.Measurement.Name)
+    makeRow(first.Role + " sample", sourceSample(first))
+    makeRow(second.Role + " archive", second.Filename)
+    makeRow(second.Role + " measurement", second.Measurement.Name)
+    makeRow(second.Role + " sample", sourceSample(second))];
+end
+
+function value = sourceSample(source)
+value = "—";
+if isfield(source.Metadata, "SampleID") && ...
+        strlength(string(source.Metadata.SampleID)) > 0
+    value = string(source.Metadata.SampleID);
+end
 end
 
 function row = makeRow(label, value)

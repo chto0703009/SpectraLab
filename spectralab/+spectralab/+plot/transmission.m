@@ -11,6 +11,7 @@ function h = transmission(result, options)
         options.Marker (1,1) string = "none"
         options.DisplayName (1,1) string = ""
         options.ShowGrid (1,1) logical = true
+        options.ShowSpectralColorBar (1,1) logical = true
     end
 
     errorPrefix = "spectralab:plot:transmission";
@@ -22,6 +23,11 @@ function h = transmission(result, options)
     styleAxes(ax, "Wavelength (nm)", "Transmission", options.Title, options.ShowGrid);
 
     applyZeroBasedYLimits(ax);
+    if options.ShowSpectralColorBar
+        spectralab.plot.spectralColorBar(ax);
+    else
+        delete(findall(ax, "Tag", "SpectraLabSpectralColorBar"));
+    end
 end
 
 

@@ -23,7 +23,31 @@ verifyEqual(testCase, info.driver, ...
     "spectralab.drivers.SpotreadInstrument");
 verifyEqual(testCase, info.backend, "ArgyllCMS spotread");
 verifyEqual(testCase, info.backend_mode, ...
-    "manual-safe-one-spotread-session");
+    "interactive-fallback-and-bounded-one-shot");
+verifyEqual(testCase, info.automatic_trigger, "dialog");
+verifyFalse(testCase, info.high_resolution);
+
+end
+
+
+function testHighResolutionCanBeSelected(testCase)
+
+instrument = spectralab.drivers.createInstrument( ...
+    "i1Pro2", "HighResolution", true);
+info = instrument.getInfo();
+
+verifyTrue(testCase, info.high_resolution);
+
+end
+
+
+function testInstrumentSwitchTriggerCanBeSelected(testCase)
+
+instrument = spectralab.drivers.createInstrument( ...
+    "i1Pro2", "AutomaticTrigger", "instrument");
+info = instrument.getInfo();
+
+verifyEqual(testCase, info.automatic_trigger, "instrument");
 
 end
 

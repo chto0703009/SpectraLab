@@ -99,9 +99,19 @@ end
 end
 
 function displayValue = formatValue(value, format)
+if (isstring(value) && isscalar(value)) || ...
+        (ischar(value) && (isrow(value) || isempty(value)))
+    if format ~= "%s"
+        error("SpectraLab:Report:InvalidResultFormat", ...
+            "Text analysis results require the format '%%s'.");
+    end
+    displayValue = string(value);
+    return
+end
+
 if ~(isnumeric(value) || islogical(value)) || ~isscalar(value)
     error("SpectraLab:Report:UnsupportedResultValue", ...
-        "Initial result-table values must be numeric or logical scalars.");
+        "Result-table values must be numeric, logical, or text scalars.");
 end
 
 try

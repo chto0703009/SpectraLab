@@ -62,6 +62,12 @@ definition.
 | `ANL-005` | Status A Density | Reference, Sample | No |
 | `ANL-008` | Status M Density | Reference, Sample | No |
 | `ANL-007` | ISO Visual Density | Reference, Sample | No |
+| `ANL-009` | Spectral Mean | Source A, Source B | Yes |
+| `ANL-010` | Spectral Difference | Minuend (A), Subtrahend (B) | Yes |
+
+ANL-009 may additionally save a traceable derived MAT archive. ANL-010 is
+reportable as PDF and PNG but intentionally creates no MAT archive. See
+ED-018 for the scientific and provenance contract.
 
 Adding a reportable analysis requires adding one canonical registry entry
 and its tests. No second metadata definition is permitted in examples or

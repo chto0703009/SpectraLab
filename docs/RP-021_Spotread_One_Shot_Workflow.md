@@ -186,3 +186,131 @@ RP-021 is complete only when:
 
 This document is the approved functional specification for the principal
 Spotread work in SpectraLab v0.8.1.
+
+## 13. Implementation status
+
+Stages 1-5 are implemented in the development branch without removing the
+released interactive fallback:
+
+- `tools/capture_spotread_one_shot.m` records isolated physical-instrument
+  runs, raw output and process metadata for operator review;
+- `spectralab.drivers.spotread.OutcomeParser` defines the initial strict
+  outcome vocabulary, covered by explicitly labelled synthetic fixtures;
+- `spectralab.drivers.spotread.OneShotCommandRunner` runs argument-list based
+  commands in a unique temporary directory with a hard timeout;
+- `tools/spotread_one_shot.py` implements bounded process control without a
+  persistent ENTER-controlled process.
+
+Real ArgyllCMS 3.5.0/i1Pro2 calibration, dark-signal and valid-measurement
+captures have been reviewed and promoted to regression fixtures.
+
+The first physical captures showed that a fresh `-O` process reports that
+calibration is needed and then completes one calibration operation. A new
+process repeats that calibration path. Consequently, the separate one-shot
+measurement capture uses `-N -O` only after a verified successful calibration.
+This observed i1Pro2 behaviour shall be reverified before stage 4 adopts the
+combination in the production workflow.
+
+The first `-N -O` physical capture completed and wrote a 36-band `.sp` file,
+but its near-zero predominantly negative signal demonstrated that successful
+process completion is not sufficient for archiving. Capture metadata now
+records signal statistics and a separate candidate-validity flag. The final
+stage-4 validator shall reject such output before archive creation.
+
+A subsequent correctly positioned `-e -s -N -O` capture succeeded in 4.2
+seconds, produced 36 positive samples over 380-730 nm and wrote a matching
+`.sp` file. Its reviewed output is retained as the first physical i1Pro2
+measurement fixture for the one-shot workflow.
+
+`SpotreadInstrument` now exposes the bounded workflow through public
+`automatic` mode. It accepts calibration only after
+`CALIBRATION_SUCCEEDED`, compares measurement console data with the saved
+`.sp` file, rejects non-positive integrated signals, and creates a `Spectrum`
+only after all checks pass. Full public-workflow verification with the
+physical i1Pro2 was the stage-6 gate and is recorded below.
+
+Desktop placement confirmation uses a modal Continue/Cancel dialog so that
+pasted multi-line MATLAB commands cannot leave `input()` waiting in the
+Command Window. Headless MATLAB retains an ENTER-based fallback.
+
+## 14. Physical standard-resolution verification
+
+- **Status:** Passed 31 July 2026
+- **Instrument:** X-Rite i1Pro2
+- **Backend:** ArgyllCMS 3.5.0
+- **MATLAB:** R2025b
+
+The public workflow was run through `Session` and `SpotreadInstrument`:
+
+```matlab
+sess = sess.calibrate("Mode", "automatic");
+spec = sess.measure("RP-021 physical test", "Mode", "automatic");
+```
+
+The operator received separate placement dialogs for calibration and
+measurement. Calibration completed, the subsequent bounded measurement
+completed without ENTER forwarding, and SpectraLab returned:
+
+```text
+Samples:          36
+Range:            380.0 - 730.0 nm
+Peak wavelength:  450.0 nm
+Integrated power: 44604.9 arbitrary*nm
+```
+
+This passes the stage-6 standard-resolution physical-instrument gate. Archive
+integration remains required before the complete RP-021 workflow can be
+approved. Optional `-H` evaluation remains a separate later stage.
+
+## 15. Instrument-switch trigger evaluation
+
+An experimental bounded runner was verified with its stdin pipe kept open.
+With the i1Pro2 positioned on its white reference, pressing the physical
+instrument switch triggered `-e -s -O`, returned status 0 and reported
+`Calibration complete` in 8.7 seconds. No spectrum file was created during
+the calibration-only operation. Instrument-switch measurement was then
+verified before changing the default trigger.
+
+The subsequent physical-switch measurement using `-e -s -N -O` also passed:
+status 0, no timeout, 36 positive samples over 380-730 nm, positive integrated
+power and a matching `.sp` file. The physical i1Pro2 switch remains available
+through explicit `AutomaticTrigger="instrument"` selection. Modal confirmation
+is the default because it unambiguously separates calibration and measurement
+actions.
+
+The first immediate back-to-back public calibration/measurement attempt
+showed that an operator can press the switch before the newly launched
+measurement process has reached Spotread's reading prompt. The runner now
+detects the actual Spotread calibration or measurement prompt through its PTY
+and emits `SPECTRALAB_READY` before asking for the physical switch. Early
+button presses are therefore no longer presented as valid timing.
+
+The first back-to-back test after prompt synchronization showed that the
+release event from the calibration switch could still be observed by an
+immediately launched measurement process. A two-second switch-settle guard is
+therefore applied before arming measurement. The operator is instructed to
+release the switch and reposition the instrument during this interval; only a
+new press after the subsequent `SPECTRALAB_READY` is valid.
+
+## 16. High-resolution physical evaluation
+
+The capture tool exposes `HighResolution=true`, which adds `-H` explicitly
+without changing the standard-resolution default. The first high-resolution
+capture shall be reviewed for wavelength range, sample count and spacing,
+console/`.sp` agreement, signal validity and parser compatibility before the
+option is exposed by `SpotreadInstrument` or the measurement GUI.
+
+The first `-H -N -O` attempt after standard-resolution calibration caused
+Spotread to request a new calibration. Because the instrument was already on
+the light source, calibration correctly failed with `Measurement misread`
+and `Dark reading is not valid (too light)`. No spectrum file was created.
+This demonstrates that high-resolution mode has an independent calibration
+requirement. Evaluation must therefore use `-H -O` calibration on the white
+reference before `-H -N -O` measurement.
+
+The corrected sequence passed physically. High-resolution calibration took
+13.3 seconds. Measurement took 4.2 seconds and returned 109 positive samples
+over 370-730 nm (approximately 3.33 nm spacing), positive integrated signal
+and matching console/`.sp` data. `SpotreadInstrument` therefore exposes
+explicit `HighResolution=true`, and the work measurement GUI offers Standard
+or High resolution before calibration. Standard remains the default.

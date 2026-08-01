@@ -32,5 +32,10 @@ classdef (Abstract) Instrument < handle
                     "Instrument has no valid calibration. Run calibrate() first.");
             end
         end
+
+        function tf = supportsInteractionMode(~, mode)
+            %SUPPORTSINTERACTIONMODE Report modes implemented by a driver.
+            tf = lower(strtrim(string(mode))) == "interactive";
+        end
     end
 end

@@ -1,0 +1,2 @@
+Instrument initialisation failed
+Communications failure

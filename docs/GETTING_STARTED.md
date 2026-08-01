@@ -172,9 +172,13 @@ The numerical values depend on the measured light source.
 
 ---
 
-## Understanding Interactive Mode
+## Understanding Spotread modes
 
-The current Spotread driver operates in **interactive mode**.
+The Spotread driver provides two workflows in v0.8.1:
+
+- `interactive` preserves the verified v0.8.0 persistent-process fallback;
+- `automatic` uses one bounded Spotread process for calibration and one for
+  measurement.
 
 SpectraLab guides the user through calibration and measurement one step at a time. This ensures that each operation is performed only when the instrument and operator are ready.
 
@@ -200,7 +204,42 @@ sess = sess.calibrate("Mode", "interactive");
 spec = sess.measure("LED spectrum", "Mode", "interactive");
 ```
 
-`automatic` mode is reserved for future instruments that can calibrate and measure without user input.
+In `automatic` mode, SpectraLab asks the operator to position the instrument
+and confirm each operation in a separate modal dialog. It uses `-O` for
+calibration and the physically verified `-N -O` combination for measurement.
+No ENTER key is forwarded to a persistent Spotread process. A spectrum is
+returned only after the textual result and the saved `.sp` file agree and the
+signal passes validation.
+
+The physically verified i1Pro2 switch trigger remains available explicitly:
+
+```matlab
+inst = spectralab.drivers.createInstrument( ...
+    "i1Pro2", AutomaticTrigger="instrument");
+```
+
+In switch mode, release the calibration press, reposition the instrument,
+wait for the new `SPECTRALAB_READY` line, and then make a separate measurement
+press.
+
+The modal dialog is the default because it gives an unambiguous, separate
+confirmation for calibration and measurement.
+
+High-resolution i1Pro2 acquisition is explicit and requires its own
+calibration:
+
+```matlab
+inst = spectralab.drivers.createInstrument( ...
+    "i1Pro2", HighResolution=true);
+```
+
+This adds `-H` to both the calibration and measurement operations. Standard
+resolution remains the default.
+
+```matlab
+sess = sess.calibrate("Mode", "automatic");
+spec = sess.measure("LED spectrum", "Mode", "automatic");
+```
 
 ---
 
@@ -214,9 +253,9 @@ inst = spectralab.drivers.createInstrument("spotread");
 sess = spectralab.core.Session(inst);
 sess = sess.open();
 
-sess = sess.calibrate("Mode", "interactive");
+sess = sess.calibrate("Mode", "automatic");
 
-spec = sess.measure("LED spectrum", "Mode", "interactive");
+spec = sess.measure("LED spectrum", "Mode", "automatic");
 
 disp(spec.summary())
 
@@ -266,6 +305,28 @@ Your installation is considered verified when:
 - `run_all_tests` passes.
 
 At that point SpectraLab is ready for normal use.
+
+---
+
+## Mean or difference of two saved spectra
+
+Select the registered analysis by running its analysis-specific workflow:
+
+```matlab
+run("/Users/christer/Desktop/SpectraLab/SpectraLab_Work/scripts/spectral_mean.m")
+run("/Users/christer/Desktop/SpectraLab/SpectraLab_Work/scripts/spectral_difference.m")
+```
+
+`Spectral mean` saves a new traceable MAT archive plus PDF and PNG.
+`Spectral difference A - B` creates PDF and PNG only. The report names both
+source files. ANL-010 asks first for the minuend and then for the
+subtrahend, so the calculation order is explicit. Default output names are
+the first source basename plus `_Mean` or `_Diff`. A custom Work script may
+set `pairOutputName` before running the shared workflow.
+
+Use ANL-010 to inspect light-source stability between measurements. Use
+ANL-009 when a traceable mean spectrum is needed to reduce the influence of
+measurement variation in a subsequent analysis.
 
 ---
 

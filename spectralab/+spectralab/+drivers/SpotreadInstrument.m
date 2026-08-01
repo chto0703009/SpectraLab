@@ -9,13 +9,18 @@ classdef SpotreadInstrument < spectralab.core.Instrument
         InstrumentId (1,1) string = "i1Pro2"
         Executable (1,1) string = ""
         MeasurementOptions (1,1) string = "-e -s"
-        CalibrationOptions (1,1) string = "-e"
+        CalibrationOptions (1,1) string = "-e -s"
         TimeoutSeconds (1,1) double = 300
         PythonExecutable (1,1) string = ""
+        AutomaticTrigger (1,1) string = "dialog"
+        InstrumentSwitchSettleSeconds (1,1) double = 2
+        HighResolution (1,1) logical = false
     end
 
     properties (Access = private)
         Runner
+        OneShotRunner
+        PlacementConfirmation = []
     end
 
     methods
@@ -43,7 +48,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             addParameter( ...
                 p, ...
                 "CalibrationOptions", ...
-                "-e", ...
+                "-e -s", ...
                 @(x) ischar(x) || isstring(x));
 
             addParameter( ...
@@ -58,6 +63,36 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 "", ...
                 @(x) ischar(x) || isstring(x));
 
+            addParameter( ...
+                p, ...
+                "OneShotRunner", ...
+                [], ...
+                @(x) isempty(x) || isobject(x));
+
+            addParameter( ...
+                p, ...
+                "PlacementConfirmation", ...
+                [], ...
+                @(x) isempty(x) || isa(x, "function_handle"));
+
+            addParameter( ...
+                p, ...
+                "AutomaticTrigger", ...
+                "dialog", ...
+                @(x) any(lower(string(x)) == ["instrument", "dialog"]));
+
+            addParameter( ...
+                p, ...
+                "InstrumentSwitchSettleSeconds", ...
+                2, ...
+                @(x) isnumeric(x) && isscalar(x) && isfinite(x) && x >= 0);
+
+            addParameter( ...
+                p, ...
+                "HighResolution", ...
+                false, ...
+                @(x) islogical(x) && isscalar(x));
+
             parse(p, varargin{:});
 
             obj.InstrumentId = string(p.Results.InstrumentId);
@@ -66,6 +101,12 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             obj.CalibrationOptions = string(p.Results.CalibrationOptions);
             obj.TimeoutSeconds = p.Results.TimeoutSeconds;
             obj.PythonExecutable = string(p.Results.PythonExecutable);
+            obj.OneShotRunner = p.Results.OneShotRunner;
+            obj.PlacementConfirmation = p.Results.PlacementConfirmation;
+            obj.AutomaticTrigger = lower(string(p.Results.AutomaticTrigger));
+            obj.InstrumentSwitchSettleSeconds = ...
+                double(p.Results.InstrumentSwitchSettleSeconds);
+            obj.HighResolution = p.Results.HighResolution;
         end
 
         function info = getInfo(obj)
@@ -80,11 +121,16 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             % physical instrument is operated and are not its identity.
             info.driver = "spectralab.drivers.SpotreadInstrument";
             info.backend = "ArgyllCMS spotread";
-            info.backend_mode = "manual-safe-one-spotread-session";
+            info.backend_mode = ...
+                "interactive-fallback-and-bounded-one-shot";
             info.executable = obj.Executable;
             info.python_executable = obj.PythonExecutable;
             info.measurement_options = obj.MeasurementOptions;
             info.calibration_options = obj.CalibrationOptions;
+            info.automatic_trigger = obj.AutomaticTrigger;
+            info.instrument_switch_settle_seconds = ...
+                obj.InstrumentSwitchSettleSeconds;
+            info.high_resolution = obj.HighResolution;
             info.version = spectralab.version();
             info.is_open = obj.IsOpen;
         end
@@ -138,11 +184,27 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                     obj.Executable, ...
                     obj.TimeoutSeconds);
 
+            if isempty(obj.OneShotRunner)
+                obj.OneShotRunner = ...
+                    spectralab.drivers.spotread.OneShotCommandRunner( ...
+                        obj.Executable, ...
+                        PythonExecutable=obj.PythonExecutable, ...
+                        TimeoutSeconds=obj.TimeoutSeconds, ...
+                        KeepArtifacts=true, ...
+                        KeepStandardInputOpen=( ...
+                            obj.AutomaticTrigger == "instrument"));
+            end
+
             obj.IsOpen = true;
         end
 
         function close(obj)
             obj.IsOpen = false;
+        end
+
+        function tf = supportsInteractionMode(~, mode)
+            tf = any(lower(strtrim(string(mode))) == ...
+                ["interactive", "automatic"]);
         end
 
         function cal = calibrate(obj, mode)
@@ -152,7 +214,13 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 mode = "interactive";
             end
 
-            if lower(string(mode)) ~= "interactive"
+            mode = lower(string(mode));
+            if mode == "automatic"
+                cal = obj.calibrateOneShot();
+                return
+            end
+
+            if mode ~= "interactive"
                 error( ...
                     "SpectraLab:Spotread:UnsupportedInteractionMode", ...
                     "ERROR [SPL-015]\n\n" + ...
@@ -193,7 +261,13 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 mode = "interactive";
             end
 
-            if lower(string(mode)) ~= "interactive"
+            mode = lower(string(mode));
+            if mode == "automatic"
+                spec = obj.measureOneShot(label);
+                return
+            end
+
+            if mode ~= "interactive"
                 error( ...
                     "SpectraLab:Spotread:UnsupportedInteractionMode", ...
                     "ERROR [SPL-015]\n\n" + ...
@@ -295,4 +369,188 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 "arbitrary");
         end
     end
+
+    methods (Access = private)
+        function cal = calibrateOneShot(obj)
+            obj.confirmPlacement( ...
+                "Place the instrument on its reflective white reference.");
+
+            args = splitOptions(obj.CalibrationOptions);
+            if obj.HighResolution
+                args(end + 1) = "-H";
+            end
+            args(end + 1:end + 2) = ["-O", "spectrum.sp"];
+            result = obj.OneShotRunner.run(args);
+            cleanup = onCleanup(@() cleanupWorkingDirectory(result));
+            rawOutput = result.output + newline + result.error_output;
+            outcome = spectralab.drivers.spotread.OutcomeParser.classify( ...
+                rawOutput, result.status, result.timed_out);
+
+            if outcome.kind ~= "CALIBRATION_SUCCEEDED"
+                error("SpectraLab:Spotread:OneShotCalibrationFailed", ...
+                    "Spotread calibration did not succeed (%s): %s", ...
+                    outcome.kind, outcome.message);
+            end
+
+            data = struct();
+            data.backend = "spotread-bounded-one-shot";
+            data.command = result.command;
+            data.status = result.status;
+            data.duration_seconds = result.duration_seconds;
+            data.outcome = outcome.kind;
+            data.calibration_was_required = ...
+                outcome.calibration_was_required;
+            data.high_resolution = obj.HighResolution;
+            data.raw_output = rawOutput;
+
+            cal = spectralab.core.Calibration.valid( ...
+                obj.getInfo(), ...
+                "spotread-one-shot-white-reference", ...
+                "Spotread calibration completed successfully.", ...
+                data);
+            obj.LastCalibration = cal;
+        end
+
+        function spec = measureOneShot(obj, label)
+            obj.confirmPlacement( ...
+                "Place the instrument on the source or sample to be measured.");
+
+            if obj.AutomaticTrigger == "instrument" && ...
+                    obj.InstrumentSwitchSettleSeconds > 0
+                fprintf( ...
+                    "Release the instrument button. Measurement will arm in %.1f seconds.\n", ...
+                    obj.InstrumentSwitchSettleSeconds);
+                pause(obj.InstrumentSwitchSettleSeconds);
+                fprintf("Starting Spotread measurement; wait for READY.\n");
+            end
+
+            args = splitOptions(obj.MeasurementOptions);
+            if obj.HighResolution
+                args(end + 1) = "-H";
+            end
+            args(end + 1:end + 3) = ["-N", "-O", "spectrum.sp"];
+            result = obj.OneShotRunner.run(args);
+            cleanup = onCleanup(@() cleanupWorkingDirectory(result));
+            rawOutput = result.output + newline + result.error_output;
+            outcome = spectralab.drivers.spotread.OutcomeParser.classify( ...
+                rawOutput, result.status, result.timed_out);
+
+            if outcome.kind ~= "MEASUREMENT_SUCCEEDED"
+                error("SpectraLab:Spotread:OneShotMeasurementFailed", ...
+                    "Spotread measurement did not succeed (%s): %s", ...
+                    outcome.kind, outcome.message);
+            end
+
+            [wl, power, parseInfo] = ...
+                spectralab.drivers.spotread.Parser.parseSpectrum(rawOutput);
+            spectrumFile = fullfile( ...
+                result.working_directory, "spectrum.sp");
+            [fileWl, filePower, fileInfo] = ...
+                spectralab.drivers.spotread.Parser.parseSpectrumFile( ...
+                    spectrumFile);
+            validateMatchingSpectrum(wl, power, fileWl, filePower);
+            validateReportableSignal(wl, power, rawOutput);
+
+            metadata = struct();
+            metadata.backend = "spotread-bounded-one-shot";
+            metadata.command = result.command;
+            metadata.status = result.status;
+            metadata.duration_seconds = result.duration_seconds;
+            metadata.raw_output = rawOutput;
+            metadata.parse_info = parseInfo;
+            metadata.spectrum_file_info = fileInfo;
+            metadata.one_shot = true;
+            metadata.high_resolution = any(args == "-H");
+            metadata.skip_initial_calibration = any(args == "-N");
+            metadata.calibration_outcome = ...
+                obj.LastCalibration.Data.outcome;
+
+            spec = spectralab.core.Spectrum( ...
+                wl, power, label, obj.getInfo(), ...
+                obj.LastCalibration.toStruct(), metadata, "arbitrary");
+        end
+
+        function confirmPlacement(obj, message)
+            if ~isempty(obj.PlacementConfirmation)
+                obj.PlacementConfirmation(string(message));
+                return
+            end
+
+            if obj.AutomaticTrigger == "instrument"
+                fprintf("\nSpectraLab one-shot operation:\n%s\n", message);
+                fprintf("Wait until Spotread reports READY before pressing the button.\n");
+            else
+                if usejava('desktop')
+                    choice = questdlg( ...
+                        char(message), ...
+                        "SpectraLab one-shot operation", ...
+                        "Continue", ...
+                        "Cancel", ...
+                        "Continue");
+                    if ~strcmp(choice, "Continue")
+                        error("SpectraLab:Spotread:OperationCancelled", ...
+                            "The operator cancelled the Spotread operation.");
+                    end
+                else
+                    fprintf("\nSpectraLab one-shot operation:\n%s\n", message);
+                    input("Press ENTER to continue, or Ctrl-C to abort: ", "s");
+                end
+            end
+        end
+    end
+end
+
+function options = splitOptions(value)
+options = string(regexp(strtrim(char(value)), '\s+', 'split'));
+options(strlength(options) == 0) = [];
+end
+
+function cleanupWorkingDirectory(result)
+if isfield(result, "artifacts_retained") && ...
+        result.artifacts_retained && ...
+        isfolder(result.working_directory)
+    rmdir(result.working_directory, "s");
+end
+end
+
+function validateMatchingSpectrum(wl, power, fileWl, filePower)
+if ~isequal(wl, fileWl)
+    error("SpectraLab:Spotread:SpectrumMismatch", ...
+        "Spotread text and spectrum file use different wavelength grids.");
+end
+tolerance = max(1e-9, 1e-5 * max(abs(filePower)));
+if any(abs(power - filePower) > tolerance)
+    error("SpectraLab:Spotread:SpectrumMismatch", ...
+        "Spotread text and spectrum file contain different values.");
+end
+end
+
+function validateReportableSignal(wl, power, rawOutput)
+integratedPower = trapz(wl, power);
+xyzToken = regexp(char(rawOutput), ...
+    ['Result is XYZ:\s*' ...
+     '([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s+' ...
+     '([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s+' ...
+     '([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)'], ...
+    'tokens', 'once');
+zeroXYZ = false;
+if ~isempty(xyzToken)
+    xyz = str2double(xyzToken);
+    zeroXYZ = all(abs(xyz) <= 1e-12);
+end
+
+if max(power) <= 0 || integratedPower <= 0 || zeroXYZ
+    message = ...
+        "No usable light was detected.\n\n" + ...
+        "The instrument may still be on the calibration tile, " + ...
+        "the source may be off, or the sensor may not be aimed at " + ...
+        "the source.\n\n" + ...
+        "Move the instrument to the illuminated source or sample " + ...
+        "and run the measurement again. No measurement was saved.";
+    if usejava('desktop')
+        uiwait(errordlg(char(message), ...
+            "SpectraLab - No light detected", "modal"));
+    end
+    error("SpectraLab:Spotread:NoLightDetected", "%s", message);
+end
 end

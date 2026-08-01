@@ -18,21 +18,21 @@ if ~options.Enabled
 end
 
 eventName = lower(strtrim(eventName));
-sampleRate = 8000;
+sampleRate = 16000;
 
 switch eventName
     case "start"
-        waveform = createTone(880, 0.070, sampleRate);
+        waveform = createTone(880, 0.120, sampleRate);
 
     case "success"
         waveform = [
-            createTone(1100, 0.060, sampleRate)
-            zeros(round(0.030 * sampleRate), 1)
-            createTone(1500, 0.090, sampleRate)
+            createTone(1100, 0.100, sampleRate)
+            zeros(round(0.040 * sampleRate), 1)
+            createTone(1500, 0.140, sampleRate)
         ];
 
     case "error"
-        errorTone = createTone(2000, 0.050, sampleRate);
+        errorTone = createTone(2000, 0.080, sampleRate);
         errorPause = zeros(round(0.100 * sampleRate), 1);
 
         waveform = [
@@ -50,7 +50,11 @@ switch eventName
 end
 
 try
-    sound(0.18 * waveform, sampleRate);
+    % Wait for this deliberately short signal to finish. Asynchronous
+    % sound() can be replaced by the following Spotread operation before
+    % it becomes audible on some MATLAB/macOS audio configurations.
+    player = audioplayer(0.45 * waveform, sampleRate);
+    playblocking(player);
 catch
     % Audible feedback is non-critical and must never affect the workflow.
 end

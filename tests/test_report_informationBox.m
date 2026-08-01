@@ -30,6 +30,14 @@ model = spectralab.report.internal.buildInformationBox(context);
 verifyEqual(testCase, [model.ResultRows.Field], ["Ra","CCT"]);
 end
 
+function testPairAnalysisOmitsMisleadingSingleArchiveRow(testCase)
+context = makeContext();
+context.Analysis.AnalysisId = "ANL-009";
+model = spectralab.report.internal.buildInformationBox(context);
+verifyFalse(testCase, any( ...
+    [model.MeasurementInformationRows.Label] == "Archive"));
+end
+
 function testRendererReturnsFiniteHeightAndStoresModel(testCase)
 context = makeContext();
 document = makeDocument();

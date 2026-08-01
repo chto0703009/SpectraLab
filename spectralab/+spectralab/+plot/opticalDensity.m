@@ -17,6 +17,7 @@ function h = opticalDensity(wavelengthNm, density, options)
         options.Marker (1,1) string = "none"
         options.DisplayName (1,1) string = ""
         options.ShowGrid (1,1) logical = true
+        options.ShowSpectralColorBar (1,1) logical = true
     end
 
     errorPrefix = "spectralab:plot:opticalDensity";
@@ -30,6 +31,11 @@ function h = opticalDensity(wavelengthNm, density, options)
     styleAxes(ax, "Wavelength (nm)", "Optical density", options.Title, options.ShowGrid);
 
     applyZeroBasedYLimits(ax);
+    if options.ShowSpectralColorBar
+        spectralab.plot.spectralColorBar(ax);
+    else
+        delete(findall(ax, "Tag", "SpectraLabSpectralColorBar"));
+    end
 end
 
 

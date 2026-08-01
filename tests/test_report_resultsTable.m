@@ -40,6 +40,16 @@ tableModel = spectralab.report.internal.buildResultsTable( ...
 verifyEqual(testCase, [tableModel.Rows.Field], ["Ra", "CCT"]);
 end
 
+function testFormatsTraceableTextResult(testCase)
+result = struct("SourceFile", "measurement_A.mat");
+definition = struct("ResultFields", ...
+    makeResultField("SourceFile", "Source archive", "", "%s"));
+tableModel = spectralab.report.internal.buildResultsTable( ...
+    result, definition);
+verifyEqual(testCase, tableModel.Rows.DisplayText, "measurement_A.mat");
+verifyEqual(testCase, tableModel.Rows.Value, "measurement_A.mat");
+end
+
 function testResultsRendererReturnsFiniteHeight(testCase)
 context = makeContext();
 document = makeDocument(makeElement("Results", "table", "analysisResults", "Result"));

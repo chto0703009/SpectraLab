@@ -141,6 +141,9 @@ else
     payload.Measurement = archive.Measurement;
     payload.Instrument = archive.Instrument;
     payload.Quality = archive.Quality;
+    if isfield(archive, "Derivation")
+        payload.Derivation = archive.Derivation;
+    end
 
     calculatedHash = spectralab.archive.contentHash(payload);
 

@@ -159,6 +159,19 @@ function testYAxisStartsAtZero(testCase)
     verifyEqual(testCase, h.Parent.YLim(1), 0, "AbsTol", 1e-12);
 end
 
+function testShowsSpectralColorBarByDefault(testCase)
+h = spectralab.plot.transmission(testCase.TestData.Result);
+verifyEqual(testCase, numel(findall(h.Parent, ...
+    "Tag", "SpectraLabSpectralColorBar")), 1);
+end
+
+function testCanHideSpectralColorBar(testCase)
+h = spectralab.plot.transmission( ...
+    testCase.TestData.Result, ShowSpectralColorBar=false);
+verifyEmpty(testCase, findall(h.Parent, ...
+    "Tag", "SpectraLabSpectralColorBar"));
+end
+
 
 function testCustomTitle(testCase)
 
