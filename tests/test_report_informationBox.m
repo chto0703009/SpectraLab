@@ -8,9 +8,10 @@ context = makeContext();
 model = spectralab.report.internal.buildInformationBox(context);
 verifyEqual(testCase, model.Format, "SLAB-REPORT-INFORMATION-BOX");
 verifyEqual(testCase, model.Title, "Information");
-verifyEqual(testCase, [model.MeasurementInformationRows.Label], ["Measurement","Project","Sample","Operator","Date","Instrument","Analysis","Method","Archive"]);
-verifyEqual(testCase, [model.ResultRows.Field], ["CCT","Duv","Ra"]);
-verifyEqual(testCase, model.ResultRows(2).DisplayText, "+0.00482");
+verifyEqual(testCase, [model.MeasurementInformationRows.Label], ["Measurement","Project","Sample","Operator","Date","Comment","Instrument","Analysis","Method","Archive"]);
+verifyEqual(testCase, model.MeasurementInformationRows(6).DisplayText, ...
+    "Stability run after warm-up");
+verifyEmpty(testCase, model.ResultRows);
 end
 
 function testMissingMetadataUsesEmDash(testCase)
@@ -20,14 +21,16 @@ context.MeasurementInformation = struct("Name","Lamp");
 context.Instrument = struct();
 model = spectralab.report.internal.buildInformationBox(context);
 verifyEqual(testCase, model.MeasurementInformationRows(2).DisplayText, "—");
-verifyEqual(testCase, model.MeasurementInformationRows(6).DisplayText, "—");
+verifyEqual(testCase, model.MeasurementInformationRows(7).DisplayText, "—");
 end
 
-function testResultOrderFollowsAnalysisDefinition(testCase)
+function testInformationBoxNeverDuplicatesAnalysisResults(testCase)
 context = makeContext();
-context.Analysis.ResultFields = context.Analysis.ResultFields([3 1]);
 model = spectralab.report.internal.buildInformationBox(context);
-verifyEqual(testCase, [model.ResultRows.Field], ["Ra","CCT"]);
+verifyEmpty(testCase, model.ResultRows);
+verifyFalse(testCase, any(contains( ...
+    [model.MeasurementInformationRows.Label], "density", ...
+    IgnoreCase=true)));
 end
 
 function testPairAnalysisOmitsMisleadingSingleArchiveRow(testCase)
@@ -36,6 +39,32 @@ context.Analysis.AnalysisId = "ANL-009";
 model = spectralab.report.internal.buildInformationBox(context);
 verifyFalse(testCase, any( ...
     [model.MeasurementInformationRows.Label] == "Archive"));
+end
+
+function testAnyTwoSourceAnalysisIdentifiesBothArchives(testCase)
+context = makeContext();
+context.Analysis.AnalysisId = "ANL-005";
+source = struct("Role", "", "Filename", "", "Measurement", struct(), ...
+    "Metadata", struct());
+source(1) = struct("Role", "Reference", "Filename", "reference.mat", ...
+    "Measurement", struct("Name", "Reference measurement"), ...
+    "Metadata", struct("SampleID", "Reference sample", ...
+        "Comment", "Reference comment"));
+source(2) = struct("Role", "Sample", "Filename", "sample.mat", ...
+    "Measurement", struct("Name", "Sample measurement"), ...
+    "Metadata", struct("SampleID", "Sample sample", ...
+        "Comment", "Sample comment"));
+context.SourceArchives = source;
+
+model = spectralab.report.internal.buildInformationBox(context);
+labels = [model.MeasurementInformationRows.Label];
+values = [model.MeasurementInformationRows.DisplayText];
+verifyTrue(testCase, any(labels == "Reference archive"));
+verifyTrue(testCase, any(labels == "Sample archive"));
+verifyTrue(testCase, any(labels == "Reference sample ID"));
+verifyTrue(testCase, any(labels == "Sample ID"));
+verifyTrue(testCase, any(values == "reference.mat"));
+verifyTrue(testCase, any(values == "sample.mat"));
 end
 
 function testRendererReturnsFiniteHeightAndStoresModel(testCase)
@@ -72,6 +101,21 @@ context=makeContext(); document=makeDocument();
 verifyTrue(testCase,plan.Measured); verifyGreaterThan(testCase,plan.Height,0);
 end
 
+function testLongArchiveFilenameIncreasesInformationBoxHeight(testCase)
+context = makeContext();
+shortModel = spectralab.report.internal.buildInformationBox(context);
+shortHeight = spectralab.report.internal.estimateInformationBoxHeight(shortModel);
+context.Archive.Filename = ...
+    "C41_very_long_descriptive_measurement_name_20260801_reference.mat";
+longModel = spectralab.report.internal.buildInformationBox(context);
+longHeight = spectralab.report.internal.estimateInformationBoxHeight(longModel);
+
+archiveRow = longModel.MeasurementInformationRows(end);
+verifyEqual(testCase, archiveRow.LineCount, 2);
+verifyEqual(testCase, count(archiveRow.DisplayText, newline), 1);
+verifyGreaterThan(testCase, longHeight, shortHeight);
+end
+
 function context=makeContext()
 context.Archive=struct("Filename","lamp.mat","UUID","u","ContentHash","h");
 context.Measurement=struct("Name","Lamp");
@@ -81,7 +125,7 @@ context.MeasurementInformation=struct( ...
     "Sample","Light Pad 940", ...
     "Operator","Christer", ...
     "Date",datetime(2026,7,28,10,0,0), ...
-    "Comment","");
+    "Comment","Stability run after warm-up");
 context.Instrument=struct("Name","X-Rite i1Pro 2");
 context.Result=struct("CCT",5045.123,"Duv",0.004821987,"Ra",95.4321);
 context.Analysis=struct("AnalysisId","ANL-CRI","Name","Color Rendering Index","Method","CIE 13.3","Standard","CIE 13.3","DefinitionVersion","1","HasFigure",false,"ResultFields",[field("CCT","CCT","K","%.0f");field("Duv","Duv","","%+.5f");field("Ra","Ra","","%.1f")]);

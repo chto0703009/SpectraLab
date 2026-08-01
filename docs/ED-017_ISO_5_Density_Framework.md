@@ -135,6 +135,7 @@ result = spectralab.analysis.statusADensity(reference, sample);
 Purpose:
 
 - Status A red, green and blue density channels;
+- its registered ANL-005 report also includes ISO visual white density;
 - already implemented;
 - uses the canonical weighted-density engine.
 
@@ -159,6 +160,7 @@ result = spectralab.analysis.statusMDensity(reference, sample);
 Purpose:
 
 - Status M spectral density channels;
+- its registered ANL-008 report also includes ISO visual white density;
 - implemented under ANL-008;
 - uses the versioned Status M spectral weighting data supplied with SpectraLab.
 

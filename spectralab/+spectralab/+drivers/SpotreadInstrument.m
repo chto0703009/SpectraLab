@@ -21,6 +21,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
         Runner
         OneShotRunner
         PlacementConfirmation = []
+        OperationStartFeedback = []
     end
 
     methods
@@ -107,6 +108,18 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             obj.InstrumentSwitchSettleSeconds = ...
                 double(p.Results.InstrumentSwitchSettleSeconds);
             obj.HighResolution = p.Results.HighResolution;
+        end
+
+        function tf = synchronizesStartFeedback(~, mode)
+            tf = lower(strtrim(string(mode))) == "automatic";
+        end
+
+        function setOperationStartFeedback(obj, callback)
+            if ~isempty(callback) && ~isa(callback, "function_handle")
+                error("SpectraLab:Spotread:InvalidStartFeedback", ...
+                    "Operation start feedback must be a function handle.");
+            end
+            obj.OperationStartFeedback = callback;
         end
 
         function info = getInfo(obj)
@@ -472,15 +485,24 @@ classdef SpotreadInstrument < spectralab.core.Instrument
 
         function confirmPlacement(obj, message)
             if ~isempty(obj.PlacementConfirmation)
+                obj.notifyOperationStart();
                 obj.PlacementConfirmation(string(message));
                 return
             end
 
             if obj.AutomaticTrigger == "instrument"
+                obj.notifyOperationStart();
                 fprintf("\nSpectraLab one-shot operation:\n%s\n", message);
                 fprintf("Wait until Spotread reports READY before pressing the button.\n");
             else
                 if usejava('desktop')
+                    feedbackTimer = timer( ...
+                        "ExecutionMode", "singleShot", ...
+                        "StartDelay", 0.05, ...
+                        "TimerFcn", @(~,~) obj.notifyOperationStart());
+                    timerCleanup = onCleanup( ...
+                        @() cleanupFeedbackTimer(feedbackTimer));
+                    start(feedbackTimer);
                     choice = questdlg( ...
                         char(message), ...
                         "SpectraLab one-shot operation", ...
@@ -492,9 +514,16 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                             "The operator cancelled the Spotread operation.");
                     end
                 else
+                    obj.notifyOperationStart();
                     fprintf("\nSpectraLab one-shot operation:\n%s\n", message);
                     input("Press ENTER to continue, or Ctrl-C to abort: ", "s");
                 end
+            end
+        end
+
+        function notifyOperationStart(obj)
+            if ~isempty(obj.OperationStartFeedback)
+                obj.OperationStartFeedback();
             end
         end
     end
@@ -510,6 +539,13 @@ if isfield(result, "artifacts_retained") && ...
         result.artifacts_retained && ...
         isfolder(result.working_directory)
     rmdir(result.working_directory, "s");
+end
+end
+
+function cleanupFeedbackTimer(timerObject)
+if isvalid(timerObject)
+    stop(timerObject);
+    delete(timerObject);
 end
 end
 

@@ -67,6 +67,14 @@ assert(actualWavelength(end) == 730);
 assert(all(actualPower > 0));
 assert(abs(max(actualPower) - 277.815) < 1e-12);
 
+missingInstrument = ...
+    "Diagnostic: Unknown, inappropriate or no instrument detected";
+outcome = spectralab.drivers.spotread.OutcomeParser.classify( ...
+    missingInstrument, 1, false);
+assert(outcome.kind == "INSTRUMENT_NOT_DETECTED");
+assert(~outcome.success);
+assert(contains(outcome.message, "USB instrument"));
+
 outcome = spectralab.drivers.spotread.OutcomeParser.classify( ...
     spectrum, 7, false);
 assert(outcome.kind == "PROCESS_FAILED");

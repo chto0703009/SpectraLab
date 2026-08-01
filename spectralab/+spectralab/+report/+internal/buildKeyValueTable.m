@@ -22,7 +22,9 @@ switch role
                 row("Operator", valueAt(context, ...
                     "MeasurementInformation.Operator"))
                 row("Date", valueAt(context, ...
-                    "MeasurementInformation.Date"))];
+                    "MeasurementInformation.Date"))
+                row("Comment", valueAt(context, ...
+                    "MeasurementInformation.Comment"))];
         end
     case "analysisInformation"
         titleText = "Analysis";
@@ -38,7 +40,7 @@ switch role
             sourceRows = pairProvenanceRows(context.SourceArchives);
         else
             sourceRows = [ ...
-                row("Archive", valueAt(context, "Archive.Filename"))
+                archiveRow("Archive", valueAt(context, "Archive.Filename"))
                 row("Archive UUID", ...
                     displayArchiveUUID(valueAt(context, "Archive.UUID")), 2)
                 row("Content hash", ...
@@ -69,7 +71,7 @@ tf = isfield(context, "SourceArchives") && ...
 end
 
 function rows = pairMeasurementRows(sources)
-rows = repmat(row("", ""), 10, 1);
+rows = repmat(row("", ""), 12, 1);
 index = 1;
 for source = sources
     role = source.Role;
@@ -77,12 +79,22 @@ for source = sources
         valueAt(source, "Measurement.Name")); index = index + 1;
     rows(index) = row(role + " project", ...
         valueAt(source, "Metadata.Project")); index = index + 1;
-    rows(index) = row(role + " sample", ...
+    rows(index) = row(sampleIdLabel(role), ...
         valueAt(source, "Metadata.SampleID")); index = index + 1;
     rows(index) = row(role + " operator", ...
         valueAt(source, "Measurement.Operator")); index = index + 1;
     rows(index) = row(role + " date", ...
         valueAt(source, "Measurement.Timestamp")); index = index + 1;
+    rows(index) = row(role + " comment", ...
+        valueAt(source, "Metadata.Comment")); index = index + 1;
+end
+end
+
+function label = sampleIdLabel(role)
+if string(role) == "Sample"
+    label = "Sample ID";
+else
+    label = string(role) + " sample ID";
 end
 end
 
@@ -91,7 +103,7 @@ rows = repmat(row("", ""), 8, 1);
 index = 1;
 for source = sources
     role = source.Role;
-    rows(index) = row(role + " archive", source.Filename); index = index + 1;
+    rows(index) = archiveRow(role + " archive", source.Filename); index = index + 1;
     rows(index) = row(role + " UUID", ...
         displayArchiveUUID(source.UUID), 2); index = index + 1;
     rows(index) = row(role + " content hash", ...
@@ -99,6 +111,12 @@ for source = sources
     rows(index) = row(role + " format", ...
         joinValues(source.Format, source.Version)); index = index + 1;
 end
+end
+
+function r = archiveRow(label, value)
+[displayText, lineCount] = ...
+    spectralab.report.internal.wrapFilename(value);
+r = row(label, displayText, lineCount);
 end
 
 function r = row(label, value, lineCount)

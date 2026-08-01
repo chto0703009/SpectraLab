@@ -574,7 +574,8 @@ innerPlacement.Height = max( ...
     innerPlacement.Height - 2 * padding, ...
     1);
 
-rowHeight = innerPlacement.Height / numel(rows);
+rowLineCounts = arrayfun(@resultsTableRowLineCount, rows);
+lineHeight = innerPlacement.Height / sum(rowLineCounts);
 
 labelWidth = boxWidth * style.InformationBox.LabelWidthFraction;
 valueWidth = boxWidth - labelWidth;
@@ -582,8 +583,8 @@ valueWidth = boxWidth - labelWidth;
 for k = 1:numel(rows)
     rowPlacement = innerPlacement;
     rowPlacement.Y = ...
-        innerPlacement.Y + (k - 1) * rowHeight;
-    rowPlacement.Height = rowHeight;
+        innerPlacement.Y + sum(rowLineCounts(1:k-1)) * lineHeight;
+    rowPlacement.Height = rowLineCounts(k) * lineHeight;
 
     labelPosition = normalizedBox( ...
         layout, ...
@@ -626,10 +627,11 @@ end
 
 
 function rows = metadataFromResults(resultRows)
-rows = repmat(struct("Label","","DisplayText",""),numel(resultRows),1);
+rows = repmat(struct("Label","","DisplayText","","LineCount",1),numel(resultRows),1);
 for k=1:numel(resultRows)
     rows(k).Label = string(resultRows(k).Label);
     rows(k).DisplayText = string(resultRows(k).DisplayText);
+    rows(k).LineCount = resultsTableRowLineCount(resultRows(k));
 end
 end
 

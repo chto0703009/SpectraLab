@@ -59,8 +59,8 @@ definition.
 | `ANL-001` | Transmission | Reference, Sample | Yes |
 | `ANL-002` | Optical Density | Reference, Sample | Yes |
 | `ANL-004` | White Density | Reference, Sample | No |
-| `ANL-005` | Status A Density | Reference, Sample | No |
-| `ANL-008` | Status M Density | Reference, Sample | No |
+| `ANL-005` | Status A RGB + ISO visual white density | Reference, Sample | No |
+| `ANL-008` | Status M RGB + ISO visual white density | Reference, Sample | No |
 | `ANL-007` | ISO Visual Density | Reference, Sample | No |
 | `ANL-009` | Spectral Mean | Source A, Source B | Yes |
 | `ANL-010` | Spectral Difference | Minuend (A), Subtrahend (B) | Yes |

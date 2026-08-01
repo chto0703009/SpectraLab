@@ -19,8 +19,9 @@ for k = 1:numel(required)
 end
 
 pairAnalysis = isPairArchiveAnalysis(context.Analysis);
-if pairAnalysis && ...
-        isfield(context, "SourceArchives")
+hasSourcePair = isfield(context, "SourceArchives") && ...
+    isstruct(context.SourceArchives) && numel(context.SourceArchives) == 2;
+if hasSourcePair
     metadataRows = pairInformationRows(context);
 elseif pairAnalysis
     metadataRows = [ ...
@@ -38,16 +39,15 @@ else
             "MeasurementInformation.Operator"))
         makeRow("Date", firstValue(context, ...
             "MeasurementInformation.Date"))
+        makeRow("Comment", firstValue(context, ...
+            "MeasurementInformation.Comment"))
         makeRow("Instrument", firstValue(context, ...
             ["Instrument.Name","Instrument.Model","Instrument.Instrument"]))
         makeRow("Analysis", firstValue(context, "Analysis.Name"))
         makeRow("Method", firstValue(context, "Analysis.Method"))];
     metadataRows(end+1) = ...
-        makeRow("Archive", firstValue(context, "Archive.Filename"));
+        makeArchiveRow("Archive", firstValue(context, "Archive.Filename"));
 end
-
-results = spectralab.report.internal.buildResultsTable( ...
-    context.Result, context.Analysis);
 
 model = struct( ...
     "Format", "SLAB-REPORT-INFORMATION-BOX", ...
@@ -55,7 +55,12 @@ model = struct( ...
     "Role", "informationBox", ...
     "Title", "Information", ...
     "MeasurementInformationRows", metadataRows, ...
-    "ResultRows", results.Rows);
+    "ResultRows", emptyResultRows());
+end
+
+function rows = emptyResultRows()
+rows = struct("Field", {}, "Label", {}, "Value", {}, "Unit", {}, ...
+    "Format", {}, "DisplayValue", {}, "DisplayText", {});
 end
 
 function tf = isPairArchiveAnalysis(analysis)
@@ -69,12 +74,22 @@ second = context.SourceArchives(2);
 rows = [ ...
     makeRow("Analysis", firstValue(context, "Analysis.Name"))
     makeRow("Method", firstValue(context, "Analysis.Method"))
-    makeRow(first.Role + " archive", first.Filename)
+    makeArchiveRow(first.Role + " archive", first.Filename)
     makeRow(first.Role + " measurement", first.Measurement.Name)
-    makeRow(first.Role + " sample", sourceSample(first))
-    makeRow(second.Role + " archive", second.Filename)
+    makeRow(sampleIdLabel(first.Role), sourceSample(first))
+    makeRow(first.Role + " comment", sourceComment(first))
+    makeArchiveRow(second.Role + " archive", second.Filename)
     makeRow(second.Role + " measurement", second.Measurement.Name)
-    makeRow(second.Role + " sample", sourceSample(second))];
+    makeRow(sampleIdLabel(second.Role), sourceSample(second))
+    makeRow(second.Role + " comment", sourceComment(second))];
+end
+
+function label = sampleIdLabel(role)
+if string(role) == "Sample"
+    label = "Sample ID";
+else
+    label = string(role) + " sample ID";
+end
 end
 
 function value = sourceSample(source)
@@ -85,8 +100,25 @@ if isfield(source.Metadata, "SampleID") && ...
 end
 end
 
-function row = makeRow(label, value)
-row = struct("Label", string(label), "DisplayText", string(value));
+function value = sourceComment(source)
+value = "—";
+if isfield(source.Metadata, "Comment") && ...
+        strlength(string(source.Metadata.Comment)) > 0
+    value = string(source.Metadata.Comment);
+end
+end
+
+function result = makeArchiveRow(label, value)
+[text, lineCount] = spectralab.report.internal.wrapFilename(value);
+result = makeRow(label, text, lineCount);
+end
+
+function row = makeRow(label, value, lineCount)
+if nargin < 3
+    lineCount = 1;
+end
+row = struct("Label", string(label), ...
+    "DisplayText", string(value), "LineCount", lineCount);
 end
 
 function value = firstValue(context, paths)

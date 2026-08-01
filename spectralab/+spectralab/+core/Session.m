@@ -107,7 +107,7 @@ classdef Session
             mode = spectralab.core.Session.parseInteractionMode(varargin{:});
             obj.requireSupportedInteractionMode(mode);
 
-            obj.playAudibleFeedback("start");
+            obj.prepareStartFeedback(mode);
 
             try
                 cal = obj.Instrument.calibrate(mode);
@@ -221,7 +221,7 @@ classdef Session
             mode = spectralab.core.Session.parseInteractionMode(varargin{:});
             obj.requireSupportedInteractionMode(mode);
 
-            obj.playAudibleFeedback("start");
+            obj.prepareStartFeedback(mode);
 
             try
                 spec = obj.Instrument.measure(label, mode);
@@ -426,6 +426,16 @@ classdef Session
             end
 
             spectralab.ui.playFeedback(eventName);
+        end
+
+
+        function prepareStartFeedback(obj, mode)
+            if obj.Instrument.synchronizesStartFeedback(mode)
+                obj.Instrument.setOperationStartFeedback( ...
+                    @() obj.playAudibleFeedback("start"));
+            else
+                obj.playAudibleFeedback("start");
+            end
         end
 
         function obj = log(obj, msg)
