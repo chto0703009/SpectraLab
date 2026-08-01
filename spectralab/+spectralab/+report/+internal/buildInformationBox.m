@@ -115,7 +115,8 @@ end
 
 function row = makeRow(label, value, lineCount)
 if nargin < 3
-    lineCount = 1;
+    [value, lineCount] = ...
+        spectralab.report.internal.wrapValue(value, 40);
 end
 row = struct("Label", string(label), ...
     "DisplayText", string(value), "LineCount", lineCount);

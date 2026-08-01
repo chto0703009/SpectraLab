@@ -22,6 +22,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
         OneShotRunner
         PlacementConfirmation = []
         OperationStartFeedback = []
+        SerialNumber (1,1) string = ""
     end
 
     methods
@@ -129,6 +130,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             % sessions and other public SpectraLab interfaces.
             info.name = obj.InstrumentId;
             info.instrument_id = obj.InstrumentId;
+            info.serial_number = obj.SerialNumber;
 
             % Implementation provenance. These fields describe how the
             % physical instrument is operated and are not its identity.
@@ -396,6 +398,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             result = obj.OneShotRunner.run(args);
             cleanup = onCleanup(@() cleanupWorkingDirectory(result));
             rawOutput = result.output + newline + result.error_output;
+            obj.captureInstrumentIdentity(rawOutput);
             outcome = spectralab.drivers.spotread.OutcomeParser.classify( ...
                 rawOutput, result.status, result.timed_out);
 
@@ -445,6 +448,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             result = obj.OneShotRunner.run(args);
             cleanup = onCleanup(@() cleanupWorkingDirectory(result));
             rawOutput = result.output + newline + result.error_output;
+            obj.captureInstrumentIdentity(rawOutput);
             outcome = spectralab.drivers.spotread.OutcomeParser.classify( ...
                 rawOutput, result.status, result.timed_out);
 
@@ -526,12 +530,41 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 obj.OperationStartFeedback();
             end
         end
+
+        function captureInstrumentIdentity(obj, rawOutput)
+            serialNumber = extractSerialNumber(rawOutput);
+            if strlength(serialNumber) > 0
+                obj.SerialNumber = serialNumber;
+            end
+        end
     end
 end
 
 function options = splitOptions(value)
 options = string(regexp(strtrim(char(value)), '\s+', 'split'));
 options(strlength(options) == 0) = [];
+if ~any(options == "-v")
+    options = ["-v", options];
+end
+end
+
+function serialNumber = extractSerialNumber(rawOutput)
+serialNumber = "";
+text = char(string(rawOutput));
+
+% ArgyllCMS verbose output uses "Serial Number:". Some i1Pro prompts use
+% the shorter "S/N" form, so accept that only as a fallback.
+tokens = regexp(text, ...
+    '(?im)^\s*Serial\s+Number\s*:\s*([^\r\n]+)', ...
+    'tokens', 'once');
+if isempty(tokens)
+    tokens = regexp(text, ...
+        '(?im)reflective\s+white\s+reference\s+S/N\s+([^,\r\n]+)', ...
+        'tokens', 'once');
+end
+if ~isempty(tokens)
+    serialNumber = strtrim(string(tokens{1}));
+end
 end
 
 function cleanupWorkingDirectory(result)

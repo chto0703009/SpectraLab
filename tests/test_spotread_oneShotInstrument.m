@@ -9,6 +9,9 @@ pathCleanup = onCleanup(@() rmpath(helperFolder));
 
 calibrationOutput = fileread(fullfile(fixtureFolder, ...
     "spotread_i1pro2_calibration_complete.txt"));
+calibrationOutput = sprintf( ...
+    "Instrument Type: X-Rite i1Pro 2\nSerial Number: 1234567\n%s", ...
+    calibrationOutput);
 measurementOutput = fileread(fullfile(fixtureFolder, ...
     "spotread_i1pro2_measurement_complete.txt"));
 measurementFile = fullfile(fixtureFolder, ...
@@ -37,9 +40,14 @@ assert(spec.Metadata.one_shot);
 assert(spec.Metadata.skip_initial_calibration);
 assert(~spec.Metadata.high_resolution);
 assert(any(runner.Calls{1} == "-O"));
+assert(any(runner.Calls{1} == "-v"));
 assert(~any(runner.Calls{1} == "-N"));
 assert(any(runner.Calls{2} == "-N"));
 assert(any(runner.Calls{2} == "-O"));
+assert(any(runner.Calls{2} == "-v"));
+assert(spec.Instrument.serial_number == "1234567");
+archive = spectralab.archive.create(spec);
+assert(archive.Instrument.SerialNumber == "1234567");
 
 eventRecorder = EventRecorder();
 timingRunner = FakeOneShotRunner({ ...

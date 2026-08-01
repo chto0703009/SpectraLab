@@ -21,6 +21,13 @@ v0.8.0 release baseline.
 - Evaluate `-H` as an explicit high-resolution option after the standard
   one-shot workflow has passed physical i1Pro2 verification.
 
+### Quality and provenance
+
+- Spotread one-shot operations request verbose instrument information and
+  record the physical instrument serial number in new measurement archives.
+- A missing or unrecognized serial number remains a validation warning rather
+  than causing a valid measurement to be discarded.
+
 ---
 
 ## Versioning Policy

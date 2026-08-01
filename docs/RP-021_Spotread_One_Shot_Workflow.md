@@ -165,11 +165,19 @@ RP-021 is complete only when:
 - a complete spectrum can be measured without ENTER forwarding;
 - failed or calibration-only operations create no archive;
 - successful spectra are validated and archived with complete provenance;
+- the physical instrument serial number is captured from Spotread when
+  available and propagated to the archive quality record;
 - existing regression tests continue to pass;
 - new one-shot state and error paths have automated tests;
 - the workflow has been verified with a physical X-Rite i1Pro2;
 - standard-resolution operation is approved before `-H` evaluation begins;
 - optional `-H` operation passes its separate compatibility matrix.
+
+Instrument identity is obtained from Spotread verbose output during the
+ordinary bounded operation. SpectraLab accepts ArgyllCMS `Serial Number:`
+output and the i1Pro white-reference `S/N` prompt. Failure to obtain an
+identity does not invalidate an otherwise sound spectrum; archive validation
+retains the explicit missing-serial-number warning for operator review.
 
 ## 11. Implementation order
 

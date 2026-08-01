@@ -47,7 +47,9 @@ switch role
                     displayContentHash(valueAt(context, "Archive.ContentHash")), 2)
                 row("Archive format", joinValues( ...
                     valueAt(context,"Archive.Format"), ...
-                    valueAt(context,"Archive.Version")))];
+                    valueAt(context,"Archive.Version")))
+                row("Instrument serial number", ...
+                    valueAt(context, "Instrument.SerialNumber"))];
         end
         rows = [ ...
             sourceRows
@@ -99,7 +101,7 @@ end
 end
 
 function rows = pairProvenanceRows(sources)
-rows = repmat(row("", ""), 8, 1);
+rows = repmat(row("", ""), 10, 1);
 index = 1;
 for source = sources
     role = source.Role;
@@ -110,6 +112,8 @@ for source = sources
         displayContentHash(source.ContentHash), 2); index = index + 1;
     rows(index) = row(role + " format", ...
         joinValues(source.Format, source.Version)); index = index + 1;
+    rows(index) = row(role + " instrument serial number", ...
+        valueAt(source, "Instrument.SerialNumber")); index = index + 1;
 end
 end
 
@@ -122,12 +126,15 @@ end
 function r = row(label, value, lineCount)
 
 if nargin < 3
-    lineCount = 1;
+    [displayText, lineCount] = ...
+        spectralab.report.internal.wrapValue(displayValue(value), 36);
+else
+    displayText = displayValue(value);
 end
 
 r = struct( ...
     "Label", string(label), ...
-    "DisplayText", displayValue(value), ...
+    "DisplayText", displayText, ...
     "LineCount", lineCount);
 end
 
