@@ -142,15 +142,27 @@ The public API is considered stable within the v0.x release series.
 
 ## Measurement Modes
 
-### interactive (default)
+### automatic (supported and recommended)
 
-The current release operates in **interactive mode**.
+For the i1Pro2, v0.8.1 supports a bounded automatic Spotread workflow for
+calibration and measurement. Each operation runs in a separate one-shot
+process, waits for an explicit ready state and accepts a result only after
+the returned spectrum has been validated. Placement confirmations remain
+visible because the user must physically position the instrument.
 
-SpectraLab guides the user through calibration and measurement using prompts in the MATLAB Command Window. This reflects the physical workflow of the currently supported Spotread driver, where the user must position the instrument before continuing.
+Use the explicit mode in measurement scripts:
 
-### automatic (reserved)
+```matlab
+sess = sess.calibrate("Mode", "automatic");
+spec = sess.measure("LED spectrum", "Mode", "automatic");
+```
 
-`automatic` mode is reserved for future instruments capable of calibration and measurement without user interaction. It is recognized by the API but is not supported by the current Spotread workflow.
+### interactive (API default and retained fallback)
+
+For backward compatibility, omitting `Mode` still selects `interactive`.
+The established Command Window workflow remains supported as a fallback and
+can also be selected explicitly. New i1Pro2 measurement workflows should use
+the bounded `automatic` mode above.
 
 ---
 
