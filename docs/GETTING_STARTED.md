@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: GETTING_STARTED.md
-Version: v0.8.0
+Version: v0.8.1
 Status: CURRENT
 -->
 
@@ -41,7 +41,7 @@ You need:
 - a supported spectrophotometer connected by USB,
 - the instrument's white reference for calibration.
 
-The v0.8.0 release has been verified with:
+The v0.8.1 release has been verified with:
 
 | Component | Recommended |
 |-----------|-------------|
@@ -111,12 +111,12 @@ startup
 Expected output is similar to:
 
 ```text
-SpectraLab 0.8.0
+SpectraLab 0.8.1
 Measure once. Save forever.
 Ready
 
 Project root:
-  /path/to/SpectraLab_v0.8.0
+  /path/to/SpectraLab_v0.8.1
 
 Status
   Project ........ OK
@@ -129,7 +129,7 @@ Status
   spotread ....... OK
 
 First measurement:
-  measure_led
+  measure_spectrum
 ```
 
 If any item is reported as `MISSING`, follow the instruction shown by `startup` and see `docs/TROUBLESHOOTING.md`.
@@ -153,7 +153,7 @@ Confirm the following before running the first example:
 Run:
 
 ```matlab
-measure_led
+measure_spectrum
 ```
 
 The example will:
@@ -162,8 +162,8 @@ The example will:
 2. open a SpectraLab session,
 3. run calibration,
 4. measure an LED spectrum,
-5. print a spectrum summary,
-6. plot the spectrum.
+5. validate and archive the spectrum,
+6. generate the registered PDF and PNG outputs.
 
 Example result:
 
@@ -189,13 +189,9 @@ The Spotread driver provides two workflows in v0.8.1:
 
 SpectraLab guides the user through calibration and measurement one step at a time. This ensures that each operation is performed only when the instrument and operator are ready.
 
-During calibration and measurement SpectraLab will ask you to:
-
-1. place the instrument,
-2. press **ENTER** in the MATLAB Command Window,
-3. wait for the operation to complete.
-
-This behaviour is expected.
+In automatic mode, SpectraLab shows separate placement confirmations and
+waits for Spotread readiness before calibration and measurement. Interactive
+mode instead uses the established Command Window prompts.
 
 Interactive mode is the default workflow:
 
@@ -252,7 +248,8 @@ spec = sess.measure("LED spectrum", "Mode", "automatic");
 
 ## Basic API Workflow
 
-The example `measure_led` is convenient for the first test. Applications normally use the public API directly.
+The example `measure_spectrum` is the recommended first physical test.
+Applications normally use the public API directly.
 
 ```matlab
 inst = spectralab.drivers.createInstrument("spotread");
@@ -307,8 +304,8 @@ Your installation is considered verified when:
 
 - `setup` completes successfully,
 - all required environment checks are OK,
-- `measure_led` completes calibration,
-- `measure_led` completes measurement,
+- `measure_spectrum` completes calibration,
+- `measure_spectrum` completes measurement,
 - `run_all_tests` passes.
 
 At that point SpectraLab is ready for normal use.

@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: RELEASE_CHECKLIST.md
-Version: v0.8.0
+Version: v0.8.1
 Status: CURRENT
 -->
 
@@ -24,9 +24,9 @@ It is an engineering verification document.
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.8.0 |
-| Release type | Analysis and Reporting Release |
-| Release date | 2026-07-31 |
+| Version | v0.8.1 |
+| Release type | Measurement Workflow and Reproducible Examples Release |
+| Release date | 2026-08-02 |
 | Release manager | Project owner |
 
 ---
@@ -57,7 +57,9 @@ Confirm that:
 - [x] Example programs execute correctly.
 - [x] Every registered report analysis has been verified.
 - [x] Every intended report figure appears in both PDF and PNG output.
-- [x] Every report figure has labelled axes and starts at y = 0.
+- [x] Every report figure has labelled axes and follows its registered
+  y-axis contract: zero-origin for magnitude plots or symmetric zero-centred
+  limits for signed difference plots.
 - [x] Supported environments have been verified.
 - [x] Version information is consistent.
 - [x] No obsolete release candidate or build version strings remain in user-facing files.
@@ -125,10 +127,10 @@ Approval should be recorded by the appropriate roles.
 
 | Role | Approval |
 |------|----------|
-| Technical Author | Approved 2026-07-31 |
-| Engineering Reviewer | Automated and visual verification completed 2026-07-31 |
-| Release Manager | Approved 2026-07-31 |
-| Project Owner | Approved 2026-07-31 |
+| Technical Author | Approved 2026-08-02 |
+| Engineering Reviewer | Automated and physical verification completed 2026-08-02 |
+| Release Manager | Approved 2026-08-02 |
+| Project Owner | Approved 2026-08-02 |
 
 Approval represents acceptance of the engineering evidence supporting release.
 
@@ -138,13 +140,13 @@ Approval represents acceptance of the engineering evidence supporting release.
 
 | Item | Value |
 |------|-------|
-| Version | v0.8.0 |
-| Release date | 2026-07-31 |
-| Git tag | `v0.8.0` |
-| Release package | `releases/SpectraLab_v0.8.0.zip` |
-| Test result | 65 files and 434 cases passed; 0 failed; 0 incomplete |
-| Real measurement verified | Yes; X-Rite i1Pro2 through `spotread` |
-| Comments | Eight-analysis PDF matrix visually verified; four registered figures exported as PNG. Clean-package test suite passed. |
+| Version | v0.8.1 |
+| Release date | 2026-08-02 |
+| Git tag | `v0.8.1` |
+| Release package | `releases/SpectraLab_v0.8.1.zip` |
+| Test result | 73 files and 465 cases passed; 0 failed; 0 incomplete |
+| Real measurement verified | Yes; X-Rite i1Pro2 single measurement and five-measurement series through bounded `spotread` |
+| Comments | Standard and high-resolution acquisition verified. Release examples and clean temporary workflows passed. |
 
 ---
 

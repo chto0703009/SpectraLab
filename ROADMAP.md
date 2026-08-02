@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v0.8.0
+Version: v0.8.1
 Status: CURRENT
 -->
 
@@ -48,6 +48,18 @@ Version 0.8.0 established the scientific analysis and reporting foundation:
 
 Future analysis and report development shall extend the authoritative registry
 rather than introduce separate report-specific definitions.
+
+### Completed in v0.8.1
+
+Version 0.8.1 strengthened acquisition, traceability and reproducible use:
+
+- bounded one-shot Spotread calibration and measurement with the i1Pro2;
+- automatic recalibration only when required during a measurement series;
+- optional, physically verified high-resolution acquisition;
+- physical instrument serial-number propagation into new archives;
+- traceable spectral mean and diagnostic spectral difference analyses;
+- release-ready measurement, analysis, plotting and inventory examples;
+- synthetic, non-identifying example archives and verified example outputs.
 
 ---
 

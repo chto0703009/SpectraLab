@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: REPOSITORY_STRUCTURE.md
-Version: v0.8.0
+Version: v0.8.1
 Status: CURRENT
 -->
 
@@ -76,7 +76,7 @@ The top-level files are the main entry points for users, contributors and releas
 | `run_all_tests.m` | Runs the regression test suite |
 | `VERSION` | Stores the release version |
 
-New users normally start with `setup` and `measure_led`.
+New users normally start with `setup` and `measure_spectrum`.
 
 ---
 
@@ -172,7 +172,7 @@ They should be:
 Example files include:
 
 ```text
-examples/measure_led.m
+examples/measurement/measure_spectrum.m
 examples/first_measurement.m
 examples/compare_two_spectra.m
 examples/spotread_i1pro2_measurement.m
@@ -266,7 +266,7 @@ README.md
 docs/GETTING_STARTED.md
    |
    v
-examples/measure_led.m
+examples/measurement/measure_spectrum.m
 ```
 
 Developers should then continue with:

@@ -37,7 +37,7 @@ end
 
 stagingRoot = string(tempname);
 mkdir(stagingRoot);
-cleanup = onCleanup(@() removeFolder(stagingRoot)); %#ok<NASGU>
+cleanup = onCleanup(@() removeFolder(stagingRoot));
 packageRoot = fullfile(stagingRoot, packageName);
 mkdir(packageRoot);
 
@@ -70,6 +70,19 @@ for sourceName = directories.'
     copyRequired( ...
         fullfile(projectRoot, sourceName), ...
         fullfile(packageRoot, sourceName));
+end
+
+% Local example output may contain real measurements. It is deliberately
+% ignored by Git and must never enter a public release package.
+exampleOutput = fullfile(packageRoot, "examples", "output");
+if isfolder(exampleOutput)
+    rmdir(exampleOutput, "s");
+end
+
+% Finder metadata is not part of the engineering release record.
+finderFiles = dir(fullfile(packageRoot, "**", ".DS_Store"));
+for k = 1:numel(finderFiles)
+    delete(fullfile(finderFiles(k).folder, finderFiles(k).name));
 end
 
 releaseNotesFolder = fullfile(packageRoot, "releases");

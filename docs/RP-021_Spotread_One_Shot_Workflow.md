@@ -1,8 +1,8 @@
 # RP-021 - Spotread One-Shot Measurement Workflow
 
 **Target release:** SpectraLab v0.8.1  
-**Development branch:** `v0.8.1-dev`  
-**Status:** Approved specification  
+**Release tag:** `v0.8.1`
+**Status:** Implemented and physically verified
 **Primary instrument:** X-Rite i1Pro2  
 **Backend:** ArgyllCMS `spotread` 3.5.0 or later
 
@@ -166,9 +166,8 @@ not become the default until the following have been verified:
 The released v0.8.0 production installation and its archives shall remain
 unchanged.
 
-During v0.8.1 development, the verified interactive workflow shall remain
-available as a fallback until the one-shot workflow satisfies every
-acceptance criterion.
+The verified interactive workflow remains available as a supported fallback
+alongside the bounded one-shot workflow.
 
 Existing released archives shall remain readable.
 
@@ -215,8 +214,8 @@ Spotread work in SpectraLab v0.8.1.
 
 ## 13. Implementation status
 
-Stages 1-5 are implemented in the development branch without removing the
-released interactive fallback:
+Stages 1-7 are implemented without removing the released interactive
+fallback:
 
 - `tools/capture_spotread_one_shot.m` records isolated physical-instrument
   runs, raw output and process metadata for operator review;
@@ -234,8 +233,8 @@ The first physical captures showed that a fresh `-O` process reports that
 calibration is needed and then completes one calibration operation. A new
 process repeats that calibration path. Consequently, the separate one-shot
 measurement capture uses `-N -O` only after a verified successful calibration.
-This observed i1Pro2 behaviour shall be reverified before stage 4 adopts the
-combination in the production workflow.
+This observed i1Pro2 behaviour is handled by the released production
+workflow.
 
 The first `-N -O` physical capture completed and wrote a 36-band `.sp` file,
 but its near-zero predominantly negative signal demonstrated that successful
@@ -284,9 +283,10 @@ Peak wavelength:  450.0 nm
 Integrated power: 44604.9 arbitrary*nm
 ```
 
-This passes the stage-6 standard-resolution physical-instrument gate. Archive
-integration remains required before the complete RP-021 workflow can be
-approved. Optional `-H` evaluation remains a separate later stage.
+This passes the stage-6 standard-resolution physical-instrument gate.
+Archive, PDF and PNG integration subsequently passed both single-measurement
+and five-measurement physical workflows. Optional `-H` acquisition also
+passed its separate physical compatibility evaluation.
 
 ## 15. Instrument-switch trigger evaluation
 

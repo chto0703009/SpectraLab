@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v0.8.0
+Version: v0.8.1
 Status: CURRENT
 -->
 
@@ -23,15 +23,17 @@ Reliable measurements require reliable software.
 
 SpectraLab was developed to provide a clean separation between measurement, data management, visualisation, export and instrument communication. This makes user applications independent of specific instruments while allowing new devices to be added through dedicated drivers.
 
-The v0.8.0 release adds a verified scientific analysis and reporting
-workflow while preserving the long-term archive and measurement principles
-established by earlier releases.
+The v0.8.1 release adds a bounded, physically verified i1Pro2 measurement
+workflow, optional high-resolution acquisition, traceable spectral mean and
+difference analyses, and curated release examples while preserving the
+long-term archive and reporting principles established by earlier releases.
 
 ---
 
 ## Features
 
-- Interactive spectral measurements
+- Bounded automatic and retained interactive spectral measurements
+- Standard and optional high-resolution i1Pro2 acquisition
 - Stable public MATLAB API
 - Instrument-independent architecture
 - Publication-quality plotting
@@ -49,7 +51,7 @@ established by earlier releases.
 
 ## Supported Environment
 
-The v0.8.0 release has been verified with the following environment.
+The v0.8.1 release has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|
@@ -70,7 +72,7 @@ Run `setup` to let SpectraLab verify the environment before the first measuremen
 Clone the repository.
 
 ```bash
-git clone https://github.com/<user>/SpectraLab.git
+git clone https://github.com/chto0703009/SpectraLab.git
 ```
 
 Open MATLAB, change to the SpectraLab project directory and run:
@@ -81,8 +83,6 @@ setup
 
 `setup` prepares the MATLAB path and verifies that required external components are available.
 
-The real GitHub URL should be inserted when the public repository is created.
-
 ---
 
 ## First Measurement
@@ -90,17 +90,18 @@ The real GitHub URL should be inserted when the public repository is created.
 ```matlab
 setup
 
-measure_led
+measure_spectrum
 ```
 
-`measure_led` runs in **interactive mode**.
+`measure_spectrum` runs the bounded **automatic mode** and saves a trusted
+MAT archive, registered PDF report and PNG figure below `examples/output/`.
 
-During calibration and measurement, SpectraLab will prompt you in the MATLAB Command Window to:
+During calibration and measurement, SpectraLab will ask you to:
 
 1. Place the instrument on the white reference.
-2. Press **ENTER**.
+2. Confirm calibration when Spotread is ready.
 3. Place the instrument on the light source.
-4. Press **ENTER**.
+4. Confirm measurement when Spotread is ready.
 
 Follow the on-screen instructions until the measurement is complete.
 
@@ -111,28 +112,29 @@ Follow the on-screen instructions until the measurement is complete.
 A typical workflow is:
 
 ```matlab
-inst = spectralab.drivers.createInstrument("spotread");
+inst = spectralab.drivers.createInstrument("i1Pro2");
 
 sess = spectralab.core.Session(inst);
 sess = sess.open();
 
-sess = sess.calibrate("Mode", "interactive");
+sess = sess.calibrate("Mode", "automatic");
 
-spec = sess.measure("LED spectrum", "Mode", "interactive");
+spec = sess.measure("LED spectrum", "Mode", "automatic");
 
 disp(spec.summary())
 
 spectralab.plot.spectrum(spec)
 ```
 
-For convenience, the default mode is `interactive`, so existing code can also use:
+The retained interactive fallback remains available:
 
 ```matlab
 sess = sess.calibrate();
 spec = sess.measure("LED spectrum");
 ```
 
-The explicit `"Mode", "interactive"` syntax is recommended in scripts because it documents that the workflow requires user interaction.
+The explicit mode syntax is recommended because it documents the intended
+process-control contract.
 
 The public API is considered stable within the v0.x release series.
 

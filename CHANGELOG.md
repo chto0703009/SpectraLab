@@ -8,18 +8,49 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
-## Unreleased - v0.8.1-dev
+## Measurement Workflow and Reproducible Examples - v0.8.1
 
-Development for the next maintenance release starts from the verified
-v0.8.0 release baseline.
+Released 2026-08-02.
 
-### Planned
+SpectraLab v0.8.1 completes RP-021 and strengthens acquisition,
+traceability, derived analysis and reproducible use without changing the
+released archive format.
 
-- RP-021: replace mandatory ENTER-controlled Spotread operation with a
-  bounded one-shot calibration and measurement workflow using `-O`.
-- Create archives only from complete, validated measurement spectra.
-- Evaluate `-H` as an explicit high-resolution option after the standard
-  one-shot workflow has passed physical i1Pro2 verification.
+### Added
+
+- Bounded Spotread one-shot calibration and measurement using `-O` and the
+  physically verified `-N -O` measurement path.
+- Optional i1Pro2 high-resolution acquisition using `-H` for both
+  calibration and measurement.
+- Instrument-switch triggering as an explicit alternative to the default
+  modal placement confirmation.
+- ANL-009 Spectral Mean with a traceable derived MAT archive recording both
+  source archives and their ordered roles.
+- ANL-010 Spectral Difference as a signed diagnostic report without a
+  derived archive.
+- Categorized release examples for measurement, registered analysis,
+  plotting and archive inventory.
+- Three deterministic, synthetic and non-identifying SLAB-MAT example
+  archives.
+
+### Improved
+
+- Automatic measurement retries once after a controlled recalibration when
+  Spotread reports that calibration is required.
+- Five-measurement series calibrate initially, save each successful result
+  immediately and stop on non-recoverable hardware or process errors.
+- Measurement workflows reject dark or non-positive signals before archive
+  creation.
+- Physical instrument serial numbers from Spotread are propagated into new
+  measurement archives and reports.
+- Long provenance values and source filenames wrap within report boxes.
+- Measurement comments and source identities are retained throughout
+  reports.
+- Audible feedback uses one tone frequency: one beep at start, two after
+  success and five after failure.
+- Startup verifies and reports both `pexpect` and `ptyprocess`.
+- Plot examples create PNG only; report analyses follow the
+  `calculate_*_report` naming contract.
 
 ### Quality and provenance
 
@@ -35,6 +66,11 @@ v0.8.0 release baseline.
   and retry when Spotread reports that calibration has expired.
 - Measurement series stop immediately after non-recoverable Spotread hardware,
   USB communication, timeout, calibration or process failures.
+- Single-measurement and five-measurement workflows were physically verified
+  with an X-Rite i1Pro2, including MAT, PDF and PNG output.
+- All non-hardware release examples were executed from a temporary clean
+  example tree.
+- 73 test files and 465 test cases passed with 0 failed and 0 incomplete.
 
 ---
 
@@ -54,7 +90,8 @@ Only public releases are recorded as release history.
 
 | Version | Release | Status |
 |---|---|---|
-| v0.8.0 | Analysis and Reporting | Current |
+| v0.8.1 | Measurement Workflow and Reproducible Examples | Current |
+| v0.8.0 | Analysis and Reporting | Supported |
 | v0.6.0 | Scientific Archive and Metadata | Supported |
 | v0.5.1 | Scientific Archive | Historical |
 | v0.5.0 | Archive Architecture | Historical |

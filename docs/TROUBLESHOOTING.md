@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: TROUBLESHOOTING.md
-Version: v0.8.0
+Version: v0.8.1
 Status: CURRENT
 -->
 
@@ -485,7 +485,8 @@ sess = sess.calibrate("Mode", "interactive");
 spec = sess.measure("LED spectrum", "Mode", "interactive");
 ```
 
-For i1Pro2, run `startup` from v0.8.1-dev and use automatic mode. Other
+For i1Pro2, run `startup` from the SpectraLab v0.8.1 project root and use
+automatic mode. Other
 drivers may support only interactive mode.
 
 ---
