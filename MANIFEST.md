@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: MANIFEST.md
-Version: v0.4.0
-Status: FROZEN
+Version: v0.8.1
+Status: CURRENT
 -->
 
 # SpectraLab Release Manifest
@@ -22,11 +22,11 @@ A release is considered complete only when all required components are present a
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.4.0 |
-| Release type | Foundation Release |
+| Version | v0.8.1 |
+| Release type | Measurement Workflow and Reproducible Examples Release |
 | License | GNU General Public License v3 |
 | Primary environment | MATLAB |
-| Current instrument workflow | ArgyllCMS `spotread` with X-Rite i1Pro2 |
+| Current instrument workflow | Bounded ArgyllCMS `spotread` with X-Rite i1Pro2 |
 
 ---
 
@@ -43,6 +43,10 @@ An official SpectraLab release shall contain the following components.
 - Core data model
 - Instrument drivers
 - Plotting utilities
+- Scientific analysis functions
+- Authoritative report analysis registry
+- PDF report generation
+- PNG report-figure export
 - I/O utilities
 - Environment verification
 - Structured error handling
@@ -62,7 +66,8 @@ spectralab/
 | `setup.m` | User-friendly setup command |
 | `startup.m` | MATLAB path setup and environment verification |
 | `run_all_tests.m` | Regression test runner |
-| `examples/measure_led.m` | First interactive measurement example |
+| `examples/measurement/measure_spectrum.m` | Bounded automatic measurement example |
+| `examples/measurement/measure_spectrum_series_5.m` | Recalibration-aware measurement series |
 | `VERSION` | Release version |
 
 ---
@@ -98,6 +103,9 @@ Primary location:
 ```text
 examples/
 ```
+
+The v0.8.1 release includes categorized measurement, analysis, plotting and
+inventory workflows plus synthetic, non-identifying SLAB-MAT fixtures.
 
 ---
 
@@ -181,7 +189,7 @@ The release itself should remain the authoritative engineering record.
 A typical official release has the conceptual form:
 
 ```text
-SpectraLab_v0_4_0/
+SpectraLab_v0.8.1/
     README.md
     LICENSE
     VERSION

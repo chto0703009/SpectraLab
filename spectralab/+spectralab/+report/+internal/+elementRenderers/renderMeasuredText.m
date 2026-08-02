@@ -1,0 +1,19 @@
+function [renderContext, result] = renderMeasuredText( ...
+        element, context, renderContext, expectedType, style)
+%RENDERMEASUREDTEXT Measure and record one text element without placement.
+
+renderContext = spectralab.report.internal.ensureLayoutState(renderContext);
+normalizedContent = spectralab.report.internal.normalizeTextContent( ...
+    element.Content);
+height = spectralab.report.internal.estimateTextHeight( ...
+    normalizedContent, style, renderContext.State.Layout.ContentWidth);
+
+normalizedElement = element;
+normalizedElement.Content = normalizedContent;
+
+[renderContext, ~] = ...
+    spectralab.report.internal.elementRenderers.renderElementCore( ...
+        normalizedElement, context, renderContext, expectedType);
+result = spectralab.report.internal.createRenderResult( ...
+    element.Id, element.Type, height, false, strings(0,1));
+end

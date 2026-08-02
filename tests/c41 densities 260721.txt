@@ -1,0 +1,38 @@
+Status M and white density — C41Porta-00.mat
+--------------------------------------------
+Reference : CSLCo_ref09.mat
+Sample    : C41Porta-00.mat
+
+Spectral processing
+-------------------
+Alignment            : SpectraLab canonical resampling pipeline
+Resampled            : true
+Interpolation method : pchip
+Refinement factor    : 4
+Effective range      : 380.0–730.0 nm
+
+Status M red     D = 2.3977   T = 0.004003
+Status M green   D = 3.1428   T = 0.000720
+Status M blue    D = 3.4471   T = 0.000357
+White            D = 2.3254   T = 0.004727
+
+
+Status M and white density — C41Porta-01.mat
+--------------------------------------------
+Reference : CSLCo_ref09.mat
+Sample    : C41Porta-01.mat
+
+Spectral processing
+-------------------
+Alignment            : SpectraLab canonical resampling pipeline
+Resampled            : true
+Interpolation method : pchip
+Refinement factor    : 4
+Effective range      : 380.0–730.0 nm
+
+Status M red     D = 0.5928   T = 0.255371
+Status M green   D = 0.7282   T = 0.186961
+Status M blue    D = 0.9513   T = 0.111857
+White            D = 0.6135   T = 0.243478
+
+

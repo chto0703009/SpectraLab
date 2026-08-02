@@ -9,7 +9,7 @@ end
 filename = string(filename);
 
 if endsWith(lower(filename), ".mat")
-    data = spec.toStruct(); %#ok<NASGU>
+    data = spec.toStruct(); %
     save(filename, "data", "-mat");
 elseif endsWith(lower(filename), ".json")
     spectralab.io.slab.writeJson(spec, filename);

@@ -1,0 +1,12 @@
+Place instrument on spot to be measured,
+and hit [A-Z] to read white and setup FWA compensation (keyed to letter)
+[a-z] to read and make FWA compensated reading from keyed reference
+'r' to set reference, 's' to save spectrum,
+'f' to report cal. refresh rate, 'F' to measure refresh rate
+'h' to toggle high res., 'k' to do a calibration
+Hit ESC or Q to exit, instrument switch or any other key to take a reading: Spectrum from 380.000 to 730.000 nm in 36 steps
+0.2643, 0.252789, 0.410878, 1.58473, 8.18524, 37.1156, 148.135, 277.815, 207.969, 131.128, 116.341, 139.513, 159.679, 166.623, 164.269, 159.434, 157.487, 158.886, 161.384, 163.691, 164.866, 164.774, 165.86, 169.844, 177.18, 181.342, 179.13, 171.815, 156.872, 136.059, 112.532, 89.4511, 68.6357, 50.674, 39.5463, 33.703
+Peak value 277.815391 at (aprox.) 450.0 nm
+
+ Result is XYZ: 11905.117928 11876.146775 10798.759436, D50 Lab: 554.185945 32.067376 -32.436315
+Writing file 'spectrum.sp' succeeded

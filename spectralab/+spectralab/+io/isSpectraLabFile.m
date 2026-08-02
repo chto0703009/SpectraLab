@@ -1,7 +1,6 @@
 function tf = isSpectraLabFile(filename)
 %ISSPECTRALABFILE  Return true if file appears to be a SpectraLab JSON file.
 
-tf = false;
 
 try
     raw = fileread(filename);

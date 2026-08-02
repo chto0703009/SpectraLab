@@ -32,5 +32,20 @@ classdef (Abstract) Instrument < handle
                     "Instrument has no valid calibration. Run calibrate() first.");
             end
         end
+
+        function tf = supportsInteractionMode(~, mode)
+            %SUPPORTSINTERACTIONMODE Report modes implemented by a driver.
+            tf = lower(strtrim(string(mode))) == "interactive";
+        end
+
+        function tf = synchronizesStartFeedback(~, ~)
+            %SYNCHRONIZESSTARTFEEDBACK True when the driver owns prompt timing.
+            tf = false;
+        end
+
+        function setOperationStartFeedback(~, ~)
+            %SETOPERATIONSTARTFEEDBACK Install a driver-timed start callback.
+            % The default implementation is intentionally a no-op.
+        end
     end
 end

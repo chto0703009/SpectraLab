@@ -9,6 +9,7 @@ classdef Session
         Comment (1,1) string = ""
         Project (1,1) string = ""
         SampleID (1,1) string = ""
+        AudibleFeedback (1,1) logical = false
     end
 
     methods
@@ -19,6 +20,7 @@ classdef Session
                 options.Comment (1,1) string = ""
                 options.Project (1,1) string = ""
                 options.SampleID (1,1) string = ""
+                options.AudibleFeedback = []
             end
 
             if isempty(instrument)
@@ -40,6 +42,12 @@ classdef Session
                 options.Project, "Project", MaxLength=200);
             obj.SampleID = spectralab.core.validateMetadataText( ...
                 options.SampleID, "SampleID", MaxLength=200);
+
+            obj.AudibleFeedback = ...
+                spectralab.core.Session.resolveAudibleFeedback( ...
+                    instrument, ...
+                    options.AudibleFeedback);
+
             obj = obj.log("Session created.");
 
             if strlength(obj.Operator) > 0
@@ -97,14 +105,31 @@ classdef Session
             %   recommended in scripts that require user action.
             obj.Instrument.requireOpen();
             mode = spectralab.core.Session.parseInteractionMode(varargin{:});
-            cal = obj.Instrument.calibrate(mode);
+            obj.requireSupportedInteractionMode(mode);
 
-            if ~isa(cal, "spectralab.core.Calibration") || ~cal.IsValid
-                obj.State = "CALIBRATION_FAILED";
-                obj = obj.log("Calibration failed.");
-                error("SpectraLab:Session:CalibrationFailed", ...
-                    "Calibration failed or returned invalid calibration.");
+            obj.prepareStartFeedback(mode);
+
+            try
+                cal = obj.Instrument.calibrate(mode);
+
+                if ~isa(cal, "spectralab.core.Calibration") || ~cal.IsValid
+                    obj.State = "CALIBRATION_FAILED";
+
+                    error( ...
+                        "SpectraLab:Session:CalibrationFailed", ...
+                        "Calibration failed or returned invalid calibration.");
+                end
+
+            catch ME
+                obj.playAudibleFeedback("error");
+                if strcmp(ME.identifier, ...
+                        "SpectraLab:Spotread:NoLightDetected")
+                    throwAsCaller(ME)
+                end
+                rethrow(ME)
             end
+
+            obj.playAudibleFeedback("success");
 
             obj.State = "CALIBRATED";
             obj = obj.log("Calibration OK.");
@@ -171,6 +196,7 @@ classdef Session
             details.comment = obj.Comment;
             details.project = obj.Project;
             details.sample_id = obj.SampleID;
+            details.audible_feedback = obj.AudibleFeedback;
             details.history = obj.History;
 
             status = spectralab.core.Status.ok("Session status.", details);
@@ -193,12 +219,25 @@ classdef Session
             obj.Instrument.requireCalibration();
 
             mode = spectralab.core.Session.parseInteractionMode(varargin{:});
-            spec = obj.Instrument.measure(label, mode);
+            obj.requireSupportedInteractionMode(mode);
 
-            if ~isa(spec, "spectralab.core.Spectrum")
-                error("SpectraLab:Session:InvalidMeasurement", ...
-                    "Instrument returned invalid measurement object.");
+            obj.prepareStartFeedback(mode);
+
+            try
+                spec = obj.Instrument.measure(label, mode);
+
+                if ~isa(spec, "spectralab.core.Spectrum")
+                    error( ...
+                        "SpectraLab:Session:InvalidMeasurement", ...
+                        "Instrument returned invalid measurement object.");
+                end
+
+            catch ME
+                obj.playAudibleFeedback("error");
+                rethrow(ME)
             end
+
+            obj.playAudibleFeedback("success");
 
             spec = spec.withMetadataField("Operator", obj.Operator);
             spec = spec.withMetadataField("Comment", obj.Comment);
@@ -219,14 +258,20 @@ classdef Session
             end
         end
 
-        function collection = measureMany(obj, labels)
+        function collection = measureMany(obj, labels, varargin)
             labels = string(labels);
             collection = spectralab.core.SpectrumCollection("SpectraLab measurement series");
 
             for k = 1:numel(labels)
-                r = obj.measureResult(labels(k));
+                r = obj.measureResult(labels(k), varargin{:});
                 if r.Success
                     collection = collection.add(r.Spectrum);
+                elseif spectralab.core.Session.isFatalSeriesFailure( ...
+                        r.Status.Code)
+                    error("SpectraLab:Session:MeasurementSeriesAborted", ...
+                        "Measurement series stopped at '%s' after a " + ...
+                        "non-recoverable instrument failure (%s): %s", ...
+                        labels(k), r.Status.Code, r.Status.Message);
                 else
                     warning("SpectraLab:Session:MeasurementSkipped", ...
                         "Measurement failed for '%s': %s", labels(k), r.Status.Message);
@@ -236,6 +281,36 @@ classdef Session
     end
 
     methods (Static, Access = private)
+        function tf = isFatalSeriesFailure(code)
+            code = string(code);
+            tf = (startsWith(code, "SpectraLab:Spotread:") && ...
+                code ~= "SpectraLab:Spotread:NoLightDetected") || ...
+                code == "SpectraLab:Session:InvalidMeasurement";
+        end
+
+        function enabled = resolveAudibleFeedback(instrument, requestedValue)
+            %RESOLVEAUDIBLEFEEDBACK Resolve the session UX default.
+            %
+            % Physical instruments use audible feedback by default.
+            % Mock instruments remain quiet unless explicitly enabled.
+
+            if isempty(requestedValue)
+                enabled = ~isa( ...
+                    instrument, ...
+                    "spectralab.drivers.MockInstrument");
+
+                return
+            end
+
+            if ~(islogical(requestedValue) && isscalar(requestedValue))
+                error( ...
+                    "SpectraLab:Session:InvalidAudibleFeedback", ...
+                    "AudibleFeedback must be true or false.");
+            end
+
+            enabled = requestedValue;
+        end
+
         function mode = parseInteractionMode(varargin)
             %PARSEINTERACTIONMODE  Parse and validate measurement mode.
             %
@@ -246,9 +321,7 @@ classdef Session
             %       sess.calibrate("interactive")
             %       sess.calibrate("Mode", "interactive")
             %
-            %   "automatic" is reserved for future instruments. It is
-            %   recognized so users get a clear error instead of an
-            %   ambiguous option failure.
+            %   Support for "automatic" is decided by the selected driver.
 
             mode = "interactive";
 
@@ -258,7 +331,7 @@ classdef Session
 
             % Positional mode syntax, kept for readability and backward
             % compatibility with positional interactive examples.
-            if numel(varargin) == 1
+            if isscalar(varargin)
                 token = lower(strtrim(string(varargin{1})));
                 mode = spectralab.core.Session.validateInteractionMode(token);
                 return
@@ -268,13 +341,13 @@ classdef Session
             % scripts because it makes the interactive workflow explicit.
             if mod(numel(varargin), 2) ~= 0
                 error("SpectraLab:Session:InvalidInteractionMode", ...
-                    ["ERROR [SPL-014]\n\n" + ...
-                     "Invalid interaction mode syntax.\n\n" + ...
-                     "What to do:\n" + ...
-                     "Use one of these forms:\n\n" + ...
-                     "    sess = sess.calibrate();\n" + ...
-                     "    sess = sess.calibrate(""Mode"", ""interactive"");\n" + ...
-                     "    spec = sess.measure(""LED spectrum"", ""Mode"", ""interactive"");"]);
+                    "ERROR [SPL-014]\n\n" + ...
+                    "Invalid interaction mode syntax.\n\n" + ...
+                    "What to do:\n" + ...
+                    "Use one of these forms:\n\n" + ...
+                    "    sess = sess.calibrate();\n" + ...
+                    "    sess = sess.calibrate(""Mode"", ""interactive"");\n" + ...
+                    "    spec = sess.measure(""LED spectrum"", ""Mode"", ""interactive"");");
             end
 
             for k = 1:2:numel(varargin)
@@ -296,22 +369,23 @@ classdef Session
                             end
                         else
                             error("SpectraLab:Session:InvalidInteractiveOption", ...
-                                ["ERROR [SPL-014]\n\n" + ...
-                                 "The Interactive option must be true or false.\n\n" + ...
-                                 "What to do:\n" + ...
-                                 "Prefer the explicit mode syntax:\n\n" + ...
-                                 "    sess = sess.calibrate(""Mode"", ""interactive"");"]);
+                                "ERROR [SPL-014]\n\n" + ...
+                                "The Interactive option must be true or false.\n\n" + ...
+                                "What to do:\n" + ...
+                                "Prefer the explicit mode syntax:\n\n" + ...
+                                "    sess = sess.calibrate(""Mode"", ""interactive"");");
                         end
 
                     otherwise
                         error("SpectraLab:Session:UnknownOption", ...
-                            ["ERROR [SPL-014]\n\n" + ...
-                             "Unknown option:\n\n" + ...
-                             "    %s\n\n" + ...
-                             "Supported option:\n\n" + ...
-                             "    Mode\n\n" + ...
-                             "Example:\n\n" + ...
-                             "    spec = sess.measure(""LED spectrum"", ""Mode"", ""interactive"");"], string(varargin{k}));
+                            "ERROR [SPL-014]\n\n" + ...
+                            "Unknown option:\n\n" + ...
+                            "    %s\n\n" + ...
+                            "Supported option:\n\n" + ...
+                            "    Mode\n\n" + ...
+                            "Example:\n\n" + ...
+                            "    spec = sess.measure(""LED spectrum"", ""Mode"", ""interactive"");", ...
+                            string(varargin{k}));
                 end
             end
         end
@@ -324,31 +398,59 @@ classdef Session
             end
 
             if mode == "automatic"
-                error("SpectraLab:Session:AutomaticModeUnsupported", ...
-                    ["ERROR [SPL-015]\n\n" + ...
-                     "Automatic mode is recognized, but is not supported by the current instrument workflow.\n\n" + ...
-                     "What to do:\n" + ...
-                     "Use interactive mode for instruments that require user placement and ENTER prompts:\n\n" + ...
-                     "    sess = sess.calibrate(""Mode"", ""interactive"");\n" + ...
-                     "    spec = sess.measure(""LED spectrum"", ""Mode"", ""interactive"");\n\n" + ...
-                     "Automatic mode is reserved for future instruments that can calibrate and measure without user input."]);
+                return
             end
 
             error("SpectraLab:Session:UnknownInteractionMode", ...
-                ["ERROR [SPL-014]\n\n" + ...
-                 "Unknown interaction mode:\n\n" + ...
-                 "    %s\n\n" + ...
-                 "Supported modes:\n\n" + ...
-                 "    interactive\n" + ...
-                 "    automatic  (reserved; not supported by the current instrument workflow)\n\n" + ...
-                 "What to do:\n" + ...
-                 "Use:\n\n" + ...
-                 "    sess = sess.calibrate(""Mode"", ""interactive"");\n" + ...
-                 "    spec = sess.measure(""LED spectrum"", ""Mode"", ""interactive"");"], mode);
+                "ERROR [SPL-014]\n\n" + ...
+                "Unknown interaction mode:\n\n" + ...
+                "    %s\n\n" + ...
+                "Supported modes:\n\n" + ...
+                "    interactive\n" + ...
+                "    automatic  (when supported by the selected driver)\n\n" + ...
+                "What to do:\n" + ...
+                "Use:\n\n" + ...
+                "    sess = sess.calibrate(""Mode"", ""interactive"");\n" + ...
+                "    spec = sess.measure(""LED spectrum"", ""Mode"", ""interactive"");", ...
+                mode);
         end
     end
 
     methods (Access = private)
+        function requireSupportedInteractionMode(obj, mode)
+            if obj.Instrument.supportsInteractionMode(mode)
+                return
+            end
+
+            error("SpectraLab:Session:AutomaticModeUnsupported", ...
+                "ERROR [SPL-015]\n\n" + ...
+                "The selected instrument driver does not support mode '%s'.\n\n" + ...
+                "What to do:\n" + ...
+                "Use a mode supported by the instrument, for example:\n\n" + ...
+                "    sess = sess.calibrate(""Mode"", ""interactive"");", ...
+                mode);
+        end
+
+        function playAudibleFeedback(obj, eventName)
+            %PLAYAUDIBLEFEEDBACK Play optional non-critical UX feedback.
+
+            if ~obj.AudibleFeedback
+                return
+            end
+
+            spectralab.ui.playFeedback(eventName);
+        end
+
+
+        function prepareStartFeedback(obj, mode)
+            if obj.Instrument.synchronizesStartFeedback(mode)
+                obj.Instrument.setOperationStartFeedback( ...
+                    @() obj.playAudibleFeedback("start"));
+            else
+                obj.playAudibleFeedback("start");
+            end
+        end
+
         function obj = log(obj, msg)
             stamp = string(datetime("now", "Format", "yyyy-MM-dd HH:mm:ss"));
             obj.History(end+1,1) = stamp + "  " + string(msg);

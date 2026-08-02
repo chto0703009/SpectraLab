@@ -1,0 +1,2 @@
+Instrument needs calibration before a reading can be taken.
+Place instrument on its calibration reference.

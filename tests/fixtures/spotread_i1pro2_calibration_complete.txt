@@ -1,0 +1,5 @@
+Spot read needs a calibration before continuing
+
+Place the instrument on its reflective white reference S/N [redacted],
+ and then hit any key to continue,
+ or hit Esc or Q to abort: Calibration complete

@@ -1,0 +1,41 @@
+Test med c-41 Porta 160
+
+Canon new F1 50 mm
+Det gick inte att skjuta med A på ringen?
+
+Godox 5000k 5%
+
+Började med f/11 1/125
+Öppnade bländare i steg om 1/2 bländare steg ned till 1.4
+
+Gick tillbaka ändrade 1/500
+Började på bl 5.6 och gick upp i 1/2 steg till 16.
+
+Tog en bild med linslocket på
+Tog en bild med öppen bländare och tid 1/4 
+
+Mätning av spectrum C41_Godox5k005.mat
+
+CIE 13.3 Colour Rendering — C41_Godox5k005
+------------------------------------------
+Reference illuminant : Planckian radiator
+CCT                  : 4709 K
+Duv                  : -0.000250
+Ra                   : 97.84
+
+dvs 300 K mindre än vid 50%
+CIE 13.3 Colour Rendering — GodoxEX4S_5k_50
+-------------------------------------------
+Reference illuminant : Planckian radiator
+CCT                  : 4916 K
+Duv                  : +0.001342
+Ra                   : 97.79
+
+Power 5K50 = 801.  2.0 %
+Power 5K50 = 2.302e+04.  58.6%
+Power 5k100 = 3.927e+04.  100%
+
+
+
+
+

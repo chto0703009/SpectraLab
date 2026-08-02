@@ -12,12 +12,16 @@ classdef MockInstrument < spectralab.core.Instrument
                 for k = 1:2:numel(varargin)
                     switch lower(string(varargin{k}))
                         case "noiselevel"
-                            obj.NoiseLevel = varargin{k+1};
+                            obj.NoiseLevel = varargin{k + 1};
+
                         case "scale"
-                            obj.Scale = varargin{k+1};
+                            obj.Scale = varargin{k + 1};
+
                         otherwise
-                            error("SpectraLab:MockInstrument:UnknownOption", ...
-                                "Unknown option: %s", string(varargin{k}));
+                            error( ...
+                                "SpectraLab:MockInstrument:UnknownOption", ...
+                                "Unknown option: %s", ...
+                                string(varargin{k}));
                     end
                 end
             end
@@ -41,37 +45,35 @@ classdef MockInstrument < spectralab.core.Instrument
             obj.IsOpen = false;
         end
 
-        function cal = calibrate(obj, mode)
+        function cal = calibrate(obj, ~)
             obj.requireOpen();
-            if nargin < 2 || strlength(string(mode)) == 0
-                mode = "interactive";
-            end
 
             data = struct();
             data.white_reference = "simulated";
             data.dark_reference = "simulated";
 
             cal = spectralab.core.Calibration.valid( ...
-                obj.getInfo(), "mock-white-dark", "Calibration OK.", data);
+                obj.getInfo(), ...
+                "mock-white-dark", ...
+                "Calibration OK.", ...
+                data);
 
             obj.LastCalibration = cal;
         end
 
-        function spec = measure(obj, label, mode)
+        function spec = measure(obj, label, ~)
             obj.requireOpen();
             obj.requireCalibration();
-            if nargin < 3 || strlength(string(mode)) == 0
-                mode = "interactive";
-            end
 
             if nargin < 2 || strlength(string(label)) == 0
                 label = "Mock spectrum";
             end
 
             wl = (380:5:740).';
-            blue = exp(-0.5*((wl - 455)/18).^2);
-            green = 0.65 * exp(-0.5*((wl - 535)/35).^2);
-            red = 0.45 * exp(-0.5*((wl - 625)/28).^2);
+
+            blue = exp(-0.5 * ((wl - 455) / 18).^2);
+            green = 0.65 * exp(-0.5 * ((wl - 535) / 35).^2);
+            red = 0.45 * exp(-0.5 * ((wl - 625) / 28).^2);
             baseline = 0.03;
 
             y = obj.Scale * (baseline + blue + green + red);
@@ -83,7 +85,13 @@ classdef MockInstrument < spectralab.core.Instrument
             metadata.measurement_context = "Simulated test source";
 
             spec = spectralab.core.Spectrum( ...
-                wl, y, label, obj.getInfo(), obj.LastCalibration.toStruct(), metadata, "arbitrary");
+                wl, ...
+                y, ...
+                label, ...
+                obj.getInfo(), ...
+                obj.LastCalibration.toStruct(), ...
+                metadata, ...
+                "arbitrary");
         end
     end
 end

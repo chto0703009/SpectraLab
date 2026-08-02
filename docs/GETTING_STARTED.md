@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: GETTING_STARTED.md
-Version: v0.6.0
-Status: FROZEN
+Version: v0.8.1
+Status: CURRENT
 -->
 
 # Getting Started with SpectraLab
@@ -36,11 +36,12 @@ You need:
 - MATLAB,
 - Python,
 - the Python package `pexpect`,
+- the Python package `ptyprocess` (normally installed by `pexpect`),
 - ArgyllCMS with `spotread`,
 - a supported spectrophotometer connected by USB,
 - the instrument's white reference for calibration.
 
-The v0.6.0 release has been verified with:
+The v0.8.1 release has been verified with:
 
 | Component | Recommended |
 |-----------|-------------|
@@ -48,6 +49,7 @@ The v0.6.0 release has been verified with:
 | Python | 3.10 or later |
 | ArgyllCMS | 3.5 or later |
 | pexpect | 4.9 or later |
+| ptyprocess | 0.7 or later |
 
 Earlier versions may work, but they are not part of the verified release configuration.
 
@@ -72,6 +74,9 @@ spotread -?
 ```
 
 SpectraLab also uses Python and `pexpect` to communicate safely with the external `spotread` process.
+`pexpect` uses `ptyprocess` for pseudo-terminal process control. SpectraLab
+checks and reports both packages separately so that a future packaging or
+dependency change cannot pass unnoticed.
 
 Example:
 
@@ -106,12 +111,12 @@ startup
 Expected output is similar to:
 
 ```text
-SpectraLab 0.6.0
+SpectraLab 0.8.1
 Measure once. Save forever.
 Ready
 
 Project root:
-  /path/to/SpectraLab_v0_4_0
+  /path/to/SpectraLab_v0.8.1
 
 Status
   Project ........ OK
@@ -119,10 +124,12 @@ Status
   MATLAB ......... OK
   Python ......... OK
   pexpect ........ OK
+  ptyprocess ...... OK
+  ArgyllCMS ...... OK
   spotread ....... OK
 
 First measurement:
-  measure_led
+  measure_spectrum
 ```
 
 If any item is reported as `MISSING`, follow the instruction shown by `startup` and see `docs/TROUBLESHOOTING.md`.
@@ -146,7 +153,7 @@ Confirm the following before running the first example:
 Run:
 
 ```matlab
-measure_led
+measure_spectrum
 ```
 
 The example will:
@@ -155,8 +162,8 @@ The example will:
 2. open a SpectraLab session,
 3. run calibration,
 4. measure an LED spectrum,
-5. print a spectrum summary,
-6. plot the spectrum.
+5. validate and archive the spectrum,
+6. generate the registered PDF and PNG outputs.
 
 Example result:
 
@@ -172,19 +179,19 @@ The numerical values depend on the measured light source.
 
 ---
 
-## Understanding Interactive Mode
+## Understanding Spotread modes
 
-The current Spotread driver operates in **interactive mode**.
+The Spotread driver provides two workflows in v0.8.1:
+
+- `interactive` preserves the verified v0.8.0 persistent-process fallback;
+- `automatic` uses one bounded Spotread process for calibration and one for
+  measurement.
 
 SpectraLab guides the user through calibration and measurement one step at a time. This ensures that each operation is performed only when the instrument and operator are ready.
 
-During calibration and measurement SpectraLab will ask you to:
-
-1. place the instrument,
-2. press **ENTER** in the MATLAB Command Window,
-3. wait for the operation to complete.
-
-This behaviour is expected.
+In automatic mode, SpectraLab shows separate placement confirmations and
+waits for Spotread readiness before calibration and measurement. Interactive
+mode instead uses the established Command Window prompts.
 
 Interactive mode is the default workflow:
 
@@ -200,13 +207,49 @@ sess = sess.calibrate("Mode", "interactive");
 spec = sess.measure("LED spectrum", "Mode", "interactive");
 ```
 
-`automatic` mode is reserved for future instruments that can calibrate and measure without user input.
+In `automatic` mode, SpectraLab asks the operator to position the instrument
+and confirm each operation in a separate modal dialog. It uses `-O` for
+calibration and the physically verified `-N -O` combination for measurement.
+No ENTER key is forwarded to a persistent Spotread process. A spectrum is
+returned only after the textual result and the saved `.sp` file agree and the
+signal passes validation.
+
+The physically verified i1Pro2 switch trigger remains available explicitly:
+
+```matlab
+inst = spectralab.drivers.createInstrument( ...
+    "i1Pro2", AutomaticTrigger="instrument");
+```
+
+In switch mode, release the calibration press, reposition the instrument,
+wait for the new `SPECTRALAB_READY` line, and then make a separate measurement
+press.
+
+The modal dialog is the default because it gives an unambiguous, separate
+confirmation for calibration and measurement.
+
+High-resolution i1Pro2 acquisition is explicit and requires its own
+calibration:
+
+```matlab
+inst = spectralab.drivers.createInstrument( ...
+    "i1Pro2", HighResolution=true);
+```
+
+This adds `-H` to both the calibration and measurement operations. Standard
+resolution remains the default.
+
+```matlab
+sess = sess.calibrate("Mode", "automatic");
+spec = sess.measure("LED spectrum", "Mode", "automatic");
+```
 
 ---
 
 ## Basic API Workflow
 
-The example `measure_led` is convenient for the first test. Applications normally use the public API directly.
+The example `measure_spectrum` is the recommended first physical test.
+Applications normally use the public API directly.
 
 ```matlab
 inst = spectralab.drivers.createInstrument("spotread");
@@ -214,9 +257,9 @@ inst = spectralab.drivers.createInstrument("spotread");
 sess = spectralab.core.Session(inst);
 sess = sess.open();
 
-sess = sess.calibrate("Mode", "interactive");
+sess = sess.calibrate("Mode", "automatic");
 
-spec = sess.measure("LED spectrum", "Mode", "interactive");
+spec = sess.measure("LED spectrum", "Mode", "automatic");
 
 disp(spec.summary())
 
@@ -261,11 +304,33 @@ Your installation is considered verified when:
 
 - `setup` completes successfully,
 - all required environment checks are OK,
-- `measure_led` completes calibration,
-- `measure_led` completes measurement,
+- `measure_spectrum` completes calibration,
+- `measure_spectrum` completes measurement,
 - `run_all_tests` passes.
 
 At that point SpectraLab is ready for normal use.
+
+---
+
+## Mean or difference of two saved spectra
+
+Select the registered analysis by running its analysis-specific workflow:
+
+```matlab
+run("/Users/christer/Desktop/SpectraLab/SpectraLab_Work/scripts/spectral_mean.m")
+run("/Users/christer/Desktop/SpectraLab/SpectraLab_Work/scripts/spectral_difference.m")
+```
+
+`Spectral mean` saves a new traceable MAT archive plus PDF and PNG.
+`Spectral difference A - B` creates PDF and PNG only. The report names both
+source files. ANL-010 asks first for the minuend and then for the
+subtrahend, so the calculation order is explicit. Default output names are
+the first source basename plus `_Mean` or `_Diff`. A custom Work script may
+set `pairOutputName` before running the shared workflow.
+
+Use ANL-010 to inspect light-source stability between measurements. Use
+ANL-009 when a traceable mean spectrum is needed to reduce the influence of
+measurement variation in a subsequent analysis.
 
 ---
 

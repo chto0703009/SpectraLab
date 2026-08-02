@@ -1,0 +1,84 @@
+function model = buildPageFrame(context)
+%BUILDPAGEFRAME Build the fixed PDF page-frame presentation model.
+%
+% The model contains only trusted presentation text required by the PDF
+% header and footer. It contains no scientific result values and performs
+% no analysis.
+
+arguments
+    context (1,1) struct
+end
+
+required = ["Analysis", "Report"];
+
+for fieldName = required
+    if ~isfield(context, fieldName)
+        error("SpectraLab:Report:InvalidPageFrameContext", ...
+            "PageFrame context is missing required field '%s'.", ...
+            fieldName);
+    end
+end
+
+analysisName = requiredText( ...
+    context.Analysis, ...
+    "Name", ...
+    "Analysis.Name");
+
+reportId = optionalText( ...
+    context.Report, ...
+    "ReportId", ...
+    "—");
+
+spectralabVersion = optionalText( ...
+    context.Report, ...
+    "SpectraLabVersion", ...
+    spectralab.version());
+
+model = struct( ...
+    "Format", "SLAB-REPORT-PAGE-FRAME", ...
+    "Version", "1.0", ...
+    "HeaderLeft", "SpectraLab", ...
+    "HeaderRight", analysisName, ...
+    "FooterLeft", "Report ID " + reportId, ...
+    "FooterCenter", "SpectraLab " + spectralabVersion);
+end
+
+
+function value = requiredText(parent, fieldName, path)
+
+if ~isstruct(parent) || ~isscalar(parent) || ...
+        ~isfield(parent, fieldName)
+    error("SpectraLab:Report:InvalidPageFrameContext", ...
+        "PageFrame context is missing required field '%s'.", ...
+        path);
+end
+
+value = string(parent.(fieldName));
+
+if ~isscalar(value) || ismissing(value) || ...
+        strlength(strtrim(value)) == 0
+    error("SpectraLab:Report:InvalidPageFrameContext", ...
+        "PageFrame context field '%s' must contain text.", ...
+        path);
+end
+
+value = strtrim(value);
+end
+
+
+function value = optionalText(parent, fieldName, fallback)
+
+value = string(fallback);
+
+if ~isstruct(parent) || ~isscalar(parent) || ...
+        ~isfield(parent, fieldName)
+    return
+end
+
+candidate = string(parent.(fieldName));
+
+if isscalar(candidate) && ~ismissing(candidate) && ...
+        strlength(strtrim(candidate)) > 0
+    value = strtrim(candidate);
+end
+end

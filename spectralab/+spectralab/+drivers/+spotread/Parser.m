@@ -67,6 +67,44 @@ classdef Parser
             info.note = "Parsed generic spectral wavelength/power data.";
         end
 
+        function [wl, power, info] = parseSpectrumFile(filename)
+            filename = string(filename);
+            if ~isfile(filename)
+                error("SpectraLab:Spotread:SpectrumFileMissing", ...
+                    "Spotread spectrum file was not created: %s", filename);
+            end
+
+            txt = string(fileread(filename));
+            bands = readHeaderNumber(txt, "SPECTRAL_BANDS");
+            startNm = readHeaderNumber(txt, "SPECTRAL_START_NM");
+            endNm = readHeaderNumber(txt, "SPECTRAL_END_NM");
+
+            dataTokens = regexp(char(txt), ...
+                'BEGIN_DATA[ \t]*\r?\n([\s\S]*?)\r?\nEND_DATA(?:\r?\n|$)', ...
+                'tokens', 'once');
+            if isempty(dataTokens)
+                error("SpectraLab:Spotread:InvalidSpectrumFile", ...
+                    "Spotread spectrum file contains no data block.");
+            end
+
+            numbers = regexp(dataTokens{1}, ...
+                '[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?', 'match');
+            power = str2double(numbers(:));
+            if numel(power) ~= bands || any(~isfinite(power))
+                error("SpectraLab:Spotread:InvalidSpectrumFile", ...
+                    "Spotread spectrum file expected %d finite values but contained %d.", ...
+                    bands, numel(power));
+            end
+
+            wl = linspace(startNm, endNm, bands).';
+            info = struct();
+            info.parser = "spectralab.drivers.spotread.Parser";
+            info.format = "Argyll SPECT";
+            info.samples = bands;
+            info.range_nm = [startNm, endNm];
+            info.filename = filename;
+        end
+
         function raw = extractRawBlock(output)
             txt = char(string(output));
 
@@ -137,4 +175,20 @@ classdef Parser
             ok = true;
         end
     end
+end
+
+function value = readHeaderNumber(text, fieldName)
+expression = [char(fieldName), '\s+"?', ...
+    '([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)"?'];
+token = regexp(char(text), expression, 'tokens', 'once');
+if isempty(token)
+    error("SpectraLab:Spotread:InvalidSpectrumFile", ...
+        "Spotread spectrum file is missing %s.", fieldName);
+end
+value = str2double(token{1});
+if ~isfinite(value) || (fieldName == "SPECTRAL_BANDS" && ...
+        (value < 1 || value ~= fix(value)))
+    error("SpectraLab:Spotread:InvalidSpectrumFile", ...
+        "Spotread spectrum file has invalid %s.", fieldName);
+end
 end

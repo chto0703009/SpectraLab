@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v0.6.0
-Status: FROZEN
+Version: v0.8.1
+Status: CURRENT
 -->
 
 # SpectraLab
@@ -17,22 +17,44 @@ The current release supports ArgyllCMS `spotread` together with the X-Rite i1Pro
 
 ---
 
+## Current Release
+
+**SpectraLab v0.8.1** is the current stable release.
+
+- [Release overview and notes](https://github.com/chto0703009/SpectraLab/releases/tag/v0.8.1)
+- [Download SpectraLab v0.8.1](https://github.com/chto0703009/SpectraLab/releases/download/v0.8.1/SpectraLab_v0.8.1.zip)
+- [Getting started](docs/GETTING_STARTED.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+
+The `main` branch represents the latest published release. Named development
+branches are working branches and should not be treated as release packages.
+For a fixed, reproducible installation, use the versioned ZIP above.
+
+---
+
 ## Why SpectraLab?
 
 Reliable measurements require reliable software.
 
 SpectraLab was developed to provide a clean separation between measurement, data management, visualisation, export and instrument communication. This makes user applications independent of specific instruments while allowing new devices to be added through dedicated drivers.
 
-The goal of the v0.6.0 release is long-term stability rather than rapid feature growth.
+The v0.8.1 release adds a bounded, physically verified i1Pro2 measurement
+workflow, optional high-resolution acquisition, traceable spectral mean and
+difference analyses, and curated release examples while preserving the
+long-term archive and reporting principles established by earlier releases.
 
 ---
 
 ## Features
 
-- Interactive spectral measurements
+- Bounded automatic and retained interactive spectral measurements
+- Standard and optional high-resolution i1Pro2 acquisition
 - Stable public MATLAB API
 - Instrument-independent architecture
 - Publication-quality plotting
+- Registered scientific analyses
+- PDF reports with analysis-specific figures where applicable
+- Full-resolution PNG export of report figures
 - JSON-based measurement storage
 - CSV and text export
 - Automatic environment verification
@@ -44,7 +66,7 @@ The goal of the v0.6.0 release is long-term stability rather than rapid feature 
 
 ## Supported Environment
 
-The v0.6.0 release has been verified with the following environment.
+The v0.8.1 release has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|
@@ -52,6 +74,7 @@ The v0.6.0 release has been verified with the following environment.
 | Python | 3.10 or later |
 | ArgyllCMS | 3.5 or later |
 | pexpect | 4.9 or later |
+| ptyprocess | 0.7 or later |
 
 Earlier versions may work, but they are not part of the verified release configuration.
 
@@ -64,7 +87,7 @@ Run `setup` to let SpectraLab verify the environment before the first measuremen
 Clone the repository.
 
 ```bash
-git clone https://github.com/<user>/SpectraLab.git
+git clone https://github.com/chto0703009/SpectraLab.git
 ```
 
 Open MATLAB, change to the SpectraLab project directory and run:
@@ -75,8 +98,6 @@ setup
 
 `setup` prepares the MATLAB path and verifies that required external components are available.
 
-The real GitHub URL should be inserted when the public repository is created.
-
 ---
 
 ## First Measurement
@@ -84,17 +105,18 @@ The real GitHub URL should be inserted when the public repository is created.
 ```matlab
 setup
 
-measure_led
+measure_spectrum
 ```
 
-`measure_led` runs in **interactive mode**.
+`measure_spectrum` runs the bounded **automatic mode** and saves a trusted
+MAT archive, registered PDF report and PNG figure below `examples/output/`.
 
-During calibration and measurement, SpectraLab will prompt you in the MATLAB Command Window to:
+During calibration and measurement, SpectraLab will ask you to:
 
 1. Place the instrument on the white reference.
-2. Press **ENTER**.
+2. Confirm calibration when Spotread is ready.
 3. Place the instrument on the light source.
-4. Press **ENTER**.
+4. Confirm measurement when Spotread is ready.
 
 Follow the on-screen instructions until the measurement is complete.
 
@@ -105,28 +127,29 @@ Follow the on-screen instructions until the measurement is complete.
 A typical workflow is:
 
 ```matlab
-inst = spectralab.drivers.createInstrument("spotread");
+inst = spectralab.drivers.createInstrument("i1Pro2");
 
 sess = spectralab.core.Session(inst);
 sess = sess.open();
 
-sess = sess.calibrate("Mode", "interactive");
+sess = sess.calibrate("Mode", "automatic");
 
-spec = sess.measure("LED spectrum", "Mode", "interactive");
+spec = sess.measure("LED spectrum", "Mode", "automatic");
 
 disp(spec.summary())
 
 spectralab.plot.spectrum(spec)
 ```
 
-For convenience, the default mode is `interactive`, so existing code can also use:
+The retained interactive fallback remains available:
 
 ```matlab
 sess = sess.calibrate();
 spec = sess.measure("LED spectrum");
 ```
 
-The explicit `"Mode", "interactive"` syntax is recommended in scripts because it documents that the workflow requires user interaction.
+The explicit mode syntax is recommended because it documents the intended
+process-control contract.
 
 The public API is considered stable within the v0.x release series.
 
@@ -134,15 +157,27 @@ The public API is considered stable within the v0.x release series.
 
 ## Measurement Modes
 
-### interactive (default)
+### automatic (supported and recommended)
 
-The current release operates in **interactive mode**.
+For the i1Pro2, v0.8.1 supports a bounded automatic Spotread workflow for
+calibration and measurement. Each operation runs in a separate one-shot
+process, waits for an explicit ready state and accepts a result only after
+the returned spectrum has been validated. Placement confirmations remain
+visible because the user must physically position the instrument.
 
-SpectraLab guides the user through calibration and measurement using prompts in the MATLAB Command Window. This reflects the physical workflow of the currently supported Spotread driver, where the user must position the instrument before continuing.
+Use the explicit mode in measurement scripts:
 
-### automatic (reserved)
+```matlab
+sess = sess.calibrate("Mode", "automatic");
+spec = sess.measure("LED spectrum", "Mode", "automatic");
+```
 
-`automatic` mode is reserved for future instruments capable of calibration and measurement without user interaction. It is recognized by the API but is not supported by the current Spotread workflow.
+### interactive (API default and retained fallback)
+
+For backward compatibility, omitting `Mode` still selects `interactive`.
+The established Command Window workflow remains supported as a fallback and
+can also be selected explicitly. New i1Pro2 measurement workflows should use
+the bounded `automatic` mode above.
 
 ---
 

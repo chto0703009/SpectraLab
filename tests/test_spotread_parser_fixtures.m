@@ -42,4 +42,13 @@ assert(ok);
 bad = spectralab.drivers.spotread.Parser.calibrationSucceeded("Instrument initialisation failed", 255);
 assert(~bad);
 
+spFile = fullfile(base, "spotread_i1pro2_measurement_complete.sp");
+[wlFile, powerFile, fileInfo] = ...
+    spectralab.drivers.spotread.Parser.parseSpectrumFile(spFile);
+assert(numel(powerFile) == 36);
+assert(wlFile(1) == 380);
+assert(wlFile(end) == 730);
+assert(abs(max(powerFile) - 277.8154) < 1e-12);
+assert(fileInfo.format == "Argyll SPECT");
+
 fprintf("test_spotread_parser_fixtures OK\n");

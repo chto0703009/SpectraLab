@@ -16,6 +16,18 @@
 - `spectralab.drivers.MockInstrument`
 - `spectralab.drivers.SpotreadInstrument`
 
+`SpotreadInstrument` supports the v0.8.0-compatible `interactive` mode and
+the v0.8.1 bounded `automatic` one-shot mode. Automatic calibration uses
+Spotread `-O`; automatic measurement uses `-N -O` after successful
+calibration and validates the saved Argyll `.sp` file against console output.
+The default automatic trigger is a separate modal confirmation for each
+operation. Pass `AutomaticTrigger="instrument"` to use the physically verified
+i1Pro2 switch workflow instead.
+
+Pass `HighResolution=true` to request the physically verified i1Pro2 `-H`
+mode. The setting is applied to both calibration and measurement. Standard
+resolution remains the default.
+
 ## IO
 
 - `spectralab.io.saveSpectrum`
@@ -27,7 +39,20 @@
 
 ## Plot
 
-- `spectralab.plot.overlay`
-- `spectralab.plot.compare`
-
 - `spectralab.plot.spectrum`
+
+## Pair-spectrum analyses
+
+```matlab
+meanResult = spectralab.analysis.spectralMean(archiveA, archiveB, ...
+    SourceFiles=["source_A.mat", "source_B.mat"]);
+derivedArchive = meanResult.Result.DerivedArchive;
+
+differenceResult = spectralab.analysis.spectralDifference( ...
+    archiveA, archiveB);  % A minus B; no derived archive
+```
+
+Both functions require identical wavelength grids by default. Set
+`Resample=true` to explicitly align differing grids over their common range.
+ANL-009 is reportable and produces a reusable derived archive. ANL-010 is a
+diagnostic, reportable analysis and never produces a MAT archive.

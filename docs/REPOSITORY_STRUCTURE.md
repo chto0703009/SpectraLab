@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: REPOSITORY_STRUCTURE.md
-Version: v0.6.0
-Status: FROZEN
+Version: v0.8.1
+Status: CURRENT
 -->
 
 # SpectraLab Repository Structure
@@ -76,7 +76,7 @@ The top-level files are the main entry points for users, contributors and releas
 | `run_all_tests.m` | Runs the regression test suite |
 | `VERSION` | Stores the release version |
 
-New users normally start with `setup` and `measure_led`.
+New users normally start with `setup` and `measure_spectrum`.
 
 ---
 
@@ -94,6 +94,7 @@ Important package areas include:
     +drivers/
     +io/
     +plot/
+    +report/
     +ui/
 ```
 
@@ -146,6 +147,20 @@ The public API is the contract between SpectraLab and its users.
 
 Examples are part of the documentation.
 
+Release workflow examples are grouped by contract:
+
+```text
+examples/
+├── measurement/   measure_* and retained interactive_* workflows
+├── analysis/      calculate_*_report and plot_* workflows
+├── inventory/     read-only list_* quality tools
+├── data/          synthetic, non-identifying SLAB-MAT fixtures
+└── output/        generated locally; never distributed as source data
+```
+
+Only the user-facing workflow folders are added to the MATLAB path.
+Bundled data and private helpers are deliberately not public commands.
+
 They should be:
 
 - simple,
@@ -157,7 +172,7 @@ They should be:
 Example files include:
 
 ```text
-examples/measure_led.m
+examples/measurement/measure_spectrum.m
 examples/first_measurement.m
 examples/compare_two_spectra.m
 examples/spotread_i1pro2_measurement.m
@@ -251,7 +266,7 @@ README.md
 docs/GETTING_STARTED.md
    |
    v
-examples/measure_led.m
+examples/measurement/measure_spectrum.m
 ```
 
 Developers should then continue with:

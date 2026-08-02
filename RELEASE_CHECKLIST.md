@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: RELEASE_CHECKLIST.md
-Version: v0.4.0
-Status: FROZEN
+Version: v0.8.1
+Status: CURRENT
 -->
 
 # SpectraLab Release Checklist
@@ -24,10 +24,10 @@ It is an engineering verification document.
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.4.0 |
-| Release type | Foundation Release |
-| Release date | To be completed at publication |
-| Release manager | To be completed at publication |
+| Version | v0.8.1 |
+| Release type | Measurement Workflow and Reproducible Examples Release |
+| Release date | 2026-08-02 |
+| Release manager | Project owner |
 
 ---
 
@@ -35,12 +35,12 @@ It is an engineering verification document.
 
 Confirm before release verification begins:
 
-- [ ] Intended release scope has been achieved.
-- [ ] No known release-blocking defects remain.
-- [ ] Public API is stable.
-- [ ] Architecture remains consistent.
-- [ ] Engineering objectives for the release have been met.
-- [ ] No feature additions remain pending for this release.
+- [x] Intended release scope has been achieved.
+- [x] No known release-blocking defects remain.
+- [x] Public API is stable.
+- [x] Architecture remains consistent.
+- [x] Engineering objectives for the release have been met.
+- [x] No feature additions remain pending for this release.
 
 The checklist evaluates engineering readiness, not development activity.
 
@@ -50,14 +50,19 @@ The checklist evaluates engineering readiness, not development activity.
 
 Confirm that:
 
-- [ ] Regression tests pass.
-- [ ] Interactive workflow has been verified.
-- [ ] Calibration workflow has been verified.
-- [ ] Measurement workflow has been verified.
-- [ ] Example programs execute correctly.
-- [ ] Supported environments have been verified.
-- [ ] Version information is consistent.
-- [ ] No obsolete release candidate or build version strings remain in user-facing files.
+- [x] Regression tests pass.
+- [x] Interactive workflow has been verified.
+- [x] Calibration workflow has been verified.
+- [x] Measurement workflow has been verified.
+- [x] Example programs execute correctly.
+- [x] Every registered report analysis has been verified.
+- [x] Every intended report figure appears in both PDF and PNG output.
+- [x] Every report figure has labelled axes and follows its registered
+  y-axis contract: zero-origin for magnitude plots or symmetric zero-centred
+  limits for signed difference plots.
+- [x] Supported environments have been verified.
+- [x] Version information is consistent.
+- [x] No obsolete release candidate or build version strings remain in user-facing files.
 
 Verification shall be based on objective evidence.
 
@@ -67,17 +72,17 @@ Verification shall be based on objective evidence.
 
 Confirm that each release document has been reviewed and approved.
 
-- [ ] `README.md`
-- [ ] `docs/GETTING_STARTED.md`
-- [ ] `docs/TROUBLESHOOTING.md`
-- [ ] `docs/REPOSITORY_STRUCTURE.md`
-- [ ] `docs/DEVELOPMENT_PHILOSOPHY.md`
-- [ ] `CONTRIBUTING.md`
-- [ ] `DISCLAIMER.md`
-- [ ] `CHANGELOG.md`
-- [ ] `ROADMAP.md`
-- [ ] `MANIFEST.md`
-- [ ] `RELEASE_CHECKLIST.md`
+- [x] `README.md`
+- [x] `docs/GETTING_STARTED.md`
+- [x] `docs/TROUBLESHOOTING.md`
+- [x] `docs/REPOSITORY_STRUCTURE.md`
+- [x] `docs/DEVELOPMENT_PHILOSOPHY.md`
+- [x] `CONTRIBUTING.md`
+- [x] `DISCLAIMER.md`
+- [x] `CHANGELOG.md`
+- [x] `ROADMAP.md`
+- [x] `MANIFEST.md`
+- [x] `RELEASE_CHECKLIST.md`
 
 The Documentation Pack is considered part of the release itself.
 
@@ -87,14 +92,14 @@ The Documentation Pack is considered part of the release itself.
 
 Confirm that the release package contains:
 
-- [ ] Source code
-- [ ] Documentation
-- [ ] Examples
-- [ ] Regression tests
-- [ ] License
-- [ ] Manifest
-- [ ] Release Checklist
-- [ ] Release notes, if applicable
+- [x] Source code
+- [x] Documentation
+- [x] Examples
+- [x] Regression tests
+- [x] License
+- [x] Manifest
+- [x] Release Checklist
+- [x] Release notes, if applicable
 
 An incomplete package is not an official release.
 
@@ -104,11 +109,11 @@ An incomplete package is not an official release.
 
 Before publication, confirm that the release:
 
-- [ ] improves or preserves engineering quality,
-- [ ] preserves compatibility where intended,
-- [ ] remains consistent with the Engineering Philosophy,
-- [ ] is understandable and maintainable,
-- [ ] satisfies the objectives defined for the release.
+- [x] improves or preserves engineering quality,
+- [x] preserves compatibility where intended,
+- [x] remains consistent with the Engineering Philosophy,
+- [x] is understandable and maintainable,
+- [x] satisfies the objectives defined for the release.
 
 A release should never be approved only because development has stopped.
 
@@ -122,10 +127,10 @@ Approval should be recorded by the appropriate roles.
 
 | Role | Approval |
 |------|----------|
-| Technical Author |  |
-| Engineering Reviewer |  |
-| Release Manager |  |
-| Project Owner |  |
+| Technical Author | Approved 2026-08-02 |
+| Engineering Reviewer | Automated and physical verification completed 2026-08-02 |
+| Release Manager | Approved 2026-08-02 |
+| Project Owner | Approved 2026-08-02 |
 
 Approval represents acceptance of the engineering evidence supporting release.
 
@@ -135,13 +140,13 @@ Approval represents acceptance of the engineering evidence supporting release.
 
 | Item | Value |
 |------|-------|
-| Version |  |
-| Release date |  |
-| Git tag |  |
-| Release package |  |
-| Test result |  |
-| Real measurement verified |  |
-| Comments |  |
+| Version | v0.8.1 |
+| Release date | 2026-08-02 |
+| Git tag | `v0.8.1` |
+| Release package | `releases/SpectraLab_v0.8.1.zip` |
+| Test result | 73 files and 465 cases passed; 0 failed; 0 incomplete |
+| Real measurement verified | Yes; X-Rite i1Pro2 single measurement and five-measurement series through bounded `spotread` |
+| Comments | Standard and high-resolution acquisition verified. Release examples and clean temporary workflows passed. |
 
 ---
 
