@@ -387,8 +387,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
 
     methods (Access = private)
         function cal = calibrateOneShot(obj)
-            obj.confirmPlacement( ...
-                "Place the instrument on its reflective white reference.");
+            obj.confirmPlacement(obj.calibrationPlacementMessage());
 
             args = splitOptions(obj.CalibrationOptions);
             if obj.HighResolution
@@ -427,7 +426,11 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             obj.LastCalibration = cal;
         end
 
-        function spec = measureOneShot(obj, label)
+        function spec = measureOneShot(obj, label, allowRecalibration)
+            if nargin < 3
+                allowRecalibration = true;
+            end
+
             obj.confirmPlacement( ...
                 "Place the instrument on the source or sample to be measured.");
 
@@ -452,10 +455,25 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             outcome = spectralab.drivers.spotread.OutcomeParser.classify( ...
                 rawOutput, result.status, result.timed_out);
 
+            if outcome.kind == "CALIBRATION_REQUIRED" && allowRecalibration
+                % The failed attempt contains no reportable spectrum. Remove
+                % its temporary artifacts before asking the operator to move
+                % the instrument to the white reference.
+                clear cleanup
+                fprintf( ...
+                    "\nSpotread requires a new calibration. " + ...
+                    "No measurement was saved.\n");
+                obj.calibrateOneShot();
+                spec = obj.measureOneShot(label, false);
+                spec = spec.withMetadataField( ...
+                    "automatic_recalibration", true);
+                spec = spec.withMetadataField( ...
+                    "recalibration_reason", outcome.kind);
+                return
+            end
+
             if outcome.kind ~= "MEASUREMENT_SUCCEEDED"
-                error("SpectraLab:Spotread:OneShotMeasurementFailed", ...
-                    "Spotread measurement did not succeed (%s): %s", ...
-                    outcome.kind, outcome.message);
+                throwMeasurementFailure(outcome);
             end
 
             [wl, power, parseInfo] = ...
@@ -537,6 +555,20 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 obj.SerialNumber = serialNumber;
             end
         end
+
+        function message = calibrationPlacementMessage(obj)
+            if strlength(obj.SerialNumber) > 0
+                message = ...
+                    "Place the instrument on its reflective white " + ...
+                    "reference. Verify that the calibration plate is " + ...
+                    "marked S/N " + obj.SerialNumber + ".";
+            else
+                message = ...
+                    "Place the instrument on its reflective white " + ...
+                    "reference. Verify that the calibration plate " + ...
+                    "serial number matches the instrument.";
+            end
+        end
     end
 end
 
@@ -565,6 +597,27 @@ end
 if ~isempty(tokens)
     serialNumber = strtrim(string(tokens{1}));
 end
+end
+
+function throwMeasurementFailure(outcome)
+switch outcome.kind
+    case "INSTRUMENT_NOT_DETECTED"
+        identifier = "SpectraLab:Spotread:InstrumentNotDetected";
+    case "COMMUNICATION_FAILURE"
+        identifier = "SpectraLab:Spotread:CommunicationsFailure";
+    case "TIMEOUT"
+        identifier = "SpectraLab:Spotread:MeasurementTimeout";
+    case "CALIBRATION_FAILED"
+        identifier = "SpectraLab:Spotread:MeasurementCalibrationFailed";
+    case "PROCESS_FAILED"
+        identifier = "SpectraLab:Spotread:MeasurementProcessFailed";
+    otherwise
+        identifier = "SpectraLab:Spotread:OneShotMeasurementFailed";
+end
+
+error(identifier, ...
+    "Spotread measurement did not succeed (%s): %s", ...
+    outcome.kind, outcome.message);
 end
 
 function cleanupWorkingDirectory(result)

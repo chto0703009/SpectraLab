@@ -147,6 +147,20 @@ The public API is the contract between SpectraLab and its users.
 
 Examples are part of the documentation.
 
+Release workflow examples are grouped by contract:
+
+```text
+examples/
+├── measurement/   measure_* and retained interactive_* workflows
+├── analysis/      calculate_*_report and plot_* workflows
+├── inventory/     read-only list_* quality tools
+├── data/          synthetic, non-identifying SLAB-MAT fixtures
+└── output/        generated locally; never distributed as source data
+```
+
+Only the user-facing workflow folders are added to the MATLAB path.
+Bundled data and private helpers are deliberately not public commands.
+
 They should be:
 
 - simple,

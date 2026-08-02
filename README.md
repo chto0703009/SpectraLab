@@ -57,6 +57,7 @@ The v0.8.0 release has been verified with the following environment.
 | Python | 3.10 or later |
 | ArgyllCMS | 3.5 or later |
 | pexpect | 4.9 or later |
+| ptyprocess | 0.7 or later |
 
 Earlier versions may work, but they are not part of the verified release configuration.
 

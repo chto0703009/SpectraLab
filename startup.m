@@ -57,6 +57,15 @@ rehash toolboxcache;
 
 addpath(rootDir);
 addpath(expectedExamples);
+% Add only user-facing workflow categories. Example data, generated output
+% and private helpers must not become public MATLAB commands.
+exampleCategories = ["measurement", "analysis", "inventory"];
+for category = exampleCategories
+    categoryFolder = fullfile(expectedExamples, category);
+    if isfolder(categoryFolder)
+        addpath(categoryFolder);
+    end
+end
 addpath(genpath(fullfile(rootDir, "spectralab")));
 rehash;
 

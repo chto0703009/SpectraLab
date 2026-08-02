@@ -94,6 +94,7 @@ If an error includes an `SPL-xxx` code, search this document for that code.
 | SPL-014 | Invalid measurement mode syntax |
 | SPL-015 | Automatic mode requested but not supported |
 | SPL-016 | Interactive workflow information |
+| SPL-017 | `ptyprocess` missing |
 
 ---
 
@@ -217,6 +218,26 @@ Then restart MATLAB and run:
 ```matlab
 setup
 ```
+
+---
+
+## SPL-017 — ptyprocess Missing
+
+### Meaning
+
+The Python package `ptyprocess`, used by `pexpect` for pseudo-terminal
+process control, is missing from the Python environment selected by
+SpectraLab.
+
+### What to do
+
+Install it in the same Python environment shown by `startup`:
+
+```bash
+/path/to/python -m pip install ptyprocess
+```
+
+Then restart MATLAB and run `startup` again.
 
 ---
 

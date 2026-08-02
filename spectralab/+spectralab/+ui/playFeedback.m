@@ -1,4 +1,4 @@
-function playFeedback(eventName, options)
+function [waveform, sampleRate] = playFeedback(eventName, options)
 %PLAYFEEDBACK Play a short SpectraLab user-feedback sound.
 %
 %   spectralab.ui.playFeedback("start")
@@ -11,42 +11,51 @@ function playFeedback(eventName, options)
 arguments
     eventName (1,1) string
     options.Enabled (1,1) logical = true
+    options.PlayAudio (1,1) logical = true
 end
 
+waveform = zeros(0, 1);
+sampleRate = 16000;
 if ~options.Enabled
     return
 end
 
 eventName = lower(strtrim(eventName));
-sampleRate = 16000;
+tone = createTone(880, 0.120, sampleRate);
+tonePause = zeros(round(0.100 * sampleRate), 1);
 
 switch eventName
     case "start"
-        waveform = createTone(880, 0.120, sampleRate);
+        waveform = tone;
 
     case "success"
         waveform = [
-            createTone(1100, 0.100, sampleRate)
-            zeros(round(0.040 * sampleRate), 1)
-            createTone(1500, 0.140, sampleRate)
+            tone
+            tonePause
+            tone
         ];
 
     case "error"
-        errorTone = createTone(2000, 0.080, sampleRate);
-        errorPause = zeros(round(0.100 * sampleRate), 1);
-
         waveform = [
-            errorTone
-            errorPause
-            errorTone
-            errorPause
-            errorTone
+            tone
+            tonePause
+            tone
+            tonePause
+            tone
+            tonePause
+            tone
+            tonePause
+            tone
         ];
     otherwise
         error( ...
             "SpectraLab:UI:UnknownFeedback", ...
             "Unknown audible feedback event: %s", ...
             eventName);
+end
+
+if ~options.PlayAudio
+    return
 end
 
 try

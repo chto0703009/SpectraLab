@@ -27,6 +27,14 @@ v0.8.0 release baseline.
   record the physical instrument serial number in new measurement archives.
 - A missing or unrecognized serial number remains a validation warning rather
   than causing a valid measurement to be discarded.
+- Startup reports and verifies both direct Python dependency `pexpect` and its
+  runtime dependency `ptyprocess` independently.
+- Audible operation feedback uses one consistent tone frequency: one beep at
+  start, two after success and five after failure.
+- A measurement series performs one controlled white-reference recalibration
+  and retry when Spotread reports that calibration has expired.
+- Measurement series stop immediately after non-recoverable Spotread hardware,
+  USB communication, timeout, calibration or process failures.
 
 ---
 

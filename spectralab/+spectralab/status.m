@@ -57,11 +57,15 @@ s.python_version = "";
 s.python_version_ok = false;
 s.pexpect_ok = false;
 s.pexpect_version = "";
+s.ptyprocess_ok = false;
+s.ptyprocess_version = "";
 
 if s.python_ok
     s.python_version = getPythonVersion(s.python);
     s.python_version_ok = isVersionAtLeast(s.python_version, minPythonVersion);
     [s.pexpect_ok, s.pexpect_version] = checkPythonModule(s.python, "pexpect");
+    [s.ptyprocess_ok, s.ptyprocess_version] = ...
+        checkPythonModule(s.python, "ptyprocess");
 end
 
 spectralab.ui.banner(versionText, motto, "Ready");
@@ -87,6 +91,12 @@ if s.pexpect_ok && strlength(s.pexpect_version) > 0
 end
 fprintf("\n");
 
+fprintf("  ptyprocess ...... %s", okText(s.ptyprocess_ok));
+if s.ptyprocess_ok && strlength(s.ptyprocess_version) > 0
+    fprintf("  %s", s.ptyprocess_version);
+end
+fprintf("\n");
+
 fprintf("  ArgyllCMS ...... %s", statusText(s.spotread_ok && s.argyll_ok, s.spotread_ok));
 if s.spotread_ok && strlength(s.spotread_version) > 0
     fprintf("  %s", s.spotread_version);
@@ -101,6 +111,7 @@ fprintf("\n");
 
 allOk = s.project_ok && s.examples_ok && s.matlab_ok && ...
     s.python_ok && s.python_version_ok && s.pexpect_ok && ...
+    s.ptyprocess_ok && ...
     s.spotread_ok && s.argyll_ok;
 
 if ~allOk
@@ -123,6 +134,9 @@ if ~allOk
     elseif ~s.pexpect_ok
         fprintf("  [SPL-004] Install pexpect in the Python environment used by SpectraLab.\n");
         fprintf("            Example: %s -m pip install pexpect\n", s.python);
+    elseif ~s.ptyprocess_ok
+        fprintf("  [SPL-017] Install ptyprocess in the Python environment used by SpectraLab.\n");
+        fprintf("            Example: %s -m pip install ptyprocess\n", s.python);
     end
     if ~s.spotread_ok
         fprintf("  [SPL-005] Install ArgyllCMS and make sure spotread is on the system PATH.\n");

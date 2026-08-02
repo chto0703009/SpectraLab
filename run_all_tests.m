@@ -15,7 +15,14 @@ end
 rootDir = fileparts(mfilename("fullpath"));
 cd(rootDir);
 addpath(rootDir);
-addpath(fullfile(rootDir, "examples"));
+examplesDir = fullfile(rootDir, "examples");
+addpath(examplesDir);
+for category = ["measurement", "analysis", "inventory"]
+    categoryDir = fullfile(examplesDir, category);
+    if isfolder(categoryDir)
+        addpath(categoryDir);
+    end
+end
 addpath(genpath(fullfile(rootDir, "spectralab")));
 
 versionText = spectralab.version();
@@ -89,7 +96,13 @@ end
 % In particular, examples/ must remain on the MATLAB path so that
 % measure_led works immediately after run_all_tests.
 addpath(rootDir);
-addpath(fullfile(rootDir, "examples"));
+addpath(examplesDir);
+for category = ["measurement", "analysis", "inventory"]
+    categoryDir = fullfile(examplesDir, category);
+    if isfolder(categoryDir)
+        addpath(categoryDir);
+    end
+end
 addpath(genpath(fullfile(rootDir, "spectralab")));
 rehash;
 

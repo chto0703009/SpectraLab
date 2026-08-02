@@ -258,14 +258,20 @@ classdef Session
             end
         end
 
-        function collection = measureMany(obj, labels)
+        function collection = measureMany(obj, labels, varargin)
             labels = string(labels);
             collection = spectralab.core.SpectrumCollection("SpectraLab measurement series");
 
             for k = 1:numel(labels)
-                r = obj.measureResult(labels(k));
+                r = obj.measureResult(labels(k), varargin{:});
                 if r.Success
                     collection = collection.add(r.Spectrum);
+                elseif spectralab.core.Session.isFatalSeriesFailure( ...
+                        r.Status.Code)
+                    error("SpectraLab:Session:MeasurementSeriesAborted", ...
+                        "Measurement series stopped at '%s' after a " + ...
+                        "non-recoverable instrument failure (%s): %s", ...
+                        labels(k), r.Status.Code, r.Status.Message);
                 else
                     warning("SpectraLab:Session:MeasurementSkipped", ...
                         "Measurement failed for '%s': %s", labels(k), r.Status.Message);
@@ -275,6 +281,13 @@ classdef Session
     end
 
     methods (Static, Access = private)
+        function tf = isFatalSeriesFailure(code)
+            code = string(code);
+            tf = (startsWith(code, "SpectraLab:Spotread:") && ...
+                code ~= "SpectraLab:Spotread:NoLightDetected") || ...
+                code == "SpectraLab:Session:InvalidMeasurement";
+        end
+
         function enabled = resolveAudibleFeedback(instrument, requestedValue)
             %RESOLVEAUDIBLEFEEDBACK Resolve the session UX default.
             %

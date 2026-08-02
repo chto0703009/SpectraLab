@@ -92,6 +92,24 @@ When calibration is required, SpectraLab shall clearly request that the
 instrument be placed on its calibration reference. Measurement shall not
 start until calibration success has been established.
 
+The placement instruction shall remind the operator to verify that the
+calibration-plate serial number matches the instrument. This is operator
+guidance only and does not add an unverified confirmation field to the saved
+archive.
+
+During a measurement series, a `CALIBRATION_REQUIRED` response triggers one
+bounded recovery cycle: the incomplete attempt is discarded, the operator is
+guided through a new white-reference calibration, and the requested
+measurement is attempted once more. A second calibration request is reported
+as an error; SpectraLab never enters an automatic retry loop.
+
+Non-recoverable Spotread failures, including a missing USB instrument,
+communication failure, timeout, failed calibration or backend process error,
+abort `measureMany` immediately. The failed measurement is not added to the
+collection and no later series item is attempted. A sample-specific rejected
+dark signal may still be skipped without classifying the instrument itself as
+unusable.
+
 Before measurement, SpectraLab shall clearly request placement on the
 sample or source. The program shall then run one bounded measurement.
 
