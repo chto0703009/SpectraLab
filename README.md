@@ -15,6 +15,11 @@ It provides a stable engineering framework for acquiring, managing, analysing an
 
 The current release supports ArgyllCMS `spotread` together with the X-Rite i1Pro2 spectrophotometer. The architecture is instrument-independent and designed for future expansion.
 
+The post-release measurement examples have also been physically verified
+with an original GretagMacbeth Eye-One Pro Rev. B, identified in SpectraLab
+as `i1Pro`, in both standard and high-resolution modes. This result is
+consistent with ArgyllCMS Spotread's own device identification and support.
+
 ---
 
 ## Current Release

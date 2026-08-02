@@ -57,17 +57,29 @@ laboratory measurement claim.
 
 ## Physical measurement examples
 
-The following commands require ArgyllCMS `spotread`, a connected i1Pro2
-and its matching white calibration plate:
+The following commands require ArgyllCMS `spotread` and a connected i1Pro
+or i1Pro2 with its matching white calibration plate:
 
 ```matlab
 measure_spectrum
 measure_spectrum_series_5
 ```
 
+The examples have been physically verified with both an X-Rite i1Pro2 and
+an original GretagMacbeth Eye-One Pro Rev. B. SpectraLab records the latter
+model as `i1Pro`. Standard and high-resolution acquisition were verified
+with the Eye-One Pro Rev. B. This is consistent with ArgyllCMS Spotread's
+device identification and documented instrument support.
+
 The bounded automatic workflow waits until Spotread reports that it is
 ready before the user triggers the instrument. A series calibrates once at
 the beginning and recalibrates only if Spotread later requests it.
+
+Before calibration, the examples show Spotread's USB identification and ask
+the user to confirm the physical model. The serial number reported after
+calibration is locked for the workflow and verified after every measurement.
+If the instrument changes or its serial number cannot be verified, no MAT,
+PDF or PNG output is saved.
 
 The retained legacy interactive alternatives are:
 
@@ -77,7 +89,7 @@ interactive_measure_sample
 interactive_save_spectrum
 ```
 
-Before calibration, confirm that the serial number printed on the i1Pro2
+Before calibration, confirm that the serial number printed on the instrument
 matches the serial number printed on its calibration plate. The plate
 number is an operator check and is not stored as separate archive metadata.
 

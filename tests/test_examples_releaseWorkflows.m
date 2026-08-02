@@ -82,6 +82,20 @@ for name = required
     verifyFalse(testCase, contains(source, "C41"));
     verifyFalse(testCase, contains(source, "SpectraLab_Work"));
 end
+
+privateFolder = fullfile(measurementFolder, "private");
+verifyTrue(testCase, ...
+    isfile(fullfile(privateFolder, "select_spotread_instrument.m")));
+verifyTrue(testCase, ...
+    isfile(fullfile(privateFolder, "verify_spotread_instrument.m")));
+
+singleSource = fileread(fullfile(measurementFolder, "measure_spectrum.m"));
+seriesSource = fileread(fullfile( ...
+    measurementFolder, "measure_spectrum_series_5.m"));
+verifyTrue(testCase, contains(singleSource, "select_spotread_instrument"));
+verifyTrue(testCase, contains(singleSource, "calibrationSerialNumber"));
+verifyTrue(testCase, contains(seriesSource, "select_spotread_instrument"));
+verifyTrue(testCase, contains(seriesSource, "calibrationSerialNumber"));
 end
 
 function root = projectRoot()

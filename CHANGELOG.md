@@ -8,6 +8,20 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
+## Unreleased
+
+### Improved examples
+
+- Physical measurement examples now show Spotread's USB identification and
+  let the user confirm `i1Pro` or `i1Pro2` for archive provenance.
+- The instrument serial number is locked after calibration and verified
+  after every measurement before MAT, PDF or PNG output is saved.
+- Standard and high-resolution acquisition with an original GretagMacbeth
+  Eye-One Pro Rev. B (recorded as `i1Pro`) were physically verified against
+  the examples alongside the established X-Rite i1Pro2 workflow.
+
+---
+
 ## Measurement Workflow and Reproducible Examples - v0.8.1
 
 Released 2026-08-02.

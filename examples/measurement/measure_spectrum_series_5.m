@@ -22,6 +22,12 @@ if isempty(answers)
     return
 end
 
+instrumentId = select_spotread_instrument();
+if instrumentId == ""
+    disp("SpectraLab measurement series cancelled. Nothing was saved.");
+    return
+end
+
 resolutionChoice = questdlg( ...
     "Select spectral resolution", "SpectraLab - Resolution", ...
     "Standard", "High resolution", "Cancel", "Standard");
@@ -38,7 +44,7 @@ measurementComment = strip(strjoin(commentLines, newline));
 highResolution = strcmp(resolutionChoice, "High resolution");
 
 inst = spectralab.drivers.createInstrument( ...
-    "i1Pro2", HighResolution=highResolution);
+    instrumentId, HighResolution=highResolution);
 instrumentCleanup = onCleanup(@() inst.close());
 sess = spectralab.core.Session(inst, AudibleFeedback=true);
 sess = sess.withOperator(operatorName);
@@ -46,6 +52,8 @@ sess = sess.withProject(projectName);
 sess = sess.withComment(measurementComment);
 sess = sess.open();
 sess = sess.calibrate("Mode", "automatic");
+calibrationSerialNumber = verify_spotread_instrument( ...
+    inst, "", "calibration");
 pause(1.0)
 
 for measurementIndex = 1:measurementCount
@@ -54,6 +62,10 @@ for measurementIndex = 1:measurementCount
     fprintf("Measurement %d of %d: %s\n", ...
         measurementIndex, measurementCount, measurementName);
     measurement = sess.measure(measurementName, "Mode", "automatic");
+    verify_spotread_instrument( ...
+        inst, ...
+        calibrationSerialNumber, ...
+        "measurement " + string(measurementIndex));
     internal_save_spectrum_outputs( ...
         measurement, measurementName, outputRoot, OpenPDF=false);
 end
