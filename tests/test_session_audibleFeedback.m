@@ -111,6 +111,13 @@ errorWaveform = spectralab.ui.playFeedback( ...
 toneSamples = round(0.120 * sampleRate);
 pauseSamples = round(0.100 * sampleRate);
 
+spectrum = abs(fft(startWaveform));
+positiveBinCount = floor(numel(spectrum) / 2) + 1;
+[~, dominantBin] = max(spectrum(1:positiveBinCount));
+dominantFrequencyHz = (dominantBin - 1) * ...
+    sampleRate / numel(startWaveform);
+verifyEqual(testCase, dominantFrequencyHz, 1200, AbsTol=10);
+
 verifyEqual(testCase, numel(startWaveform), toneSamples);
 verifyEqual(testCase, numel(successWaveform), ...
     2 * toneSamples + pauseSamples);

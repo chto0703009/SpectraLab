@@ -317,7 +317,7 @@ definition = entry.AnalysisDefinition;
 
 verifyEqual(testCase, entry.InputRoles, ["Reference", "Sample"]);
 verifyEqual(testCase, definition.AnalysisId, "ANL-007");
-verifyFalse(testCase, definition.HasFigure);
+verifyTrue(testCase, definition.HasFigure);
 verifyEqual(testCase, ...
     [definition.ResultFields.Field], ...
     ["Density", "Transmittance"]);
@@ -335,6 +335,10 @@ result = entry.AnalysisRunner(reference, sample);
 
 verifyEqual(testCase, result.Density, 1, AbsTol=1e-12);
 verifyEqual(testCase, result.Transmittance, 0.1, AbsTol=1e-12);
+verifyEqual(testCase, result.SpectralDensity, ...
+    ones(36,1), AbsTol=1e-12);
+verifyEqual(testCase, result.WavelengthNm, ...
+    reference.Measurement.Wavelength(:));
 end
 
 function testListsPublicAnalysisSummaries(testCase)

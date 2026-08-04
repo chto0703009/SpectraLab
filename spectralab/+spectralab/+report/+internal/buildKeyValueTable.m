@@ -48,6 +48,7 @@ switch role
                 row("Archive format", joinValues( ...
                     valueAt(context,"Archive.Format"), ...
                     valueAt(context,"Archive.Version")))
+                row("Instrument", valueAt(context, "Instrument.Name"))
                 row("Instrument serial number", ...
                     valueAt(context, "Instrument.SerialNumber"))];
         end
@@ -101,7 +102,7 @@ end
 end
 
 function rows = pairProvenanceRows(sources)
-rows = repmat(row("", ""), 10, 1);
+rows = repmat(row("", ""), 12, 1);
 index = 1;
 for source = sources
     role = source.Role;
@@ -112,6 +113,8 @@ for source = sources
         displayContentHash(source.ContentHash), 2); index = index + 1;
     rows(index) = row(role + " format", ...
         joinValues(source.Format, source.Version)); index = index + 1;
+    rows(index) = row(role + " instrument", ...
+        valueAt(source, "Instrument.Name")); index = index + 1;
     rows(index) = row(role + " instrument serial number", ...
         valueAt(source, "Instrument.SerialNumber")); index = index + 1;
 end

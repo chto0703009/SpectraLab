@@ -21,7 +21,8 @@ if ~options.Enabled
 end
 
 eventName = lower(strtrim(eventName));
-tone = createTone(880, 0.120, sampleRate);
+toneFrequencyHz = 1200;
+tone = createTone(toneFrequencyHz, 0.120, sampleRate);
 tonePause = zeros(round(0.100 * sampleRate), 1);
 
 switch eventName

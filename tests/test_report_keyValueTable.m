@@ -26,12 +26,24 @@ verifyEqual(testCase, numel(serialRow), 1);
 verifyEqual(testCase, serialRow.DisplayText, "1234567");
 end
 
+function testProvenancePlacesInstrumentBeforeSerialNumber(testCase)
+context = makeProvenanceContext();
+
+model = spectralab.report.internal.buildKeyValueTable("provenance", context);
+labels = [model.Rows.Label];
+instrumentIndex = find(labels == "Instrument", 1);
+serialIndex = find(labels == "Instrument serial number", 1);
+
+verifyEqual(testCase, model.Rows(instrumentIndex).DisplayText, "i1Pro2");
+verifyEqual(testCase, serialIndex, instrumentIndex + 1);
+end
+
 function context = makeProvenanceContext()
 context.Archive = struct("Filename", "short.mat", "UUID", ...
     "12345678-1234-1234-1234-123456789012", ...
     "ContentHash", repmat('a', 1, 64), "Format", "SLAB-MAT", ...
     "Version", "0.6");
-context.Instrument = struct("SerialNumber", "1234567");
+context.Instrument = struct("Name", "i1Pro2", "SerialNumber", "1234567");
 context.Report = struct("Format", "SLAB-REPORT", "Version", "1.0", ...
     "SpectraLabVersion", "0.8.1", "ReportId", "RPT-test", ...
     "GenerationTime", datetime(2026,8,1,12,0,0));

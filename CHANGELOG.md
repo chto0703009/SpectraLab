@@ -19,6 +19,12 @@ Every public release represents a verified engineering milestone rather than a c
 - Standard and high-resolution acquisition with an original GretagMacbeth
   Eye-One Pro Rev. B (recorded as `i1Pro`) were physically verified against
   the examples alongside the established X-Rite i1Pro2 workflow.
+- Every PDF provenance table identifies the instrument immediately before
+  its serial number, including both ordered instruments in pair analyses.
+- ANL-007 ISO Visual Density now owns a registered spectral-density figure
+  used consistently for PDF and PNG output.
+- Audible measurement feedback uses a clearer 1200 Hz tone while retaining
+  the established one-, two- and five-beep event patterns.
 
 ---
 
