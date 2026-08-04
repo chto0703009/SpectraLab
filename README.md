@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v0.8.1
+Version: v0.8.2-dev
 Status: CURRENT
 -->
 

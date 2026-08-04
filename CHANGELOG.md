@@ -8,7 +8,7 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
-## Unreleased
+## Unreleased - v0.8.2-dev
 
 ### Improved examples
 
