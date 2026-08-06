@@ -25,14 +25,7 @@ end
 
 reportInfo = spectralab.report.generate( ...
     archiveFile, "ANL-CRI", reportFolder, ...
-    ShowFigure=false, OpenPDF=false);
-
-[moved, message] = movefile(reportInfo.PNGFile, pngFile);
-if ~moved
-    error("SpectraLab:Examples:PlotMoveFailed", ...
-        "Could not move the report PNG to:\n%s\n\n%s", pngFile, message);
-end
-reportInfo.PNGFile = pngFile;
+    ShowFigure=false, OpenPDF=false, FigureOutputFolder=plotFolder);
 
 fprintf("SpectraLab CRI report created:\n");
 fprintf("  PDF: %s\n", reportInfo.PDFFile);

@@ -22,7 +22,8 @@ spec = spectralab.archive.restore(archive);
 fig = figure("Name", spec.Label, "Color", "white");
 ax = axes("Parent", fig);
 spectralab.plot.spectrum(spec, Parent=ax, ...
-    Title=spec.Label, ShowSummary=true, SummaryLocation="east");
+    Title=spec.Label, DisplayName=spec.Label, ShowSummary=false);
+legend(ax, "Location", "eastoutside", "Interpreter", "none");
 exportgraphics(fig, pngFile, "Resolution", 300);
 
 fprintf("SpectraLab spectrum PNG created:\n  %s\n", pngFile);

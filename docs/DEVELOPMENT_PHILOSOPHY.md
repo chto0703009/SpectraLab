@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: DEVELOPMENT_PHILOSOPHY.md
-Version: v0.8.1
+Version: v0.8.2
 Status: CURRENT
 -->
 

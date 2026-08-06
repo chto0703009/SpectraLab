@@ -3,7 +3,7 @@
 **Document ID:** GP-001  
 **Version:** 1.0  
 **Status:** Approved  
-**Applies from:** SpectraLab v0.8.2-dev
+**Applies from:** SpectraLab v0.8.2
 
 ## Purpose
 

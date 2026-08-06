@@ -28,12 +28,8 @@ end
 
 reportInfo = spectralab.report.generate( ...
     [sourceA, sourceB], "ANL-010", reportFolder, ...
-    OutputBaseName=outputBase, ShowFigure=false, OpenPDF=false);
-[moved, message] = movefile(reportInfo.PNGFile, pngFile);
-if ~moved
-    error("SpectraLab:Examples:PlotMoveFailed", ...
-        "Could not move the report PNG to:\n%s\n\n%s", pngFile, message);
-end
+    OutputBaseName=outputBase, ShowFigure=false, OpenPDF=false, ...
+    FigureOutputFolder=plotFolder);
 
 fprintf("SpectraLab spectral-difference report created:\n");
 fprintf("  PDF: %s\n", reportInfo.PDFFile);

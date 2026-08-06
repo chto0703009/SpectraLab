@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v0.8.2-dev
+Version: v0.8.2
 Status: CURRENT
 -->
 
@@ -60,6 +60,20 @@ Version 0.8.1 strengthened acquisition, traceability and reproducible use:
 - traceable spectral mean and diagnostic spectral difference analyses;
 - release-ready measurement, analysis, plotting and inventory examples;
 - synthetic, non-identifying example archives and verified example outputs.
+
+### Completed in v0.8.2
+
+Version 0.8.2 establishes a single professional presentation standard for
+all public plots and report figures:
+
+- legends and concise analysis information occupy a consistent right-side
+  information area and never cover measured data;
+- interactive figures, PNG output and PDF report figures preserve the same
+  legend and information hierarchy;
+- spectral mean quantifies measurement stability with standard deviation;
+- spectral difference supplies scalar RMS and maximum-difference measures;
+- public examples use direct plot-folder PNG output and explicit selection
+  prompts.
 
 ---
 

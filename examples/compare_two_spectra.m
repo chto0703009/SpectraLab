@@ -21,4 +21,4 @@ spectralab.plot.spectrum( ...
 hold(ax, "off");
 
 title(ax, "Comparison of two spectra");
-legend(ax, "Location", "best");
+legend(ax, "Location", "eastoutside", "Interpreter", "none");

@@ -8,7 +8,9 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
-## Unreleased - v0.8.2-dev
+## Presentation Standard and Reliable Report Exports - v0.8.2
+
+Released 2026-08-06.
 
 ### Improved examples
 
@@ -25,6 +27,17 @@ Every public release represents a verified engineering milestone rather than a c
   used consistently for PDF and PNG output.
 - Audible measurement feedback uses a clearer 1200 Hz tone while retaining
   the established one-, two- and five-beep event patterns.
+- Mean spectra report pointwise standard deviation and mean relative
+  standard deviation to quantify measurement stability.
+- Spectral-difference reports provide RMS and maximum absolute difference.
+- Report figures use the approved right-side information layout: data are
+  never obscured by legends or text, and PNG and PDF preserve the legend.
+- Archive and folder-selection dialogs identify the requested analysis and
+  archive role explicitly.
+- Report PNG output can be written directly to its plot folder without a
+  temporary file appearing in the report folder.
+- Public examples follow the same output-folder and graphical-presentation
+  contracts as the application workflows.
 
 ---
 
@@ -110,7 +123,8 @@ Only public releases are recorded as release history.
 
 | Version | Release | Status |
 |---|---|---|
-| v0.8.1 | Measurement Workflow and Reproducible Examples | Current |
+| v0.8.2 | Presentation Standard and Reliable Report Exports | Current |
+| v0.8.1 | Measurement Workflow and Reproducible Examples | Supported |
 | v0.8.0 | Analysis and Reporting | Supported |
 | v0.6.0 | Scientific Archive and Metadata | Supported |
 | v0.5.1 | Scientific Archive | Historical |

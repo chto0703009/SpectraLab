@@ -40,14 +40,7 @@ archive = spectralab.archive.create(measurement);
 spectralab.archive.save(archive, archiveFile);
 reportInfo = spectralab.report.generate( ...
     archiveFile, "ANL-SPECTRUM", reportFolder, ...
-    ShowFigure=false, OpenPDF=false);
-
-[moved, message] = movefile(reportInfo.PNGFile, pngFile);
-if ~moved
-    error("SpectraLab:Examples:PlotMoveFailed", ...
-        "Could not move the report PNG to:\n%s\n\n%s", pngFile, message);
-end
-reportInfo.PNGFile = pngFile;
+    ShowFigure=false, OpenPDF=false, FigureOutputFolder=plotFolder);
 if options.OpenPDF
     open(char(reportInfo.PDFFile));
 end

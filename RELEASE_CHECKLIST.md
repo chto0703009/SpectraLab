@@ -1,11 +1,16 @@
 <!--
 SpectraLab Documentation
 Document: RELEASE_CHECKLIST.md
-Version: v0.8.1
-Status: CURRENT
+Version: v0.8.2
+Status: RELEASE CANDIDATE
 -->
 
 # SpectraLab Release Checklist
+
+> **v0.8.2 release-candidate note:** Checkmarks below are inherited from
+> the v0.8.1 checklist and are not release approval for v0.8.2. Final
+> approval requires the v0.8.2 regression and visual-review evidence to be
+> recorded in the Release Record.
 
 The Release Checklist defines the verification process required before any SpectraLab version is published.
 
@@ -24,9 +29,9 @@ It is an engineering verification document.
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.8.1 |
-| Release type | Measurement Workflow and Reproducible Examples Release |
-| Release date | 2026-08-02 |
+| Version | v0.8.2 |
+| Release type | Presentation Standard and Reliable Report Exports Release |
+| Release date | 2026-08-06 |
 | Release manager | Project owner |
 
 ---
@@ -127,10 +132,10 @@ Approval should be recorded by the appropriate roles.
 
 | Role | Approval |
 |------|----------|
-| Technical Author | Approved 2026-08-02 |
-| Engineering Reviewer | Automated and physical verification completed 2026-08-02 |
-| Release Manager | Approved 2026-08-02 |
-| Project Owner | Approved 2026-08-02 |
+| Technical Author | Release candidate prepared 2026-08-06 |
+| Engineering Reviewer | Pending final regression and visual review |
+| Release Manager | Pending |
+| Project Owner | Pending |
 
 Approval represents acceptance of the engineering evidence supporting release.
 
@@ -140,13 +145,13 @@ Approval represents acceptance of the engineering evidence supporting release.
 
 | Item | Value |
 |------|-------|
-| Version | v0.8.1 |
-| Release date | 2026-08-02 |
-| Git tag | `v0.8.1` |
-| Release package | `releases/SpectraLab_v0.8.1.zip` |
-| Test result | 73 files and 465 cases passed; 0 failed; 0 incomplete |
-| Real measurement verified | Yes; X-Rite i1Pro2 single measurement and five-measurement series through bounded `spotread` |
-| Comments | Standard and high-resolution acquisition verified. Release examples and clean temporary workflows passed. |
+| Version | v0.8.2 |
+| Release date | Pending approval |
+| Git tag | Pending publication as `v0.8.2` |
+| Release package | `releases/SpectraLab_v0.8.2.zip` built and contents verified |
+| Test result | Pending final regression evidence |
+| Real measurement verified | Existing v0.8.1 acquisition evidence retained; no acquisition changes in this release |
+| Comments | Release candidate includes GP-001, updated examples and report-export verification. |
 
 ---
 

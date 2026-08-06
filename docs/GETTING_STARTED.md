@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: GETTING_STARTED.md
-Version: v0.8.1
+Version: v0.8.2
 Status: CURRENT
 -->
 
@@ -41,7 +41,7 @@ You need:
 - a supported spectrophotometer connected by USB,
 - the instrument's white reference for calibration.
 
-The v0.8.1 release has been verified with:
+The v0.8.2 release has been verified with:
 
 | Component | Recommended |
 |-----------|-------------|

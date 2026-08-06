@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: MANIFEST.md
-Version: v0.8.1
+Version: v0.8.2
 Status: CURRENT
 -->
 
@@ -22,8 +22,8 @@ A release is considered complete only when all required components are present a
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.8.1 |
-| Release type | Measurement Workflow and Reproducible Examples Release |
+| Version | v0.8.2 |
+| Release type | Presentation Standard and Reliable Report Exports Release |
 | License | GNU General Public License v3 |
 | Primary environment | MATLAB |
 | Current instrument workflow | Bounded ArgyllCMS `spotread` with X-Rite i1Pro2 |
@@ -89,6 +89,7 @@ The official Documentation Pack consists of:
 | `ROADMAP.md` | Long-term direction |
 | `MANIFEST.md` | Release definition |
 | `RELEASE_CHECKLIST.md` | Release verification |
+| `docs/GP-001_Graphical_Presentation_Profile.md` | Required plot presentation standard |
 
 Additional supporting documentation may be included in `docs/`.
 
@@ -104,8 +105,9 @@ Primary location:
 examples/
 ```
 
-The v0.8.1 release includes categorized measurement, analysis, plotting and
-inventory workflows plus synthetic, non-identifying SLAB-MAT fixtures.
+The v0.8.2 release includes categorized measurement, analysis, plotting and
+inventory workflows, synthetic non-identifying SLAB-MAT fixtures, and
+examples that follow the approved graphical-presentation profile.
 
 ---
 

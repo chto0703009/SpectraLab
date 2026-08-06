@@ -35,7 +35,7 @@ spectralab.plot.spectrum( ...
     Title="Original spectrum", ...
     Color="k", ...
     LineWidth=1.5, ...
-    ShowSummary=true);
+    ShowSummary=false);
 
 %% Figure 2 — xBar response
 
@@ -100,6 +100,6 @@ hold(ax, "off");
 title(ax, "CIE 1931 weighted spectral responses");
 xlabel(ax, "Wavelength (nm)");
 ylabel(ax, "Weighted spectral response");
-legend(ax, "Location", "best");
+legend(ax, "Location", "eastoutside", "Interpreter", "none");
 grid(ax, "on");
 box(ax, "on");

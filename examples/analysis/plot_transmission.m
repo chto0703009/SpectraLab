@@ -33,7 +33,7 @@ spectralab.plot.opticalDensity( ...
     Title="Synthetic sample optical density", ...
     DisplayName="example_sample_a", ShowGrid=true);
 ylim(ax, [0, 1.05 * max(density)]);
-legend(ax, "Location", "best", "Interpreter", "none");
+legend(ax, "Location", "eastoutside", "Interpreter", "none");
 exportgraphics(fig, pngFile, "Resolution", 300);
 
 fprintf("SpectraLab transmission PNG created:\n  %s\n", pngFile);

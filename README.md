@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v0.8.2-dev
+Version: v0.8.2
 Status: CURRENT
 -->
 
@@ -24,10 +24,10 @@ consistent with ArgyllCMS Spotread's own device identification and support.
 
 ## Current Release
 
-**SpectraLab v0.8.1** is the current stable release.
+**SpectraLab v0.8.2** is the current stable release.
 
-- [Release overview and notes](https://github.com/chto0703009/SpectraLab/releases/tag/v0.8.1)
-- [Download SpectraLab v0.8.1](https://github.com/chto0703009/SpectraLab/releases/download/v0.8.1/SpectraLab_v0.8.1.zip)
+- [Release overview and notes](https://github.com/chto0703009/SpectraLab/releases/tag/v0.8.2)
+- [Download SpectraLab v0.8.2](https://github.com/chto0703009/SpectraLab/releases/download/v0.8.2/SpectraLab_v0.8.2.zip)
 - [Getting started](docs/GETTING_STARTED.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 
@@ -43,10 +43,9 @@ Reliable measurements require reliable software.
 
 SpectraLab was developed to provide a clean separation between measurement, data management, visualisation, export and instrument communication. This makes user applications independent of specific instruments while allowing new devices to be added through dedicated drivers.
 
-The v0.8.1 release adds a bounded, physically verified i1Pro2 measurement
-workflow, optional high-resolution acquisition, traceable spectral mean and
-difference analyses, and curated release examples while preserving the
-long-term archive and reporting principles established by earlier releases.
+The v0.8.2 release adds stability and difference metrics, explicit archive
+selection, reliable separate PNG output, and a single graphical
+presentation standard for interactive figures, PNG files and PDF reports.
 
 ---
 
@@ -71,7 +70,7 @@ long-term archive and reporting principles established by earlier releases.
 
 ## Supported Environment
 
-The v0.8.1 release has been verified with the following environment.
+The v0.8.2 release has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|
