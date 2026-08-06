@@ -10,7 +10,7 @@ startup
 
 [referenceFile, referenceFolder] = uigetfile( ...
     "*.mat", ...
-    "Select the LED reference archive");
+    "SpectraLab - Validate Lab: select LED REFERENCE archive");
 
 if isequal(referenceFile, 0)
     error("No reference archive was selected.");
@@ -18,7 +18,7 @@ end
 
 [sampleFile, sampleFolder] = uigetfile( ...
     "*.mat", ...
-    "Select the LED-through-sample archive");
+    "SpectraLab - Validate Lab: select LED SAMPLE archive");
 
 if isequal(sampleFile, 0)
     error("No sample archive was selected.");

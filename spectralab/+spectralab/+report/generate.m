@@ -1,5 +1,5 @@
 function info = generate(archiveFiles, analysisId, outputFolder, options)
-%GENERATE Generate a SpectraLab report from one or two saved archives.
+%GENERATE Generate a SpectraLab report from saved archives.
 %
 %   info = spectralab.report.generate( ...
 %       archiveFile, analysisId, outputFolder)
@@ -7,6 +7,10 @@ function info = generate(archiveFiles, analysisId, outputFolder, options)
 %   info = spectralab.report.generate( ...
 %       [referenceArchiveFile, sampleArchiveFile], ...
 %       analysisId, outputFolder)
+%
+%   Use FigureOutputFolder to save a figure directly outside the PDF
+%   report folder. This keeps report and plot products separate even if
+%   PDF generation subsequently fails.
 %
 % RP-019 provides the public orchestration pipeline.
 % RP-020 requires every reportable analysis to be resolved from the
@@ -26,6 +30,7 @@ arguments
     options.InterpolationMethod (1,1) string = "pchip"
     options.OutputBaseName (1,1) string = ""
     options.DerivedArchiveFile (1,1) string = ""
+    options.FigureOutputFolder (1,1) string = ""
 end
 
 archiveFiles = normalizeArchiveFiles(archiveFiles);
@@ -34,14 +39,24 @@ outputFolder = string(outputFolder);
 
 entry = spectralab.report.internal.resolveAnalysisSpecification(analysisId);
 definition = entry.AnalysisDefinition;
-validateArchiveCount(archiveFiles, entry.InputRoles);
+validateArchiveCount(archiveFiles, entry.InputRoles, definition.AnalysisId);
+inputRoles = resolveInputRoles(entry.InputRoles, ...
+    definition.AnalysisId, numel(archiveFiles));
 
 if ~isfolder(outputFolder)
     mkdir(outputFolder);
 end
+figureOutputFolder = resolveFigureOutputFolder( ...
+    outputFolder, options.FigureOutputFolder);
 
 archives = loadArchives(archiveFiles);
-if any(definition.AnalysisId == ["ANL-009", "ANL-010"])
+if definition.AnalysisId == "ANL-009"
+    result = entry.AnalysisRunner(archives, [], ...
+        Resample=options.Resample, ...
+        RefinementFactor=options.RefinementFactor, ...
+        InterpolationMethod=options.InterpolationMethod, ...
+        SourceFiles=archiveFiles);
+elseif definition.AnalysisId == "ANL-010"
     result = entry.AnalysisRunner(archives{:}, ...
         Resample=options.Resample, ...
         RefinementFactor=options.RefinementFactor, ...
@@ -67,12 +82,16 @@ context = spectralab.report.internal.buildContext( ...
     OpenPDF=options.OpenPDF, ...
     GenerationTime=options.GenerationTime);
 
-if numel(archives) == 2
+if numel(archives) == 2 || definition.AnalysisId == "ANL-009"
     context.SourceArchives = buildSourceArchives( ...
-        archiveFiles, archives, entry.InputRoles);
-    pairTitle = definition.Name + ": " + ...
-        string(archives{1}.Measurement.Name) + " / " + ...
-        string(archives{2}.Measurement.Name);
+        archiveFiles, archives, inputRoles);
+    if definition.AnalysisId == "ANL-009"
+        pairTitle = definition.Name + ": " + numel(archives) + " sources";
+    else
+        pairTitle = definition.Name + ": " + ...
+            string(archives{1}.Measurement.Name) + " / " + ...
+            string(archives{2}.Measurement.Name);
+    end
     context.Measurement.Name = pairTitle;
     context.MeasurementInformation.Name = pairTitle;
 end
@@ -89,12 +108,34 @@ pngInfo = struct();
 pngFile = "";
 
 if definition.HasFigure
-    entry.FigureRenderer( ...
-        renderContext.Graphics.Axes, archives{:}, result);
+    if definition.AnalysisId == "ANL-009"
+        entry.FigureRenderer( ...
+            renderContext.Graphics.Axes, archives, [], result);
+    else
+        entry.FigureRenderer( ...
+            renderContext.Graphics.Axes, archives{:}, result);
+    end
 
     pngFile = buildPngFilename( ...
-        outputFolder, primaryArchiveFile, ...
+        figureOutputFolder, primaryArchiveFile, ...
         definition.AnalysisId, options.OutputBaseName);
+end
+
+function folder = resolveFigureOutputFolder(reportFolder, requestedFolder)
+%RESOLVEFIGUREOUTPUTFOLDER Return the explicit or default figure folder.
+
+folder = strtrim(string(requestedFolder));
+if strlength(folder) == 0
+    folder = reportFolder;
+end
+if ~isfolder(folder)
+    [created, message] = mkdir(folder);
+    if ~created
+        error("SpectraLab:Report:FigureOutputFolderCreateFailed", ...
+            "Could not create figure output folder:\n%s\n\n%s", ...
+            folder, message);
+    end
+end
 end
 
 [renderContext, renderResults] = ...
@@ -120,7 +161,7 @@ pdfInfo = spectralab.report.internal.exportPDF( ...
 info = struct( ...
     "ArchiveFiles", archiveFiles, ...
     "AnalysisId", definition.AnalysisId, ...
-    "InputRoles", entry.InputRoles, ...
+    "InputRoles", inputRoles, ...
     "PDFFile", pdfFile, ...
     "PNGFile", pngFile, ...
     "PDF", pdfInfo, ...
@@ -139,15 +180,31 @@ function result = addSourceFilenames( ...
         result, archiveFiles, analysisId, derivedArchiveFile)
 %ADDSOURCEFILENAMES Preserve the actual user-selected MAT filenames.
 
-if numel(archiveFiles) ~= 2 || ...
+if analysisId == "ANL-009"
+    displayFiles = strings(1, numel(archiveFiles));
+    for index = 1:numel(archiveFiles)
+        [~, name, extension] = fileparts(archiveFiles(index));
+        displayFiles(index) = string(name) + string(extension);
+    end
+    result.SourceFiles = displayFiles;
+    result.SourceFilesText = strjoin(displayFiles,newline);
+    result.SourceCount = numel(displayFiles);
+    result.SourceAFile = displayFiles(1);
+    result.SourceBFile = displayFiles(2);
+    if isfield(result, "Analysis") && isfield(result.Analysis, "Sources")
+        for index = 1:numel(displayFiles)
+            result.Analysis.Sources(index).Filename = displayFiles(index);
+        end
+    end
+elseif numel(archiveFiles) ~= 2 || ...
         ~isfield(result, "SourceAFile") || ~isfield(result, "SourceBFile")
     return
+else
+    [~, firstName, firstExtension] = fileparts(archiveFiles(1));
+    [~, secondName, secondExtension] = fileparts(archiveFiles(2));
+    result.SourceAFile = string(firstName) + string(firstExtension);
+    result.SourceBFile = string(secondName) + string(secondExtension);
 end
-
-[~, firstName, firstExtension] = fileparts(archiveFiles(1));
-[~, secondName, secondExtension] = fileparts(archiveFiles(2));
-result.SourceAFile = string(firstName) + string(firstExtension);
-result.SourceBFile = string(secondName) + string(secondExtension);
 
 if analysisId == "ANL-009" && isfield(result, "DerivedArchiveFile")
     if strlength(strtrim(derivedArchiveFile)) == 0
@@ -159,7 +216,7 @@ if analysisId == "ANL-009" && isfield(result, "DerivedArchiveFile")
     end
 end
 
-if isfield(result, "Analysis") && isfield(result.Analysis, "Sources")
+if analysisId ~= "ANL-009" && isfield(result, "Analysis") && isfield(result.Analysis, "Sources")
     result.Analysis.Sources(1).Filename = result.SourceAFile;
     result.Analysis.Sources(2).Filename = result.SourceBFile;
 end
@@ -201,7 +258,7 @@ end
 end
 
 function archiveFiles = normalizeArchiveFiles(value)
-%NORMALIZEARCHIVEFILES Validate and normalize one or two archive paths.
+%NORMALIZEARCHIVEFILES Validate and normalize archive paths.
 
 if ischar(value)
     value = string(value);
@@ -210,25 +267,43 @@ end
 if ~isstring(value) || isempty(value) || ...
         ~isvector(value) || any(ismissing(value))
     error("SpectraLab:Report:InvalidArchiveFiles", ...
-        "Archive input must be one or two file paths.");
+        "Archive input must be one or more file paths.");
 end
 
 archiveFiles = reshape(value, 1, []);
 
-if numel(archiveFiles) < 1 || numel(archiveFiles) > 2 || ...
+if numel(archiveFiles) < 1 || ...
         any(strlength(strtrim(archiveFiles)) == 0)
     error("SpectraLab:Report:InvalidArchiveFiles", ...
-        "Archive input must contain one or two non-empty file paths.");
+        "Archive input must contain non-empty file paths.");
 end
 end
 
-function validateArchiveCount(archiveFiles, inputRoles)
+function validateArchiveCount(archiveFiles, inputRoles, analysisId)
 %VALIDATEARCHIVECOUNT Require one archive for each declared input role.
 
+if analysisId == "ANL-009"
+    if numel(archiveFiles) < 2
+        error("SpectraLab:Report:ArchiveCountMismatch", ...
+            "Spectral Mean requires at least two archive inputs.");
+    end
+    return
+end
 if numel(archiveFiles) ~= numel(inputRoles)
     error("SpectraLab:Report:ArchiveCountMismatch", ...
         "Analysis requires %d archive input(s) with roles: %s.", ...
         numel(inputRoles), strjoin(inputRoles, ", "));
+end
+end
+
+function roles = resolveInputRoles(registeredRoles, analysisId, count)
+if analysisId == "ANL-009"
+    roles = "Source " + string(1:count);
+    if count == 2
+        roles = registeredRoles;
+    end
+else
+    roles = registeredRoles;
 end
 end
 

@@ -9,7 +9,7 @@ end
 switch role
     case "measurementInformation"
         titleText = "Measurement";
-        if hasTwoSources(context)
+        if hasMultipleSources(context)
             rows = pairMeasurementRows(context.SourceArchives);
         else
             rows = [ ...
@@ -36,7 +36,7 @@ switch role
             row("Definition", valueAt(context, "Analysis.DefinitionVersion"))];
     case "provenance"
         titleText = "Provenance";
-        if hasTwoSources(context)
+        if hasMultipleSources(context)
             sourceRows = pairProvenanceRows(context.SourceArchives);
         else
             sourceRows = [ ...
@@ -68,13 +68,17 @@ model = struct("Format","SLAB-REPORT-KEY-VALUE-TABLE", ...
     "Columns",["Label","Value"],"Rows",rows);
 end
 
-function tf = hasTwoSources(context)
+function tf = hasMultipleSources(context)
 tf = isfield(context, "SourceArchives") && ...
-    isstruct(context.SourceArchives) && numel(context.SourceArchives) == 2;
+    isstruct(context.SourceArchives) && numel(context.SourceArchives) >= 2;
 end
 
 function rows = pairMeasurementRows(sources)
-rows = repmat(row("", ""), 12, 1);
+if numel(sources) > 2
+    rows = compactMeasurementRows(sources);
+    return
+end
+rows = repmat(row("", ""), 6 * numel(sources), 1);
 index = 1;
 for source = sources
     role = source.Role;
@@ -93,6 +97,17 @@ for source = sources
 end
 end
 
+function rows = compactMeasurementRows(sources)
+rows = repmat(row("", ""), 2 * numel(sources), 1);
+index = 1;
+for source = sources
+    role = source.Role;
+    rows(index) = archiveRow(role + " archive",source.Filename); index=index+1;
+    rows(index) = row(role + " measurement", ...
+        valueAt(source,"Measurement.Name")); index=index+1;
+end
+end
+
 function label = sampleIdLabel(role)
 if string(role) == "Sample"
     label = "Sample ID";
@@ -102,7 +117,11 @@ end
 end
 
 function rows = pairProvenanceRows(sources)
-rows = repmat(row("", ""), 12, 1);
+if numel(sources) > 2
+    rows = compactProvenanceRows(sources);
+    return
+end
+rows = repmat(row("", ""), 6 * numel(sources), 1);
 index = 1;
 for source = sources
     role = source.Role;
@@ -118,6 +137,17 @@ for source = sources
     rows(index) = row(role + " instrument serial number", ...
         valueAt(source, "Instrument.SerialNumber")); index = index + 1;
 end
+end
+
+function rows = compactProvenanceRows(sources)
+rows = repmat(row("", ""), numel(sources)+1, 1);
+index = 1;
+for source = sources
+    role = source.Role;
+    rows(index) = archiveRow(role + " archive",source.Filename); index=index+1;
+end
+rows(index) = row("Source identity details", ...
+    "UUID and content hashes are retained in the derived archive.");
 end
 
 function r = archiveRow(label, value)

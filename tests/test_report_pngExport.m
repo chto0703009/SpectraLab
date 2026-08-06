@@ -107,6 +107,29 @@ verifyEqual(testCase, numel(findall(ax, "Type", "line")), lineCount);
 verifyEqual(testCase, findall(groot, "Type", "figure"), figuresBefore);
 end
 
+function testExportsSideInformationPanel(testCase)
+[pngFile, cleanupFolder] = temporaryPNG(); %#ok<ASGLU>
+[renderContext, cleanupGraphics] = makeRenderContext(); %#ok<ASGLU>
+fig = renderContext.Graphics.Figure;
+ax = renderContext.Graphics.Axes;
+lineHandle = findall(ax, "Type", "line");
+lineHandle.DisplayName = "Measured spectrum";
+legend(ax, "Location", "eastoutside");
+ax.Units = "normalized";
+ax.Position = [0.06 0.12 0.60 0.80];
+panel = axes("Parent", fig, "Units", "normalized", ...
+    "Position", [0.70 0.22 0.26 0.56], "Visible", "off", ...
+    "Tag", "SpectraLabFigureInformationPanel");
+text(panel, 0, 1, "Correlated color temperature: 5000 K", ...
+    "Units", "normalized", "VerticalAlignment", "top");
+
+spectralab.report.internal.exportPNG(pngFile, renderContext);
+
+verifyTrue(testCase, isfile(pngFile));
+verifyGreaterThan(testCase, dir(pngFile).bytes, 1000);
+verifyTrue(testCase, isgraphics(ax, "axes"));
+end
+
 function [renderContext, cleanup] = makeRenderContext()
 fig = figure("Visible", "off", "Name", "Report source figure");
 ax = axes("Parent", fig);

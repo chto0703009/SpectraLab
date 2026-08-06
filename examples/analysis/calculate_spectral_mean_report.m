@@ -1,8 +1,8 @@
 % calculate_spectral_mean_report
 %
-% Calculate the registered ANL-009 pointwise mean of the two bundled
-% synthetic sample archives. The scientifically traceable derived archive,
-% PDF report and PNG figure are saved below examples/output/.
+% Select two or more SpectraLab archives and calculate the registered
+% ANL-009 pointwise arithmetic mean. The scientifically traceable derived
+% archive, PDF report and PNG figure are saved below examples/output/.
 
 scriptFile = string(mfilename("fullpath"));
 examplesRoot = string(fileparts(fileparts(scriptFile)));
@@ -14,9 +14,16 @@ for folderName = [archiveFolder, reportFolder, plotFolder]
     if ~isfolder(folderName), mkdir(folderName); end
 end
 
-sourceA = fullfile(dataFolder, "example_sample_a.mat");
-sourceB = fullfile(dataFolder, "example_sample_b.mat");
-outputBase = "example_samples_mean";
+sourceFiles = spectralab.ui.selectArchiveFiles(dataFolder, ...
+    Title="Select spectra for arithmetic mean", ...
+    MinimumSelection=2);
+if isempty(sourceFiles)
+    fprintf("Spectral-mean selection cancelled.\n");
+    return
+end
+
+timestamp = string(datetime("now", "Format", "yyyyMMdd_HHmmss"));
+outputBase = "selected_spectra_mean_" + timestamp;
 derivedArchiveFile = fullfile(archiveFolder, outputBase + ".mat");
 pdfFile = fullfile(reportFolder, outputBase + "_ANL-009_report.pdf");
 pngFile = fullfile(plotFolder, outputBase + "_ANL-009_figure.png");
@@ -28,18 +35,13 @@ for outputFile = [derivedArchiveFile, pdfFile, pngFile]
     end
 end
 
-archiveA = spectralab.archive.load( ...
-    sourceA, Quiet=true, Validation="error");
-archiveB = spectralab.archive.load( ...
-    sourceB, Quiet=true, Validation="error");
 meanResult = spectralab.analysis.spectralMean( ...
-    archiveA, archiveB, ResultName=outputBase, ...
-    SourceFiles=["example_sample_a.mat", "example_sample_b.mat"]);
+    sourceFiles, ResultName=outputBase);
 spectralab.archive.save( ...
     meanResult.Result.DerivedArchive, derivedArchiveFile);
 
 reportInfo = spectralab.report.generate( ...
-    [sourceA, sourceB], "ANL-009", reportFolder, ...
+    sourceFiles, "ANL-009", reportFolder, ...
     OutputBaseName=outputBase, ...
     DerivedArchiveFile=derivedArchiveFile, ...
     ShowFigure=false, OpenPDF=false);
@@ -50,6 +52,10 @@ if ~moved
 end
 
 fprintf("SpectraLab spectral-mean report created:\n");
+fprintf("  Sources: %d\n", numel(sourceFiles));
+for index = 1:numel(sourceFiles)
+    fprintf("    %s\n", sourceFiles(index));
+end
 fprintf("  Archive: %s\n", derivedArchiveFile);
 fprintf("  PDF:     %s\n", reportInfo.PDFFile);
 fprintf("  PNG:     %s\n", pngFile);

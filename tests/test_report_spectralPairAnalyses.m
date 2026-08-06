@@ -22,6 +22,10 @@ verifyTrue(testCase, isfile(info.PNGFile));
 verifyEqual(testCase, info.InputRoles, ["Source A", "Source B"]);
 verifyEqual(testCase, info.Context.Result.SourceAFile, "first.mat");
 verifyEqual(testCase, info.Context.Result.SourceBFile, "second.mat");
+verifyEqual(testCase, info.Context.Result.SourceFiles, ...
+    ["first.mat", "second.mat"]);
+verifyEqual(testCase, info.Context.Result.SourceFilesText, ...
+    "first.mat"+newline+"second.mat");
 verifyEqual(testCase, info.Context.Result.DerivedArchiveFile, ...
     "mean_result.mat");
 verifyEqual(testCase, info.Context.Result.Value, [2; 4; 6; 8]);
@@ -77,6 +81,39 @@ verifyEqual(testCase, [info.Context.SourceArchives.Filename], ...
     ["first.mat", "second.mat"]);
 end
 
+function testMeanReportDocumentsEverySelectedSource(testCase)
+[firstFile, secondFile] = createSources(testCase.TestData.Folder);
+thirdFile = fullfile(testCase.TestData.Folder, "third.mat");
+saveArchive(thirdFile, [5; 10; 15; 20], "Third");
+outputFolder = fullfile(testCase.TestData.Folder, "multi-mean-report");
+
+info = spectralab.report.generate( ...
+    [firstFile, secondFile, thirdFile], "ANL-009", outputFolder);
+
+verifyEqual(testCase, info.InputRoles, ...
+    ["Source 1", "Source 2", "Source 3"]);
+verifyEqual(testCase, info.Context.Result.SourceCount, 3);
+verifyEqual(testCase, info.Context.Result.SourceFiles, ...
+    ["first.mat", "second.mat", "third.mat"]);
+verifyEqual(testCase, info.Context.Result.SourceFilesText, ...
+    "first.mat"+newline+"second.mat"+newline+"third.mat");
+verifyEqual(testCase, info.Context.Result.Value, [3; 6; 9; 12]);
+verifyEqual(testCase, info.Context.Result.StandardDeviation, [2; 4; 6; 8]);
+verifyEqual(testCase, ...
+    info.Context.Result.MeanRelativeStandardDeviationPercent, ...
+    66.66666666666667, AbsTol=1e-12);
+verifyEqual(testCase, [info.Context.SourceArchives.Filename], ...
+    ["first.mat", "second.mat", "third.mat"]);
+provenance = spectralab.report.internal.buildKeyValueTable( ...
+    "provenance", info.Context);
+labels = [provenance.Rows.Label];
+verifyTrue(testCase, any(labels == "Source 1 archive"));
+verifyTrue(testCase, any(labels == "Source 2 archive"));
+verifyTrue(testCase, any(labels == "Source 3 archive"));
+verifyTrue(testCase, isfile(info.PDFFile));
+verifyTrue(testCase, isfile(info.PNGFile));
+end
+
 function testDifferenceFigureUsesZeroAxisAndSymmetricLimits(testCase)
 [firstFile, secondFile] = createSources(testCase.TestData.Folder);
 firstArchive = spectralab.archive.load(firstFile, Quiet=true);
@@ -97,8 +134,15 @@ expectedLimit = maximumAbsoluteDifference + ...
 verifyEqual(testCase, string(ax.XAxisLocation), "origin");
 verifyEqual(testCase, ax.YLim, [-expectedLimit, expectedLimit], ...
     AbsTol=1e-12);
+verifyEqual(testCase, result.RMSDifference, sqrt(30), AbsTol=1e-12);
+verifyEqual(testCase, result.MaximumAbsoluteDifference, 8);
 verifyEqual(testCase, numel(findall(ax, ...
     "Tag", "SpectraLabSpectralColorBar")), 1);
+summary = findall(ancestor(ax, "figure"), "Type", "text", ...
+    "Tag", "SpectraLabDifferenceSummary");
+verifyEqual(testCase, numel(summary), 1);
+verifyTrue(testCase, any(contains( ...
+    string(summary.String), "RMS difference")));
 differenceLine = findobj(ax, "Type", "line", "-property", "DisplayName");
 verifyEqual(testCase, string(differenceLine.DisplayName), ...
     result.SourceAFile + " - " + result.SourceBFile);
@@ -124,6 +168,11 @@ verifyEqual(testCase, ax.YLim, [0, 1.05 * maximumDisplayedValue], ...
     AbsTol=1e-12);
 verifyEqual(testCase, numel(findall(ax, ...
     "Tag", "SpectraLabSpectralColorBar")), 1);
+summary = findall(ancestor(ax, "figure"), "Type", "text", ...
+    "Tag", "SpectraLabMeanStabilitySummary");
+verifyEqual(testCase, numel(summary), 1);
+verifyEqual(testCase, string(summary.String), ...
+    "Mean relative standard deviation: 70.711 %");
 lines = findobj(ax, "Type", "line", "-property", "DisplayName");
 displayNames = string(get(lines, "DisplayName"));
 verifyTrue(testCase, any(displayNames == ...

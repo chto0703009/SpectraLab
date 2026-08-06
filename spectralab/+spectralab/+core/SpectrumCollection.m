@@ -96,7 +96,7 @@ classdef SpectrumCollection
                 ylabel("Spectral power");
             end
             title(obj.Name, "Interpreter", "none");
-            legend("Interpreter", "none", "Location", "best");
+            legend("Interpreter", "none", "Location", "eastoutside");
 
             if ~holdState
                 hold off;

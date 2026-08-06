@@ -23,7 +23,7 @@ if folder == ""
 end
 
 temporaryFile = string(tempname(folder)) + ".pdf";
-cleanupTemporary = onCleanup(@() deleteIfExists(temporaryFile)); %#ok<NASGU>
+cleanupTemporary = onCleanup(@() deleteIfExists(temporaryFile));
 
 pageCount = max([layoutPlan.Page], [], "omitmissing");
 if isempty(pageCount) || pageCount < 1
@@ -35,7 +35,7 @@ records = renderContext.State.RenderedElements;
 
 for page = 1:pageCount
     fig = createPageFigure(layout);
-    cleanupFigure = onCleanup(@() closeIfValid(fig)); %#ok<NASGU>
+    cleanupFigure = onCleanup(@() closeIfValid(fig));
 
     drawPageFrame( ...
         fig, ...
@@ -671,7 +671,6 @@ if ~isfield(renderContext, "Graphics") || ...
 end
 
 width = min(double(model.Width), layout.ContentWidth);
-height = double(placement.Height);
 pos = normalizedBox(layout, placement, width);
 figureBottomPadding = style.Figure.BottomPadding;
 figureTopPadding = style.Figure.TopPadding;
@@ -683,12 +682,42 @@ pos(4) = max( ...
 pos(1) = pos(1) + (layout.ContentWidth - width) / (2 * layout.PageWidth);
 
 sourceAxes = renderContext.Graphics.Axes;
-reportAxes = copyobj(sourceAxes, fig);
+sourceLegend = findall(ancestor(sourceAxes, "figure"), "Type", "legend");
+hasLegend = ~isempty(sourceLegend);
+if numel(sourceLegend) > 1
+    error("SpectraLab:Report:InvalidFigureLegend", ...
+        "A report figure may contain at most one legend.");
+end
+if hasLegend
+    reportAxes = copyobj(sourceAxes, fig);
+    reportLegend = legend(reportAxes, string(sourceLegend.String), ...
+        "Location", "none", "Interpreter", sourceLegend.Interpreter);
+    reportLegend.FontSize = sourceLegend.FontSize;
+else
+    reportAxes = copyobj(sourceAxes, fig);
+end
+if hasLegend
+    axesPosition = [pos(1), pos(2), 0.64 * pos(3), pos(4)];
+else
+    axesPosition = pos;
+end
 set(reportAxes, ...
     "Units", "normalized", ...
-    "Position", pos, ...
+    "Position", axesPosition, ...
     "ActivePositionProperty", "position", ...
     "HandleVisibility", "off");
+if hasLegend
+    set(reportLegend, ...
+        "Units", "normalized", ...
+        "Position", [ ...
+            pos(1) + 0.70 * pos(3), ...
+            pos(2) + 0.64 * pos(4), ...
+            0.28 * pos(3), ...
+            0.26 * pos(4)], ...
+        "Location", "none", ...
+        "AutoUpdate", "off", ...
+        "HandleVisibility", "off");
+end
 end
 
 function pos = normalizedBox(layout, placement, width)

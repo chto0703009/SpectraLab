@@ -19,9 +19,9 @@ for k = 1:numel(required)
 end
 
 pairAnalysis = isPairArchiveAnalysis(context.Analysis);
-hasSourcePair = isfield(context, "SourceArchives") && ...
-    isstruct(context.SourceArchives) && numel(context.SourceArchives) == 2;
-if hasSourcePair
+hasSourceSet = isfield(context, "SourceArchives") && ...
+    isstruct(context.SourceArchives) && numel(context.SourceArchives) >= 2;
+if hasSourceSet
     metadataRows = pairInformationRows(context);
 elseif pairAnalysis
     metadataRows = [ ...
@@ -69,19 +69,22 @@ tf = isfield(analysis, "AnalysisId") && ...
 end
 
 function rows = pairInformationRows(context)
-first = context.SourceArchives(1);
-second = context.SourceArchives(2);
 rows = [ ...
     makeRow("Analysis", firstValue(context, "Analysis.Name"))
-    makeRow("Method", firstValue(context, "Analysis.Method"))
-    makeArchiveRow(first.Role + " archive", first.Filename)
-    makeRow(first.Role + " measurement", first.Measurement.Name)
-    makeRow(sampleIdLabel(first.Role), sourceSample(first))
-    makeRow(first.Role + " comment", sourceComment(first))
-    makeArchiveRow(second.Role + " archive", second.Filename)
-    makeRow(second.Role + " measurement", second.Measurement.Name)
-    makeRow(sampleIdLabel(second.Role), sourceSample(second))
-    makeRow(second.Role + " comment", sourceComment(second))];
+    makeRow("Method", firstValue(context, "Analysis.Method"))];
+for source = context.SourceArchives
+    if numel(context.SourceArchives) > 2
+        sourceRows = makeArchiveRow( ...
+            source.Role + " archive",source.Filename);
+    else
+        sourceRows = [ ...
+            makeArchiveRow(source.Role + " archive",source.Filename)
+            makeRow(source.Role + " measurement",source.Measurement.Name)
+            makeRow(sampleIdLabel(source.Role),sourceSample(source))
+            makeRow(source.Role + " comment",sourceComment(source))];
+    end
+    rows = [rows;sourceRows]; %#ok<AGROW>
+end
 end
 
 function label = sampleIdLabel(role)

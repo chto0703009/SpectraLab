@@ -26,16 +26,40 @@ if folder == ""
 end
 
 temporaryFile = string(tempname(folder)) + ".png";
-cleanupTemporary = onCleanup(@() deleteIfExists(temporaryFile)); %#ok<NASGU>
+cleanupTemporary = onCleanup(@() deleteIfExists(temporaryFile));
 
 exportFigure = createExportFigure(model);
-cleanupFigure = onCleanup(@() closeIfValid(exportFigure)); %#ok<NASGU>
+cleanupFigure = onCleanup(@() closeIfValid(exportFigure));
 
-exportAxes = copyobj(sourceAxes, exportFigure);
-set(exportAxes, ...
-    "Units", "normalized", ...
-    "OuterPosition", [0.02 0.08 0.96 0.84], ...
-    "PositionConstraint", "outerposition");
+sourceLegend = findall(ancestor(sourceAxes, "figure"), "Type", "legend");
+if isempty(sourceLegend)
+    exportAxes = copyobj(sourceAxes, exportFigure);
+    exportLegend = gobjects(0);
+elseif isscalar(sourceLegend)
+    exportAxes = copyobj(sourceAxes, exportFigure);
+    exportLegend = createLegend(exportAxes, sourceLegend);
+else
+    error("SpectraLab:Report:InvalidFigureLegend", ...
+        "A report figure may contain at most one legend.");
+end
+informationPanel = copyInformationPanel(sourceAxes, exportFigure);
+positionLegend(exportLegend, ~isempty(informationPanel));
+if ~isempty(informationPanel)
+    set(exportAxes, ...
+        "Units", "normalized", ...
+        "Position", [0.06 0.12 0.48 0.80], ...
+        "PositionConstraint", "innerposition");
+else
+    set(exportAxes, ...
+        "Units", "normalized", ...
+        "OuterPosition", [0.02 0.08 0.96 0.84], ...
+        "PositionConstraint", "outerposition");
+    if ~isempty(exportLegend)
+        set(exportAxes, ...
+            "Position", [0.06 0.12 0.60 0.80], ...
+            "PositionConstraint", "innerposition");
+    end
+end
 
 print(exportFigure, char(temporaryFile), ...
     "-dpng", sprintf("-r%.15g", resolution));
@@ -57,6 +81,51 @@ info = struct( ...
     "HeightPoints", double(model.Height), ...
     "ExpectedPixelWidth", double(pixelWidth), ...
     "ExpectedPixelHeight", double(pixelHeight));
+end
+
+function panel = copyInformationPanel(sourceAxes, exportFigure)
+%COPYINFORMATIONPANEL Preserve a renderer-owned side panel in PNG output.
+
+sourceFigure = ancestor(sourceAxes, "figure");
+panel = findall(sourceFigure, "Type", "axes", ...
+    "Tag", "SpectraLabFigureInformationPanel");
+if isempty(panel)
+    return
+end
+if numel(panel) ~= 1
+    error("SpectraLab:Report:InvalidFigureInformationPanel", ...
+        "A report figure may contain at most one information panel.");
+end
+panel = copyobj(panel, exportFigure);
+set(panel, ...
+    "Units", "normalized", ...
+    "Position", [0.78 0.22 0.20 0.56], ...
+    "HandleVisibility", "off");
+end
+
+function legendHandle = createLegend(targetAxes, sourceLegend)
+%CREATELEGEND Recreate a source legend without changing its source axes.
+
+legendHandle = legend(targetAxes, string(sourceLegend.String), ...
+    "Location", "none", "Interpreter", sourceLegend.Interpreter);
+legendHandle.FontSize = sourceLegend.FontSize;
+end
+
+function positionLegend(legendHandle, hasInformationPanel)
+%POSITIONLEGEND Place an exported legend outside the plot axes.
+
+if isempty(legendHandle)
+    return
+end
+legendHandle.Units = "normalized";
+if hasInformationPanel
+    legendHandle.Position = [0.56 0.68 0.20 0.18];
+else
+    legendHandle.Position = [0.70 0.68 0.27 0.18];
+end
+legendHandle.Location = "none";
+legendHandle.AutoUpdate = "off";
+legendHandle.HandleVisibility = "off";
 end
 
 function pngFile = validateTarget(pngFile)

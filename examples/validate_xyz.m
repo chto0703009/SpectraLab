@@ -4,7 +4,7 @@ startup
 
 [fileName, folderName] = uigetfile( ...
     "*.mat", ...
-    "Select a SpectraLab spectrum archive");
+    "SpectraLab - Validate XYZ: select spectrum archive");
 
 if isequal(fileName, 0)
     error("No archive file was selected.");

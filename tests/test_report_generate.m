@@ -72,6 +72,27 @@ verifyEqual(testCase, ...
         "spectrum_measurement_ANL-SPECTRUM_figure.png"));
 end
 
+function testGeneratesFigureInRequestedFolder(testCase)
+
+folder = string(testCase.TestData.TempFolder);
+archiveFile = fullfile(folder, "separate_figure_measurement.mat");
+reportFolder = fullfile(folder, "reports");
+figureFolder = fullfile(folder, "plots");
+
+createArchiveFile(archiveFile);
+
+info = spectralab.report.generate( ...
+    archiveFile, "ANL-SPECTRUM", reportFolder, ...
+    FigureOutputFolder=figureFolder);
+
+verifyTrue(testCase, isfile(info.PDFFile));
+verifyTrue(testCase, isfile(info.PNGFile));
+verifyEqual(testCase, string(info.PNGFile), fullfile(figureFolder, ...
+    "separate_figure_measurement_ANL-SPECTRUM_figure.png"));
+verifyFalse(testCase, isfile(fullfile(reportFolder, ...
+    "separate_figure_measurement_ANL-SPECTRUM_figure.png")));
+end
+
 function testGeneratesCriReportByAnalysisId(testCase)
 
 folder = string(testCase.TestData.TempFolder);
@@ -302,7 +323,8 @@ createArchiveFileWithPower(sampleFile, ones(4,1));
 info = spectralab.report.generate( ...
     [referenceFile, sampleFile], ...
     "ANL-007", ...
-    outputFolder);
+    outputFolder, ...
+    ShowFigure=true);
 
 verifyTrue(testCase, isfile(info.PDFFile));
 verifyTrue(testCase, isfile(info.PNGFile));

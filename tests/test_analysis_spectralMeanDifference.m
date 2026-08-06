@@ -29,11 +29,36 @@ analysis = spectralab.analysis.spectralDifference(a, b, ...
     SourceFiles=["a.mat", "b.mat"]);
 
 verifyEqual(testCase, analysis.Result.Value, [-2; 6; 0]);
+verifyEqual(testCase, analysis.Result.RMSDifference, sqrt(40 / 3), ...
+    AbsTol=1e-12);
+verifyEqual(testCase, analysis.Result.MaximumAbsoluteDifference, 6);
 verifyEqual(testCase, analysis.Definition.Expression, ...
     "D(lambda) = A(lambda) - B(lambda)");
 verifyFalse(testCase, isfield(analysis.Result, "DerivedArchive"));
 verifyEqual(testCase, [analysis.Sources.Role], ...
     ["Minuend (A)", "Subtrahend (B)"]);
+end
+
+function testMeanAcceptsArchiveList(testCase)
+a = makeArchive([400; 500; 600], [1; 4; 7], "A");
+b = makeArchive([400; 500; 600], [2; 5; 8], "B");
+c = makeArchive([400; 500; 600], [3; 6; 9], "C");
+
+analysis = spectralab.analysis.spectralMean([a, b, c], ...
+    ResultName="Mean A B C", SourceFiles=["a.mat", "b.mat", "c.mat"]);
+
+verifyEqual(testCase, analysis.Result.Value, [2; 5; 8]);
+verifyEqual(testCase, analysis.Result.StandardDeviation, [1; 1; 1]);
+verifyEqual(testCase, analysis.Result.RelativeStandardDeviationPercent, ...
+    [50; 20; 12.5], AbsTol=1e-12);
+verifyEqual(testCase, analysis.Result.MeanRelativeStandardDeviationPercent, ...
+    mean([50; 20; 12.5]), AbsTol=1e-12);
+verifyEqual(testCase, analysis.Parameters.SourceCount, 3);
+verifyEqual(testCase, numel(analysis.Sources), 3);
+verifyEqual(testCase, [analysis.Sources.Filename], ...
+    ["a.mat", "b.mat", "c.mat"]);
+verifyTrue(testCase, ...
+    spectralab.archive.validate(analysis.Result.DerivedArchive).IsValid);
 end
 
 function testMismatchRequiresExplicitResampling(testCase)

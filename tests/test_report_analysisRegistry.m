@@ -108,7 +108,7 @@ verifyTrue(testCase, isfinite(result.Duv));
 verifyTrue(testCase, isfinite(result.Ra));
 end
 
-function testSpectrumReportFiguresIncludeSummaryAndLegend(testCase)
+function testSpectrumReportFiguresPlaceLegendsOutsidePlot(testCase)
 
 registry = spectralab.report.internal.createAnalysisRegistry();
 archive = makeCriArchive();
@@ -116,17 +116,31 @@ archive = makeCriArchive();
 for analysisId = ["ANL-SPECTRUM", "ANL-CRI"]
     entry = findEntry(registry, analysisId);
     fig = figure("Visible", "off");
-    cleanup = onCleanup(@() close(fig)); %#ok<NASGU>
+    cleanup = onCleanup(@() close(fig));
     ax = axes("Parent", fig);
 
-    entry.FigureRenderer(ax, archive, struct());
+    result = struct();
+    if analysisId == "ANL-CRI"
+        result = entry.AnalysisRunner(archive);
+    end
+    entry.FigureRenderer(ax, archive, result);
 
-    verifyNotEmpty(testCase, ...
-        findall(ax, "Tag", "SpectraLabSummary"));
-    verifyNotEmpty(testCase, findall(fig, "Type", "legend"));
+    verifyEmpty(testCase, findall(ax, "Tag", "SpectraLabSummary"));
+    legendHandle = findall(fig, "Type", "legend");
+    verifyNotEmpty(testCase, legendHandle);
+    verifyEqual(testCase, string(legendHandle.Location), "eastoutside");
     titleText = string(ax.Title.String);
     verifyTrue(testCase, contains(join(titleText, newline), ...
         string(archive.Measurement.Name)));
+
+    if analysisId == "ANL-CRI"
+        summary = findall(fig, "Tag", "SpectraLabCriSummary");
+        verifyNotEmpty(testCase, summary);
+        summaryText = join(string(summary.String), newline);
+        verifyTrue(testCase, contains(summaryText, ...
+            "Correlated color temperature"));
+        verifyTrue(testCase, contains(summaryText, "CRI (Ra)"));
+    end
 
     clear cleanup
 end
