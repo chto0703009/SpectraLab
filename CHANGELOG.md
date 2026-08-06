@@ -8,6 +8,12 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
+## Unreleased - v0.8.3-dev
+
+Development branch opened after the v0.8.2 release.
+
+---
+
 ## Presentation Standard and Reliable Report Exports - v0.8.2
 
 Released 2026-08-06.
