@@ -96,6 +96,7 @@ Engineering Decisions document concrete implementation choices.
 | ED-002 | Scientific Provenance | Approved |
 | ED-003 | Deterministic Scientific Identity | Approved |
 | ED-004 | Interactive Instrument Handshake | Approved |
+| ED-022 | Colorimetry and Measurement Export Architecture | Approved for v0.8.3-dev implementation |
 
 ------------------------------------------------------------------------
 
@@ -164,4 +165,3 @@ Consequences:
 -   External process interaction is isolated from scientific archive and
     session logic.
 -   Failures in ENTER handling can be reported as bridge diagnostics.
-

@@ -45,6 +45,9 @@ function h = spectrum(spec, options)
     if options.Normalize
         y = spec.normalizedPower();
         yLabelText = "Relative spectral power";
+    elseif contains(lower(spec.PowerUnit), "reflectance")
+        y = spec.Power;
+        yLabelText = "Relative reflectance (%)";
     else
         y = spec.Power;
         yLabelText = "Spectral power";
@@ -56,7 +59,7 @@ function h = spectrum(spec, options)
 
 	originalHoldState = ishold(ax);
 	holdCleanup = onCleanup( ...
-	    @() restoreHoldState(ax, originalHoldState)); %#ok<NASGU>
+	    @() restoreHoldState(ax, originalHoldState));
 
 	hold(ax, "on");
 

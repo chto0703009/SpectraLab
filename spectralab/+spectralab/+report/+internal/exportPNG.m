@@ -27,6 +27,7 @@ end
 
 temporaryFile = string(tempname(folder)) + ".png";
 cleanupTemporary = onCleanup(@() deleteIfExists(temporaryFile));
+profile = spectralab.report.internal.figureLayoutProfile();
 
 exportFigure = createExportFigure(model);
 cleanupFigure = onCleanup(@() closeIfValid(exportFigure));
@@ -47,16 +48,16 @@ positionLegend(exportLegend, ~isempty(informationPanel));
 if ~isempty(informationPanel)
     set(exportAxes, ...
         "Units", "normalized", ...
-        "Position", [0.06 0.12 0.48 0.80], ...
+        "Position", profile.AxesWithSidebar, ...
         "PositionConstraint", "innerposition");
 else
     set(exportAxes, ...
         "Units", "normalized", ...
-        "OuterPosition", [0.02 0.08 0.96 0.84], ...
+        "OuterPosition", profile.AxesOuterWithoutSidebar, ...
         "PositionConstraint", "outerposition");
     if ~isempty(exportLegend)
         set(exportAxes, ...
-            "Position", [0.06 0.12 0.60 0.80], ...
+            "Position", profile.AxesWithLegend, ...
             "PositionConstraint", "innerposition");
     end
 end
@@ -97,35 +98,43 @@ if numel(panel) ~= 1
         "A report figure may contain at most one information panel.");
 end
 panel = copyobj(panel, exportFigure);
+profile = spectralab.report.internal.figureLayoutProfile();
 set(panel, ...
     "Units", "normalized", ...
-    "Position", [0.78 0.22 0.20 0.56], ...
+    "Position", profile.SidePanel, ...
     "HandleVisibility", "off");
 end
 
 function legendHandle = createLegend(targetAxes, sourceLegend)
 %CREATELEGEND Recreate a source legend without changing its source axes.
 
-legendHandle = legend(targetAxes, string(sourceLegend.String), ...
+legendHandle = legend(targetAxes, wrapLegendLabels(sourceLegend.String), ...
     "Location", "none", "Interpreter", sourceLegend.Interpreter);
 legendHandle.FontSize = sourceLegend.FontSize;
 end
 
-function positionLegend(legendHandle, hasInformationPanel)
+function positionLegend(legendHandle, ~)
 %POSITIONLEGEND Place an exported legend outside the plot axes.
 
 if isempty(legendHandle)
     return
 end
 legendHandle.Units = "normalized";
-if hasInformationPanel
-    legendHandle.Position = [0.56 0.68 0.20 0.18];
-else
-    legendHandle.Position = [0.70 0.68 0.27 0.18];
-end
 legendHandle.Location = "none";
+profile = spectralab.report.internal.figureLayoutProfile();
+legendHandle.Position = profile.SideLegend;
 legendHandle.AutoUpdate = "off";
 legendHandle.HandleVisibility = "off";
+end
+
+function labels = wrapLegendLabels(labels)
+labels = string(labels);
+profile = spectralab.report.internal.figureLayoutProfile();
+for index = 1:numel(labels)
+    labels(index) = spectralab.report.internal.wrapValue( ...
+        labels(index), profile.MaximumSideColumnCharacters);
+end
+labels = cellstr(labels);
 end
 
 function pngFile = validateTarget(pngFile)

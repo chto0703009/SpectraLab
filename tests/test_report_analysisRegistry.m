@@ -72,7 +72,8 @@ verifyEqual(testCase, definition.AnalysisId, "ANL-SPECTRUM");
 verifyTrue(testCase, definition.HasFigure);
 verifyEqual(testCase, ...
     [definition.ResultFields.Field], ...
-    ["SampleCount", "WavelengthMinimum", "WavelengthMaximum"]);
+    ["SampleCount", "WavelengthMinimum", "WavelengthMaximum", ...
+     "ColorimetrySource", "XYZText", "LabText", "VerificationText"]);
 end
 
 function testResolvesCri(testCase)
@@ -128,22 +129,61 @@ for analysisId = ["ANL-SPECTRUM", "ANL-CRI"]
     verifyEmpty(testCase, findall(ax, "Tag", "SpectraLabSummary"));
     legendHandle = findall(fig, "Type", "legend");
     verifyNotEmpty(testCase, legendHandle);
-    verifyEqual(testCase, string(legendHandle.Location), "eastoutside");
     titleText = string(ax.Title.String);
     verifyTrue(testCase, contains(join(titleText, newline), ...
         string(archive.Measurement.Name)));
 
     if analysisId == "ANL-CRI"
+        profile = spectralab.report.internal.figureLayoutProfile();
+        verifyEqual(testCase, string(legendHandle.Location), "none");
         summary = findall(fig, "Tag", "SpectraLabCriSummary");
         verifyNotEmpty(testCase, summary);
-        summaryText = join(string(summary.String), newline);
+        summaryText = replace(join(string(summary.String), newline), newline, " ");
         verifyTrue(testCase, contains(summaryText, ...
             "Correlated color temperature"));
         verifyTrue(testCase, contains(summaryText, "CRI (Ra)"));
+        verifyEqual(testCase, ax.Position, profile.AxesWithSidebar, ...
+            "AbsTol", 1e-12);
+        informationPanel = findall(fig, "Type", "axes", ...
+            "Tag", "SpectraLabFigureInformationPanel");
+        verifyEqual(testCase, informationPanel.Position, profile.SidePanel, ...
+            "AbsTol", 1e-12);
+        verifyEqual(testCase, legendHandle.Position, profile.SideLegend, ...
+            "AbsTol", 1e-12);
+    else
+        verifyEqual(testCase, string(legendHandle.Location), "eastoutside");
     end
 
     clear cleanup
 end
+end
+
+function testReflectanceFigureShowsInstrumentReportedColorimetry(testCase)
+registry = spectralab.report.internal.createAnalysisRegistry();
+entry = findEntry(registry, "ANL-SPECTRUM");
+archive = makeCriArchive();
+archive.Measurement.Unit = "relative reflectance (%)";
+archive.Measurement.Context = struct( ...
+    "InstrumentReportedColorimetry", struct( ...
+        "available", true, ...
+        "xyz", [55.309789 56.724391 5.550868], ...
+        "lab", [80.024327 1.547991 84.210804], ...
+        "illuminant", "D50", ...
+        "observer", "1931_2"));
+payload = struct("Measurement", archive.Measurement, ...
+    "Instrument", archive.Instrument, "Quality", archive.Quality);
+archive.Identity.ContentHash = spectralab.archive.contentHash(payload);
+fig = figure("Visible", "off");
+cleanup = onCleanup(@() close(fig));
+ax = axes("Parent", fig);
+result = entry.AnalysisRunner(archive);
+entry.FigureRenderer(ax, archive, result);
+
+panelText = findall(fig, "Tag", "SpectraLabReflectanceColorimetry");
+verifyNotEmpty(testCase, panelText);
+textValue = join(string(panelText.String), newline);
+verifyTrue(testCase, contains(textValue, "XYZ: 55.310, 56.724, 5.551"));
+verifyTrue(testCase, contains(textValue, "Lab: 80.024, 1.548, 84.211"));
 end
 
 function testResolvesTransmission(testCase)
@@ -353,6 +393,22 @@ verifyEqual(testCase, result.SpectralDensity, ...
     ones(36,1), AbsTol=1e-12);
 verifyEqual(testCase, result.WavelengthNm, ...
     reference.Measurement.Wavelength(:));
+end
+
+function testIsoVisualDensityFigureKeepsResultOutOfTitle(testCase)
+registry = spectralab.report.internal.createAnalysisRegistry();
+entry = findEntry(registry, "ANL-007");
+reference = makeTransmissionArchive(ones(36,1), "Reference");
+sample = makeTransmissionArchive(0.1 .* ones(36,1), "Sample");
+result = entry.AnalysisRunner(reference, sample);
+fig = figure("Visible", "off");
+cleanup = onCleanup(@() close(fig));
+ax = axes("Parent", fig);
+entry.FigureRenderer(ax, reference, sample, result);
+
+verifyEqual(testCase, string(ax.Title.String), ...
+    "Spectral optical density (ISO visual)");
+verifyFalse(testCase, contains(string(ax.Title.String), "1.0000"));
 end
 
 function testListsPublicAnalysisSummaries(testCase)

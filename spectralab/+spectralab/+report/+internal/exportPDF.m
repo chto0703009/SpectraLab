@@ -682,7 +682,9 @@ pos(4) = max( ...
 pos(1) = pos(1) + (layout.ContentWidth - width) / (2 * layout.PageWidth);
 
 sourceAxes = renderContext.Graphics.Axes;
-sourceLegend = findall(ancestor(sourceAxes, "figure"), "Type", "legend");
+sourceFigure = ancestor(sourceAxes, "figure");
+profile = spectralab.report.internal.figureLayoutProfile();
+sourceLegend = findall(sourceFigure, "Type", "legend");
 hasLegend = ~isempty(sourceLegend);
 if numel(sourceLegend) > 1
     error("SpectraLab:Report:InvalidFigureLegend", ...
@@ -690,14 +692,17 @@ if numel(sourceLegend) > 1
 end
 if hasLegend
     reportAxes = copyobj(sourceAxes, fig);
-    reportLegend = legend(reportAxes, string(sourceLegend.String), ...
+    reportLegend = legend(reportAxes, wrapLegendLabels(sourceLegend.String), ...
         "Location", "none", "Interpreter", sourceLegend.Interpreter);
     reportLegend.FontSize = sourceLegend.FontSize;
 else
     reportAxes = copyobj(sourceAxes, fig);
 end
+% PDF figures intentionally contain only the legend. Numerical summaries
+% are already represented in the report Results table and must not be
+% duplicated as a side text box inside the figure.
 if hasLegend
-    axesPosition = [pos(1), pos(2), 0.64 * pos(3), pos(4)];
+    axesPosition = projectProfileBox(pos, profile.AxesWithLegend);
 else
     axesPosition = pos;
 end
@@ -707,17 +712,24 @@ set(reportAxes, ...
     "ActivePositionProperty", "position", ...
     "HandleVisibility", "off");
 if hasLegend
+    legendPosition = projectProfileBox(pos, profile.SideLegend);
     set(reportLegend, ...
         "Units", "normalized", ...
-        "Position", [ ...
-            pos(1) + 0.70 * pos(3), ...
-            pos(2) + 0.64 * pos(4), ...
-            0.28 * pos(3), ...
-            0.26 * pos(4)], ...
         "Location", "none", ...
+        "Position", legendPosition, ...
         "AutoUpdate", "off", ...
         "HandleVisibility", "off");
 end
+end
+
+function labels = wrapLegendLabels(labels)
+labels = string(labels);
+profile = spectralab.report.internal.figureLayoutProfile();
+for index = 1:numel(labels)
+    labels(index) = spectralab.report.internal.wrapValue( ...
+        labels(index), profile.MaximumSideColumnCharacters);
+end
+labels = cellstr(labels);
 end
 
 function pos = normalizedBox(layout, placement, width)
@@ -728,6 +740,16 @@ y = yBottomPoints / layout.PageHeight;
 w = width / layout.PageWidth;
 h = placement.Height / layout.PageHeight;
 pos = [x y w h];
+end
+
+function position = projectProfileBox(container, profileBox)
+%PROJECTPROFILEBOX Map canonical figure geometry into a PDF figure area.
+
+position = [ ...
+    container(1) + profileBox(1) * container(3), ...
+    container(2) + profileBox(2) * container(4), ...
+    profileBox(3) * container(3), ...
+    profileBox(4) * container(4)];
 end
 
 function deleteIfExists(file)

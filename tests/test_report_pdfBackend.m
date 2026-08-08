@@ -36,6 +36,27 @@ verifyTrue(testCase, isfile(pdfFile));
 verifyEqual(testCase, info.PageCount, 2);
 end
 
+function testOmitsSideInformationPanelFromPDF(testCase)
+[pdfFile, cleanup] = temporaryPDF(); %#ok<ASGLU>
+[plan, renderContext] = makeReport(false);
+sourceFigure = renderContext.Graphics.Figure;
+sourceAxes = renderContext.Graphics.Axes;
+lineHandle = findall(sourceAxes, "Type", "line");
+lineHandle.DisplayName = "Long source label for right-side wrapping";
+legend(sourceAxes, "Location", "eastoutside");
+panel = axes("Parent", sourceFigure, "Units", "normalized", ...
+    "Position", [0.72 0.22 0.24 0.42], "Visible", "off", ...
+    "Tag", "SpectraLabFigureInformationPanel");
+text(panel, 0, 1, "Maximum absolute\ndifference: 0.001", ...
+    "Units", "normalized", "VerticalAlignment", "top");
+
+info = spectralab.report.internal.exportPDF(pdfFile, plan, renderContext);
+
+verifyTrue(testCase, isfile(pdfFile));
+verifyGreaterThan(testCase, dir(pdfFile).bytes, 500);
+verifyEqual(testCase, info.PageCount, 1);
+end
+
 function testDoesNotOverwriteExistingPDF(testCase)
 [pdfFile, cleanup] = temporaryPDF(); %#ok<ASGLU>
 fid = fopen(pdfFile, "w");

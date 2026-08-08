@@ -1,7 +1,7 @@
 # GP-001 --- SpectraLab Graphical Presentation Profile
 
 **Document ID:** GP-001  
-**Version:** 1.0  
+**Version:** 1.1
 **Status:** Approved  
 **Applies from:** SpectraLab v0.8.2
 
@@ -32,20 +32,38 @@ other explanatory text that can obscure a curve.
 
 ## Measurement and Analysis Information
 
-- Context such as archive identity, measurement metadata, CCT, CRI and
-  stability metrics shall be placed in the right information area.
+- In interactive figures and exported PNG files, context such as archive
+  identity, measurement metadata, XYZ, Lab, CCT, CRI and stability metrics
+  shall be placed in the right information area.
 - Text shall wrap or be split into short lines; it shall never be clipped.
-- The result table remains the authoritative detailed record in a PDF;
-  the plot-side information is a concise visual summary.
+- Every value shown in a right-side information area shall also be declared
+  as a Result field for the corresponding analysis.
+
+## PDF Figure Rule
+
+- A figure embedded in a PDF shall contain only its plot content and its
+  right-side legend.
+- A PDF figure shall not contain a side information panel, summary box or
+  other explanatory text.
+- A PDF figure title shall identify the plot and method, but shall not
+  embed calculated numerical results.
+- Numerical and descriptive information belongs in the report's **Results**
+  table. The Results table is the authoritative record in a PDF.
+- This rule applies to every registered analysis, including measured
+  spectra, CRI, spectral mean, spectral difference and density reports.
 
 ## Output Consistency
 
-Interactive figures, Work PNG files and report PNG/PDF figures shall
-apply this profile consistently. A visual improvement in one output path
-shall be implemented in the other output paths at the same time.
+Interactive figures and Work PNG files use the right information area for
+a concise summary. Report PDFs use the same plot, title and right-side
+legend geometry, but move all summary information to Results. A visual
+improvement in one output path shall be reviewed in the other paths at the
+same time.
 
 ## Verification
 
 New plot types shall be reviewed against this profile. Automated tests
-shall verify that registered report legends use the right-side placement
-and that exported figures preserve a legend.
+shall verify that registered report legends use the right-side placement,
+that exported figures preserve a legend, and that PDF export omits
+right-side information panels. Review shall confirm that every interactive
+or PNG side-panel value has a corresponding Results field.
