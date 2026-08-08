@@ -48,6 +48,7 @@ archive.Measurement.Unit       = spec.PowerUnit;
 archive.Measurement.Operator   = readTextField(spec.Metadata, ...
     ["Operator", "operator"]);
 archive.Measurement.Timestamp  = spec.Timestamp;
+archive.Measurement.Context = measurementContext(spec.Metadata);
 
 %----------------------------------------------------------
 % Metadata
@@ -182,6 +183,30 @@ if isempty(converted)
 end
 
 value = strtrim(converted(1));
+end
+
+function context = measurementContext(metadata)
+%MEASUREMENTCONTEXT Preserve structured acquisition facts for re-use.
+
+context = struct();
+context.Kind = readTextField(metadata, ["measurement_kind", "MeasurementKind"]);
+context.SignalQuantity = readTextField(metadata, ...
+    ["signal_quantity", "SignalQuantity"]);
+context.SpotreadOptions = readTextField(metadata, ...
+    ["spotread_options", "SpotreadOptions"]);
+context.ColorCheckerCoordinate = readTextField(metadata, ...
+    ["ColorCheckerCoordinate", "colorchecker_coordinate"]);
+context.ColorCheckerName = readTextField(metadata, ...
+    ["ColorCheckerName", "colorchecker_name"]);
+context.ColorCheckerManufacturedDate = readTextField(metadata, ...
+    ["ColorCheckerManufacturedDate", ...
+     "colorchecker_manufactured_date"]);
+
+reported = readField(metadata, ...
+    ["spotread_colorimetry", "SpotreadColorimetry"]);
+if isstruct(reported) && isscalar(reported)
+    context.InstrumentReportedColorimetry = reported;
+end
 end
 
 function value = readField(source, candidates)

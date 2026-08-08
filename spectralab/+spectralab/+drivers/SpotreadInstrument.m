@@ -8,6 +8,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
     properties
         InstrumentId (1,1) string = "i1Pro2"
         Executable (1,1) string = ""
+        MeasurementKind (1,1) string = "emissive"
         MeasurementOptions (1,1) string = "-e -s"
         CalibrationOptions (1,1) string = "-e -s"
         TimeoutSeconds (1,1) double = 300
@@ -44,14 +45,20 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             addParameter( ...
                 p, ...
                 "MeasurementOptions", ...
-                "-e -s", ...
+                "", ...
                 @(x) ischar(x) || isstring(x));
 
             addParameter( ...
                 p, ...
                 "CalibrationOptions", ...
-                "-e -s", ...
+                "", ...
                 @(x) ischar(x) || isstring(x));
+
+            addParameter( ...
+                p, ...
+                "MeasurementKind", ...
+                "emissive", ...
+                @(x) any(lower(strtrim(string(x))) == ["emissive", "reflectance"]));
 
             addParameter( ...
                 p, ...
@@ -99,8 +106,11 @@ classdef SpotreadInstrument < spectralab.core.Instrument
 
             obj.InstrumentId = string(p.Results.InstrumentId);
             obj.Executable = string(p.Results.Executable);
-            obj.MeasurementOptions = string(p.Results.MeasurementOptions);
-            obj.CalibrationOptions = string(p.Results.CalibrationOptions);
+            obj.MeasurementKind = lower(strtrim(string(p.Results.MeasurementKind)));
+            obj.MeasurementOptions = resolveMeasurementOptions( ...
+                obj.MeasurementKind, p.Results.MeasurementOptions);
+            obj.CalibrationOptions = resolveMeasurementOptions( ...
+                obj.MeasurementKind, p.Results.CalibrationOptions);
             obj.TimeoutSeconds = p.Results.TimeoutSeconds;
             obj.PythonExecutable = string(p.Results.PythonExecutable);
             obj.OneShotRunner = p.Results.OneShotRunner;
@@ -138,6 +148,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             info.backend = "ArgyllCMS spotread";
             info.backend_mode = ...
                 "interactive-fallback-and-bounded-one-shot";
+            info.measurement_kind = obj.MeasurementKind;
             info.executable = obj.Executable;
             info.python_executable = obj.PythonExecutable;
             info.measurement_options = obj.MeasurementOptions;
@@ -373,6 +384,11 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             metadata.calibration_note = ...
                 "White-reference calibration performed in same " + ...
                 "spotread process.";
+            metadata.measurement_kind = obj.MeasurementKind;
+            metadata.signal_quantity = signalQuantity(obj.MeasurementKind);
+            metadata.spotread_options = obj.MeasurementOptions;
+            metadata.spotread_colorimetry = ...
+                colorimetryMetadata(rawOutput, obj.MeasurementOptions);
 
             spec = spectralab.core.Spectrum( ...
                 wl, ...
@@ -381,7 +397,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 obj.getInfo(), ...
                 obj.LastCalibration.toStruct(), ...
                 metadata, ...
-                "arbitrary");
+                spectrumUnit(obj.MeasurementKind));
         end
     end
 
@@ -416,6 +432,8 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             data.calibration_was_required = ...
                 outcome.calibration_was_required;
             data.high_resolution = obj.HighResolution;
+            data.measurement_kind = obj.MeasurementKind;
+            data.calibration_options = obj.CalibrationOptions;
             data.raw_output = rawOutput;
 
             cal = spectralab.core.Calibration.valid( ...
@@ -431,8 +449,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 allowRecalibration = true;
             end
 
-            obj.confirmPlacement( ...
-                "Place the instrument on the source or sample to be measured.");
+            obj.confirmPlacement(obj.measurementPlacementMessage());
 
             if obj.AutomaticTrigger == "instrument" && ...
                     obj.InstrumentSwitchSettleSeconds > 0
@@ -484,7 +501,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 spectralab.drivers.spotread.Parser.parseSpectrumFile( ...
                     spectrumFile);
             validateMatchingSpectrum(wl, power, fileWl, filePower);
-            validateReportableSignal(wl, power, rawOutput);
+            validateReportableSignal(wl, power, rawOutput, obj.MeasurementKind);
 
             metadata = struct();
             metadata.backend = "spotread-bounded-one-shot";
@@ -499,10 +516,16 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             metadata.skip_initial_calibration = any(args == "-N");
             metadata.calibration_outcome = ...
                 obj.LastCalibration.Data.outcome;
+            metadata.measurement_kind = obj.MeasurementKind;
+            metadata.signal_quantity = signalQuantity(obj.MeasurementKind);
+            metadata.spotread_options = obj.MeasurementOptions;
+            metadata.spotread_colorimetry = ...
+                colorimetryMetadata(rawOutput, obj.MeasurementOptions);
 
             spec = spectralab.core.Spectrum( ...
                 wl, power, label, obj.getInfo(), ...
-                obj.LastCalibration.toStruct(), metadata, "arbitrary");
+                obj.LastCalibration.toStruct(), metadata, ...
+                spectrumUnit(obj.MeasurementKind));
         end
 
         function confirmPlacement(obj, message)
@@ -569,6 +592,15 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                     "serial number matches the instrument.";
             end
         end
+
+        function message = measurementPlacementMessage(obj)
+            if obj.MeasurementKind == "reflectance"
+                message = "Place the instrument on the reflectance patch. " + ...
+                    "Do not measure the white calibration reference.";
+            else
+                message = "Place the instrument on the source or sample to be measured.";
+            end
+        end
     end
 end
 
@@ -577,6 +609,60 @@ options = string(regexp(strtrim(char(value)), '\s+', 'split'));
 options(strlength(options) == 0) = [];
 if ~any(options == "-v")
     options = ["-v", options];
+end
+end
+
+function options = resolveMeasurementOptions(kind, suppliedOptions)
+kind = lower(strtrim(string(kind)));
+options = strtrim(string(suppliedOptions));
+if strlength(options) == 0
+    if kind == "reflectance"
+        options = "-s";
+    else
+        options = "-e -s";
+    end
+end
+
+tokens = splitOptions(options);
+if kind == "reflectance" && any(tokens == "-e")
+    error("SpectraLab:Spotread:InvalidReflectanceOptions", ...
+        "Reflectance measurements must not use the emissive -e option.");
+end
+if ~any(tokens == "-s")
+    error("SpectraLab:Spotread:SpectrumRequired", ...
+        "SpectraLab Spotread measurements require the -s spectrum option.");
+end
+end
+
+function unit = spectrumUnit(kind)
+if string(kind) == "reflectance"
+    unit = "relative reflectance (%)";
+else
+    unit = "arbitrary";
+end
+end
+
+function quantity = signalQuantity(kind)
+if string(kind) == "reflectance"
+    quantity = "spectral reflectance factor";
+else
+    quantity = "spectral power";
+end
+end
+
+function colorimetry = colorimetryMetadata(rawOutput, options)
+colorimetry = spectralab.drivers.spotread.Parser.parseColorimetry(rawOutput);
+colorimetry.observer = observerFromOptions(options);
+colorimetry.observer_source = "spotread option or documented default";
+end
+
+function observer = observerFromOptions(options)
+tokens = splitOptions(options);
+index = find(tokens == "-Q", 1, "last");
+if isempty(index) || index == numel(tokens)
+    observer = "1931_2";
+else
+    observer = tokens(index + 1);
 end
 end
 
@@ -647,7 +733,7 @@ if any(abs(power - filePower) > tolerance)
 end
 end
 
-function validateReportableSignal(wl, power, rawOutput)
+function validateReportableSignal(wl, power, rawOutput, measurementKind)
 integratedPower = trapz(wl, power);
 xyzToken = regexp(char(rawOutput), ...
     ['Result is XYZ:\s*' ...
@@ -662,13 +748,22 @@ if ~isempty(xyzToken)
 end
 
 if max(power) <= 0 || integratedPower <= 0 || zeroXYZ
-    message = ...
-        "No usable light was detected.\n\n" + ...
-        "The instrument may still be on the calibration tile, " + ...
-        "the source may be off, or the sensor may not be aimed at " + ...
-        "the source.\n\n" + ...
-        "Move the instrument to the illuminated source or sample " + ...
-        "and run the measurement again. No measurement was saved.";
+    if string(measurementKind) == "reflectance"
+        message = ...
+            "No usable reflectance signal was detected.\n\n" + ...
+            "The instrument may still be on the calibration tile or " + ...
+            "may not be positioned on the patch.\n\n" + ...
+            "Move the instrument to the reflectance patch and run " + ...
+            "the measurement again. No measurement was saved.";
+    else
+        message = ...
+            "No usable light was detected.\n\n" + ...
+            "The instrument may still be on the calibration tile, " + ...
+            "the source may be off, or the sensor may not be aimed at " + ...
+            "the source.\n\n" + ...
+            "Move the instrument to the illuminated source or sample " + ...
+            "and run the measurement again. No measurement was saved.";
+    end
     if usejava('desktop')
         uiwait(errordlg(char(message), ...
             "SpectraLab - No light detected", "modal"));

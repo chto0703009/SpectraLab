@@ -55,6 +55,32 @@ metadata = archive.Metadata;
 if isfield(archive.Measurement, "Operator")
     metadata.Operator = string(archive.Measurement.Operator);
 end
+if isfield(archive.Measurement, "Context") && ...
+        isstruct(archive.Measurement.Context)
+    context = archive.Measurement.Context;
+    if isfield(context, "Kind")
+        metadata.measurement_kind = string(context.Kind);
+    end
+    if isfield(context, "SignalQuantity")
+        metadata.signal_quantity = string(context.SignalQuantity);
+    end
+    if isfield(context, "SpotreadOptions")
+        metadata.spotread_options = string(context.SpotreadOptions);
+    end
+    if isfield(context, "InstrumentReportedColorimetry")
+        metadata.spotread_colorimetry = context.InstrumentReportedColorimetry;
+    end
+    if isfield(context, "ColorCheckerCoordinate")
+        metadata.ColorCheckerCoordinate = string(context.ColorCheckerCoordinate);
+    end
+    if isfield(context, "ColorCheckerName")
+        metadata.ColorCheckerName = string(context.ColorCheckerName);
+    end
+    if isfield(context, "ColorCheckerManufacturedDate")
+        metadata.ColorCheckerManufacturedDate = ...
+            string(context.ColorCheckerManufacturedDate);
+    end
+end
 
 calibration = struct();
 
