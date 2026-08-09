@@ -9,6 +9,10 @@ codegen/
 *.mex*
 *.mlappinstall
 
+# Python bytecode cache
+__pycache__/
+*.py[cod]
+
 # SpectraLab generated outputs
 *.slab.json
 *_export.csv
