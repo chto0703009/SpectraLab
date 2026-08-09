@@ -45,6 +45,25 @@ patch archive identity. It contains no plot and no derived XYZ or Lab data.
 Patch archives are never overwritten. The manifest is mutable controlled
 workflow state and is written atomically with a revision number.
 
+## Controlled patch remeasurement
+
+An erroneous completed patch is never edited or deleted. A controlled
+remeasurement selects one or more patch coordinates and creates a separate
+amendment manifest. Every selected patch is then measured into a new immutable
+MAT archive. The amendment records the original and replacement archive UUIDs
+and SHA-256 content hashes, the reason, operator, instrument and resolution.
+
+The amendment is patch-granular: each replacement has its own state and
+identity. Several patches may nevertheless be handled in one correction
+session so that one physical calibration and one documented reason can cover
+the operator's correction round.
+
+Finalization first verifies that the original session manifest has not changed
+and that all replacement archives match their recorded identities. It then
+creates `colorchecker_session_amended_NNN.json` with a new session UUID. The
+original session JSON and every original MAT archive remain unchanged. Derived
+colorimetry is recalculated into a new suffixed JSON from the amended session.
+
 ## Calibration
 
 The session records an initial calibration and every subsequent calibration,
