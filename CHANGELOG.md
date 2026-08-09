@@ -8,6 +8,36 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
+## Traceable ColorChecker Validation Beta - v0.9.0-beta.2
+
+Released 2026-08-09 for continued controlled real-world validation.
+
+### Added
+
+- Controlled patch remeasurement with immutable original sessions, separate
+  amendment records, corrected derived sessions and chained integrity checks.
+- Public quality-control examples for comparison with nominal X-Rite CIELAB
+  reference data and for selective ColorChecker patch remeasurement.
+- Official X-Rite ColorChecker Digital SG and reference-data documentation
+  links in the quality-control workflow.
+
+### Verified
+
+- A complete 140-patch ColorChecker acquisition and D50 colorimetry conversion
+  were completed without workflow errors.
+- Selective correction of deliberately identified patch measurements was
+  completed through two chained amendments while preserving original data.
+- Four one-shot reflectance measurements agreed with Spotread colour values
+  at the second decimal place.
+- The complete automated MATLAB regression suite passes.
+
+### Release status
+
+This remains a prerelease for broader physical field validation. The current
+stable release remains v0.8.2.
+
+---
+
 ## ColorChecker Field Validation Beta - v0.9.0-beta.1
 
 Released 2026-08-09 for controlled real-world validation.

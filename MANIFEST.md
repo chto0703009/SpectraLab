@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: MANIFEST.md
-Version: v0.9.0-beta.1
+Version: v0.9.0-beta.2
 Status: PRERELEASE
 -->
 
@@ -22,7 +22,7 @@ A release is considered complete only when all required components are present a
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.9.0-beta.1 |
+| Version | v0.9.0-beta.2 |
 | Release type | ColorChecker Field Validation Prerelease |
 | License | GNU General Public License v3 |
 | Primary environment | MATLAB |

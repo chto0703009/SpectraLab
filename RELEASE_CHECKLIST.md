@@ -1,15 +1,16 @@
 <!--
 SpectraLab Documentation
 Document: RELEASE_CHECKLIST.md
-Version: v0.9.0-beta.1
+Version: v0.9.0-beta.2
 Status: FIELD-VALIDATION PRERELEASE
 -->
 
 # SpectraLab Release Checklist
 
-> **v0.9.0-beta.1 prerelease note:** Automated regression and report-layout
-> verification are complete. Physical ColorChecker field validation is the
-> purpose of this beta and remains open before v1.0.0.
+> **v0.9.0-beta.2 prerelease note:** Automated regression, report-layout
+> verification and a complete 140-patch ColorChecker acquisition and D50
+> conversion have been completed. Broader physical field validation remains
+> open before v1.0.0.
 
 The Release Checklist defines the verification process required before any SpectraLab version is published.
 
@@ -28,7 +29,7 @@ It is an engineering verification document.
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.9.0-beta.1 |
+| Version | v0.9.0-beta.2 |
 | Release type | ColorChecker Field Validation Prerelease |
 | Release date | 2026-08-09 |
 | Release manager | Project owner |
@@ -55,7 +56,7 @@ The checklist evaluates engineering readiness, not development activity.
 Confirm that:
 
 - [x] Regression tests pass.
-- [ ] Full IRL ColorChecker workflow has been field verified.
+- [x] Full IRL ColorChecker workflow has been field verified.
 - [ ] Calibration and resume behaviour have been field verified across a complete chart.
 - [ ] D50, D65 and selected-MAT conversion have been field verified.
 - [x] Example programs execute correctly.
@@ -144,12 +145,12 @@ Approval represents acceptance of the engineering evidence supporting release.
 
 | Item | Value |
 |------|-------|
-| Version | v0.9.0-beta.1 |
+| Version | v0.9.0-beta.2 |
 | Release date | 2026-08-09 |
-| Git tag | `v0.9.0-beta.1` |
-| Release package | `releases/SpectraLab_v0.9.0-beta.1.zip` |
+| Git tag | `v0.9.0-beta.2` |
+| Release package | `releases/SpectraLab_v0.9.0-beta.2.zip` |
 | Test result | Complete automated MATLAB regression suite passed 2026-08-09 |
-| Real measurement verified | Pending controlled IRL ColorChecker field validation |
+| Real measurement verified | Complete 140-patch acquisition, D50 conversion, quality comparison and controlled remeasurement verified |
 | Comments | Prerelease only; current stable release remains v0.8.2. |
 
 ---

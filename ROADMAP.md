@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v0.9.0-beta.1
+Version: v0.9.0-beta.2
 Status: CURRENT
 -->
 
@@ -37,7 +37,9 @@ The roadmap describes engineering priorities rather than detailed feature lists.
 ### Field-validation path to v1.0.0
 
 The ColorChecker, reflectance-colorimetry, integrity-verification and report
-workflows enter controlled real-world validation as v0.9.0-beta.1.
+workflows entered controlled real-world validation with v0.9.0-beta.1 and
+continue with traceable correction and quality-control validation in
+v0.9.0-beta.2.
 
 The approved release progression is:
 
