@@ -281,13 +281,24 @@ function result = runMeasuredSpectrum(archive)
 %RUNMEASUREDSPECTRUM Return report data for primary archived measurement.
 
 colorimetry = instrumentReportedColorimetry(archive);
-verificationText = "Not available";
+spectralabXYZText = "Not available";
+spectralabLabText = "Not available";
+deltaXYZText = "Not available";
+deltaLabText = "Not available";
 try
-    dataset = spectralab.analysis.colorimetry(archive);
+    dataset = spectralab.analysis.colorimetry(archive, ...
+        Illuminant=spectralab.filters.cie.d50());
+    calculated = dataset.Samples.Colorimetry;
+    spectralabXYZText = sprintf("XYZ: %.2f, %.2f, %.2f", ...
+        calculated.XYZ.X, calculated.XYZ.Y, calculated.XYZ.Z);
+    spectralabLabText = sprintf("Lab: %.2f, %.2f, %.2f", ...
+        calculated.Lab.L, calculated.Lab.a, calculated.Lab.b);
     verification = dataset.Samples.Verification;
     if verification.Status == "informational"
-        verificationText = sprintf("D50 check: dXYZ %.3f, %.3f, %.3f; dLab %.3f, %.3f, %.3f", ...
-            verification.DeltaXYZ.X, verification.DeltaXYZ.Y, verification.DeltaXYZ.Z, ...
+        deltaXYZText = sprintf("dXYZ: %.2f, %.2f, %.2f", ...
+            verification.DeltaXYZ.X, verification.DeltaXYZ.Y, ...
+            verification.DeltaXYZ.Z);
+        deltaLabText = sprintf("dLab: %.2f, %.2f, %.2f", ...
             verification.DeltaLab.L, verification.DeltaLab.a, verification.DeltaLab.b);
     end
 catch
@@ -297,9 +308,12 @@ result = struct( ...
     "WavelengthMinimum", min(archive.Measurement.Wavelength), ...
     "WavelengthMaximum", max(archive.Measurement.Wavelength), ...
     "ColorimetrySource", colorimetry.Source, ...
-    "XYZText", colorimetry.XYZText, ...
-    "LabText", colorimetry.LabText, ...
-    "VerificationText", verificationText);
+    "SpotreadXYZText", colorimetry.XYZText, ...
+    "SpectraLabXYZText", spectralabXYZText, ...
+    "DeltaXYZText", deltaXYZText, ...
+    "SpotreadLabText", colorimetry.LabText, ...
+    "SpectraLabLabText", spectralabLabText, ...
+    "DeltaLabText", deltaLabText);
 end
 
 function result = runSpectralMean(firstArchive, secondArchive, options)
@@ -506,7 +520,8 @@ profile = spectralab.report.internal.figureLayoutProfile();
 legendHandle.String = cellstr(wrapFigureSideText( ...
     string(legendHandle.String), profile.MaximumSideColumnCharacters));
 legendHandle.Units = "normalized";
-legendHandle.Position = profile.SideLegend;
+legendHandle.Position = ...
+    spectralab.report.internal.sideLegendPosition(legendHandle.String);
 legendHandle.Location = "none";
 legendHandle.AutoUpdate = "off";
 legendHandle.HandleVisibility = "off";
@@ -576,12 +591,9 @@ if strlength(value) == 0
 end
 end
 
-function renderMeasuredSpectrum(ax, archive, result)
+function renderMeasuredSpectrum(ax, archive, ~)
 %RENDERMEASUREDSPECTRUM Render the archived spectrum.
 
-if ~isfield(result, "ColorimetrySource")
-    result = runMeasuredSpectrum(archive);
-end
 spec = spectralab.archive.restore(archive);
 
 spectralab.plot.spectrum( ...
@@ -594,6 +606,10 @@ spectralab.plot.spectrum( ...
     ShowSpectralColorBar=true);
 
 legend(ax, "Location", "eastoutside", "Interpreter", "none");
+if contains(lower(string(spec.PowerUnit)), "reflectance")
+    spectralab.plot.reflectanceColorimetryPanel( ...
+        ax, archive, ShowColorimetryText=false, ShowColorSwatch=true);
+end
 end
 
 function result = instrumentReportedColorimetry(archive)
@@ -632,8 +648,8 @@ result.Source = "Instrument-reported control values";
 if strlength(illuminant) > 0 || strlength(observer) > 0
     result.Source = result.Source + " (" + strtrim(illuminant + " " + observer) + ")";
 end
-result.XYZText = sprintf("XYZ: %.3f, %.3f, %.3f", xyz(1), xyz(2), xyz(3));
-result.LabText = sprintf("Lab: %.3f, %.3f, %.3f", lab(1), lab(2), lab(3));
+result.XYZText = sprintf("XYZ: %.2f, %.2f, %.2f", xyz(1), xyz(2), xyz(3));
+result.LabText = sprintf("Lab: %.2f, %.2f, %.2f", lab(1), lab(2), lab(3));
 end
 
 function result = runIsoVisualDensity(referenceArchive, sampleArchive)
@@ -1039,9 +1055,12 @@ definition = struct( ...
             "WavelengthMaximum", "Maximum wavelength", "nm", "%.0f")
         resultField( ...
             "ColorimetrySource", "Colorimetry", "", "%s")
-        resultField("XYZText", "XYZ", "", "%s")
-        resultField("LabText", "Lab", "", "%s")
-        resultField("VerificationText", "Spotread D50 verification", "", "%s")], ...
+        resultField("SpotreadXYZText", "Spotread XYZ", "", "%s")
+        resultField("SpectraLabXYZText", "SpectraLab XYZ (D50)", "", "%s")
+        resultField("DeltaXYZText", "Delta XYZ", "", "%s")
+        resultField("SpotreadLabText", "Spotread Lab", "", "%s")
+        resultField("SpectraLabLabText", "SpectraLab Lab (D50)", "", "%s")
+        resultField("DeltaLabText", "Delta Lab", "", "%s")], ...
     "FigureDefinition", struct( ...
         "AspectRatio", 3/2, ...
         "WidthFraction", 0.82, ...

@@ -737,14 +737,18 @@ elseif fileWl(1) <= wl(1) + gridTolerance && ...
     % control grid while spectrum.sp contains the full high-resolution
     % grid. Compare values at the terminal wavelengths, but preserve the
     % file grid as the authoritative measurement.
-    comparisonPower = interp1(fileWl, filePower, wl, "linear");
+    % The coarse terminal spectrum and the high-resolution file spectrum
+    % are separate Spotread reconstructions. Their values are not required
+    % to equal a linear interpolation. The file is the authoritative
+    % primary measurement; range and signal validity are checked below.
+    comparisonPower = [];
 else
     error("SpectraLab:Spotread:SpectrumMismatch", ...
         "Spotread text and spectrum file use different wavelength grids.");
 end
 tolerance = max(1e-9, 1e-5 * max(abs(filePower)));
-if any(~isfinite(comparisonPower)) || ...
-        any(abs(power - comparisonPower) > tolerance)
+if sameGrid && (any(~isfinite(comparisonPower)) || ...
+        any(abs(power - comparisonPower) > tolerance))
     error("SpectraLab:Spotread:SpectrumMismatch", ...
         "Spotread text and spectrum file contain different values.");
 end

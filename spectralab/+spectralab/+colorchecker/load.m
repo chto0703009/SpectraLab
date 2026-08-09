@@ -15,5 +15,6 @@ end
 
 session = jsondecode(fileread(filename));
 session.Context.SessionFolder = string(fileparts(filename));
+session.History = reshape(string(session.History), [], 1);
 spectralab.colorchecker.validate(session);
 end

@@ -690,6 +690,13 @@ if numel(sourceLegend) > 1
     error("SpectraLab:Report:InvalidFigureLegend", ...
         "A report figure may contain at most one legend.");
 end
+sourceSwatchPanel = findall(sourceFigure, "Type", "axes", ...
+    "Tag", "SpectraLabFigureColorSwatchPanel");
+if numel(sourceSwatchPanel) > 1
+    error("SpectraLab:Report:InvalidFigureColorSwatchPanel", ...
+        "A report figure may contain at most one color swatch panel.");
+end
+hasSwatch = ~isempty(sourceSwatchPanel);
 if hasLegend
     reportAxes = copyobj(sourceAxes, fig);
     reportLegend = legend(reportAxes, wrapLegendLabels(sourceLegend.String), ...
@@ -698,10 +705,11 @@ if hasLegend
 else
     reportAxes = copyobj(sourceAxes, fig);
 end
-% PDF figures intentionally contain only the legend. Numerical summaries
-% are already represented in the report Results table and must not be
-% duplicated as a side text box inside the figure.
-if hasLegend
+% Numerical summaries remain in the Results table. The evaluated display
+% color is copied as a visual aid without duplicating XYZ or Lab values.
+if hasSwatch
+    axesPosition = projectProfileBox(pos, profile.AxesWithSidebar);
+elseif hasLegend
     axesPosition = projectProfileBox(pos, profile.AxesWithLegend);
 else
     axesPosition = pos;
@@ -712,12 +720,21 @@ set(reportAxes, ...
     "ActivePositionProperty", "position", ...
     "HandleVisibility", "off");
 if hasLegend
-    legendPosition = projectProfileBox(pos, profile.SideLegend);
+    legendProfilePosition = ...
+        spectralab.report.internal.sideLegendPosition(reportLegend.String);
+    legendPosition = projectProfileBox(pos, legendProfilePosition);
     set(reportLegend, ...
         "Units", "normalized", ...
         "Location", "none", ...
         "Position", legendPosition, ...
         "AutoUpdate", "off", ...
+        "HandleVisibility", "off");
+end
+if hasSwatch
+    reportSwatchPanel = copyobj(sourceSwatchPanel, fig);
+    set(reportSwatchPanel, ...
+        "Units", "normalized", ...
+        "Position", projectProfileBox(pos, profile.SidePanel), ...
         "HandleVisibility", "off");
 end
 end

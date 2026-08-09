@@ -88,8 +88,11 @@ function panel = copyInformationPanel(sourceAxes, exportFigure)
 %COPYINFORMATIONPANEL Preserve a renderer-owned side panel in PNG output.
 
 sourceFigure = ancestor(sourceAxes, "figure");
-panel = findall(sourceFigure, "Type", "axes", ...
-    "Tag", "SpectraLabFigureInformationPanel");
+panel = [ ...
+    findall(sourceFigure, "Type", "axes", ...
+        "Tag", "SpectraLabFigureInformationPanel"); ...
+    findall(sourceFigure, "Type", "axes", ...
+        "Tag", "SpectraLabFigureColorSwatchPanel")];
 if isempty(panel)
     return
 end
@@ -121,8 +124,8 @@ if isempty(legendHandle)
 end
 legendHandle.Units = "normalized";
 legendHandle.Location = "none";
-profile = spectralab.report.internal.figureLayoutProfile();
-legendHandle.Position = profile.SideLegend;
+legendHandle.Position = ...
+    spectralab.report.internal.sideLegendPosition(legendHandle.String);
 legendHandle.AutoUpdate = "off";
 legendHandle.HandleVisibility = "off";
 end

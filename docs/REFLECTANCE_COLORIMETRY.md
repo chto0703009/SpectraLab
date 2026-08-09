@@ -99,3 +99,16 @@ CIE 1976 L*a*b* equations. A patch is never independently normalized to
   derived export; it never rewrites the original measurement.
 - JSON, CGATS, CSV, XYZ and Lab exporters serialize one canonical dataset;
   they do not recalculate colour values.
+
+## ColorChecker sessions
+
+ColorChecker patch archives are stricter than general one-shot archives:
+they preserve `R(lambda)` and acquisition provenance but deliberately omit
+instrument-reported XYZ and Lab. The original `colorchecker_session.json`
+is immutable measurement documentation.
+
+`spectralab.colorchecker.calculateColorimetry` reads a complete session and
+its patch archives, calculates XYZ and CIELAB for an explicit illuminant and
+observer, and writes a separate suffixed JSON copy. The source session JSON
+and every MAT archive remain unchanged. D50 and CIE 1931 2 degree are the
+documented defaults; another illuminant SPD may be supplied explicitly.

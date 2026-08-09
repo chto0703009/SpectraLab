@@ -4,6 +4,21 @@ function tests = test_report_figureLayoutProfile
 tests = functiontests(localfunctions);
 end
 
+function testLegendHeightGrowsWithContent(testCase)
+profile = spectralab.report.internal.figureLayoutProfile();
+one = spectralab.report.internal.sideLegendPosition("One curve");
+three = spectralab.report.internal.sideLegendPosition( ...
+    ["Curve one", "Curve two", "Curve three"]);
+
+verifyLessThan(testCase, one(4), three(4));
+verifyLessThanOrEqual(testCase, three(4), profile.SideLegend(4));
+verifyLessThan(testCase, one(3), profile.SideLegend(3));
+verifyEqual(testCase, one(1) + one(3), ...
+    profile.SideLegend(1) + profile.SideLegend(3), AbsTol=1e-12);
+verifyEqual(testCase, one(2) + one(4), ...
+    profile.SideLegend(2) + profile.SideLegend(4), AbsTol=1e-12);
+end
+
 function testProfileReservesLabelAndSideColumnSpace(testCase)
 profile = spectralab.report.internal.figureLayoutProfile();
 

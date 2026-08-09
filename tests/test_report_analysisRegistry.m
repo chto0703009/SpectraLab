@@ -73,7 +73,9 @@ verifyTrue(testCase, definition.HasFigure);
 verifyEqual(testCase, ...
     [definition.ResultFields.Field], ...
     ["SampleCount", "WavelengthMinimum", "WavelengthMaximum", ...
-     "ColorimetrySource", "XYZText", "LabText", "VerificationText"]);
+     "ColorimetrySource", "SpotreadXYZText", "SpectraLabXYZText", ...
+     "DeltaXYZText", "SpotreadLabText", "SpectraLabLabText", ...
+     "DeltaLabText"]);
 end
 
 function testResolvesCri(testCase)
@@ -148,7 +150,10 @@ for analysisId = ["ANL-SPECTRUM", "ANL-CRI"]
             "Tag", "SpectraLabFigureInformationPanel");
         verifyEqual(testCase, informationPanel.Position, profile.SidePanel, ...
             "AbsTol", 1e-12);
-        verifyEqual(testCase, legendHandle.Position, profile.SideLegend, ...
+        expectedLegendPosition = ...
+            spectralab.report.internal.sideLegendPosition( ...
+                legendHandle.String);
+        verifyEqual(testCase, legendHandle.Position, expectedLegendPosition, ...
             "AbsTol", 1e-12);
     else
         verifyEqual(testCase, string(legendHandle.Location), "eastoutside");
@@ -181,9 +186,17 @@ entry.FigureRenderer(ax, archive, result);
 
 panelText = findall(fig, "Tag", "SpectraLabReflectanceColorimetry");
 verifyEmpty(testCase, panelText);
-verifyEqual(testCase, result.XYZText, "XYZ: 55.310, 56.724, 5.551");
-verifyEqual(testCase, result.LabText, "Lab: 80.024, 1.548, 84.211");
-verifyTrue(testCase, contains(textValue, "Lab: 80.024, 1.548, 84.211"));
+swatch = findall(fig, "Tag", "SpectraLabEvaluatedColorSwatch");
+verifyNumElements(testCase, swatch, 1);
+swatchPanel = findall(fig, "Type", "axes", ...
+    "Tag", "SpectraLabFigureColorSwatchPanel");
+verifyNumElements(testCase, swatchPanel, 1);
+verifyEqual(testCase, result.SpotreadXYZText, "XYZ: 55.31, 56.72, 5.55");
+verifyEqual(testCase, result.SpotreadLabText, "Lab: 80.02, 1.55, 84.21");
+verifyTrue(testCase, startsWith(result.SpectraLabXYZText, "XYZ: "));
+verifyTrue(testCase, startsWith(result.SpectraLabLabText, "Lab: "));
+verifyTrue(testCase, startsWith(result.DeltaXYZText, "dXYZ: "));
+verifyTrue(testCase, startsWith(result.DeltaLabText, "dLab: "));
 end
 
 function testResolvesTransmission(testCase)
