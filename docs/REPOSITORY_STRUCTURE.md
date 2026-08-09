@@ -154,6 +154,7 @@ examples/
 ├── measurement/   measure_* and retained interactive_* workflows
 ├── analysis/      calculate_*_report and plot_* workflows
 ├── inventory/     read-only list_* quality tools
+├── colorchecker/  patch correction and nominal Lab chain checks
 ├── data/          synthetic, non-identifying SLAB-MAT fixtures
 └── output/        generated locally; never distributed as source data
 ```

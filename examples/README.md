@@ -8,6 +8,8 @@ The examples are part of the SpectraLab public documentation. Run
 - `measurement/` contains instrument workflows that create measurements.
 - `analysis/` contains `calculate_*_report.m` and `plot_*.m` workflows.
 - `inventory/` contains read-only `list_*.m` quality tools.
+- `colorchecker/` contains controlled patch remeasurement and nominal Lab
+  chain-check workflows.
 - `data/` contains deterministic, synthetic SLAB-MAT example archives.
 
 Naming communicates the output contract:
@@ -32,6 +34,8 @@ calculate_spectral_difference_report
 calculate_statusA_iso_visual_density_report
 calculate_statusM_iso_visual_density_report
 list_archive_folder
+compare_colorchecker_xrite_lab
+remeasure_colorchecker_patches
 ```
 
 Generated files are written below `examples/output/`. Existing files are
@@ -54,6 +58,20 @@ laboratory measurement claim.
 | `calculate_statusA_iso_visual_density_report` | reference + sample A | ANL-005 PDF; no registered figure |
 | `calculate_statusM_iso_visual_density_report` | reference + sample A | ANL-008 PDF; no registered figure |
 | `list_archive_folder` | all bundled MAT files | read-only Command Window inventory |
+| `compare_colorchecker_xrite_lab` | converted ColorChecker JSON + licensed nominal Lab TXT | traceable comparison CSV |
+
+## ColorChecker quality workflows
+
+`compare_colorchecker_xrite_lab` is a measurement-chain consistency check,
+not a formal metrological validation. The user selects the separately licensed
+nominal X-Rite Lab text file; proprietary nominal data is not distributed with
+SpectraLab.
+
+`remeasure_colorchecker_patches` creates immutable replacement MAT archives,
+an amendment JSON and a new amended session JSON. Original session data is
+never overwritten. A subsequent correction must select the latest
+`colorchecker_session_amended_NNN.json` so that the complete correction chain
+is preserved.
 
 ## Physical measurement examples
 

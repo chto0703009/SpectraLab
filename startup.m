@@ -59,7 +59,7 @@ addpath(rootDir);
 addpath(expectedExamples);
 % Add only user-facing workflow categories. Example data, generated output
 % and private helpers must not become public MATLAB commands.
-exampleCategories = ["measurement", "analysis", "inventory"];
+exampleCategories = ["measurement", "analysis", "inventory", "colorchecker"];
 for category = exampleCategories
     categoryFolder = fullfile(expectedExamples, category);
     if isfolder(categoryFolder)

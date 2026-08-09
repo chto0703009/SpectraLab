@@ -98,6 +98,26 @@ verifyTrue(testCase, contains(seriesSource, "select_spotread_instrument"));
 verifyTrue(testCase, contains(seriesSource, "calibrationSerialNumber"));
 end
 
+function testColorCheckerQualityExamplesArePublicAndNeutral(testCase)
+root = projectRoot();
+folder = fullfile(root, "examples", "colorchecker");
+required = ["compare_colorchecker_xrite_lab.m", ...
+    "remeasure_colorchecker_patches.m"];
+for name = required
+    file = fullfile(folder, name);
+    verifyTrue(testCase, isfile(file));
+    source = fileread(file);
+    verifyFalse(testCase, contains(source, "Christer"));
+    verifyFalse(testCase, contains(source, "SpectraLab_Work"));
+end
+verifyEqual(testCase, string(which("compare_colorchecker_xrite_lab")), ...
+    fullfile(folder, "compare_colorchecker_xrite_lab.m"));
+verifyEqual(testCase, string(which("remeasure_colorchecker_patches")), ...
+    fullfile(folder, "remeasure_colorchecker_patches.m"));
+verifyTrue(testCase, isfile(fullfile(folder, "private", ...
+    "verify_spotread_instrument.m")));
+end
+
 function root = projectRoot()
 root = string(fileparts(fileparts(mfilename("fullpath"))));
 end

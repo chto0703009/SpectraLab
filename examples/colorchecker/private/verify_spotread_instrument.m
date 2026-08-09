@@ -1,0 +1,49 @@
+function serialNumber = verify_spotread_instrument( ...
+        instrument, expectedSerialNumber, operationName)
+%VERIFY_SPOTREAD_INSTRUMENT Enforce one physical instrument per workflow.
+
+arguments
+    instrument (1,1)
+    expectedSerialNumber (1,1) string = ""
+    operationName (1,1) string = "operation"
+end
+
+info = instrument.getInfo();
+serialNumber = readSerialNumber(info);
+
+if strlength(serialNumber) == 0
+    error( ...
+        "SpectraLab:Examples:InstrumentSerialNumberMissing", ...
+        "Spotread did not report an instrument serial number after %s. " + ...
+        "The result was not saved because instrument continuity cannot " + ...
+        "be verified.", ...
+        operationName);
+end
+
+if strlength(expectedSerialNumber) > 0 && ...
+        serialNumber ~= expectedSerialNumber
+    error( ...
+        "SpectraLab:Examples:InstrumentChanged", ...
+        "The physical instrument changed between calibration and %s.\n" + ...
+        "Calibrated serial number: %s\n" + ...
+        "Measured serial number:   %s\n" + ...
+        "The result was not saved.", ...
+        operationName, ...
+        expectedSerialNumber, ...
+        serialNumber);
+end
+end
+
+function serialNumber = readSerialNumber(info)
+serialNumber = "";
+candidateFields = ["serial_number", "serial", "SerialNumber", "Serial"];
+for fieldName = candidateFields
+    if isfield(info, fieldName)
+        value = strip(string(info.(fieldName)));
+        if isscalar(value) && strlength(value) > 0
+            serialNumber = value;
+            return
+        end
+    end
+end
+end
