@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v0.8.3-dev
+Version: v0.9.0-beta.1
 Status: CURRENT
 -->
 
@@ -33,6 +33,20 @@ These principles should remain stable even as the software evolves.
 ## Strategic Development Priorities
 
 The roadmap describes engineering priorities rather than detailed feature lists.
+
+### Field-validation path to v1.0.0
+
+The ColorChecker, reflectance-colorimetry, integrity-verification and report
+workflows enter controlled real-world validation as v0.9.0-beta.1.
+
+The approved release progression is:
+
+1. `v0.9.0-beta.1` and later beta revisions for physical field testing;
+2. `v1.0.0-rc.1` when the feature set is complete and only final validation remains;
+3. `v1.0.0` after successful IRL validation and resolution of release-blocking findings.
+
+Every beta and release candidate is identified by an immutable Git tag so
+that measurements and validation records can be traced to the exact code used.
 
 ---
 

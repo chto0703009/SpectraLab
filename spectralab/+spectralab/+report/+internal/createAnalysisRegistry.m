@@ -517,8 +517,13 @@ assert(isscalar(legendHandle), ...
     "A report figure may contain at most one legend.");
 
 profile = spectralab.report.internal.figureLayoutProfile();
-legendHandle.String = cellstr(wrapFigureSideText( ...
-    string(legendHandle.String), profile.MaximumSideColumnCharacters));
+labels = string(legendHandle.String);
+wrappedLabels = strings(size(labels));
+for index = 1:numel(labels)
+    wrappedLabels(index) = wrapFigureSideText( ...
+        labels(index), profile.MaximumSideColumnCharacters);
+end
+legendHandle.String = cellstr(wrappedLabels);
 legendHandle.Units = "normalized";
 legendHandle.Position = ...
     spectralab.report.internal.sideLegendPosition(legendHandle.String);

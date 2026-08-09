@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: MANIFEST.md
-Version: v0.8.2
-Status: CURRENT
+Version: v0.9.0-beta.1
+Status: PRERELEASE
 -->
 
 # SpectraLab Release Manifest
@@ -22,8 +22,8 @@ A release is considered complete only when all required components are present a
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.8.2 |
-| Release type | Presentation Standard and Reliable Report Exports Release |
+| Version | v0.9.0-beta.1 |
+| Release type | ColorChecker Field Validation Prerelease |
 | License | GNU General Public License v3 |
 | Primary environment | MATLAB |
 | Current instrument workflow | Bounded ArgyllCMS `spotread` with X-Rite i1Pro2 |

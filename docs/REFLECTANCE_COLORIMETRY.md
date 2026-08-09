@@ -1,6 +1,6 @@
 # Reflectance Measurement and Colourimetry
 
-**Status:** Normative SpectraLab implementation profile for v0.8.3-dev
+**Status:** Normative SpectraLab implementation profile for v0.9.0-beta.1
 **Related:** ED-022, `spectralab.analysis.colorimetry`
 
 ## Scope and terminology

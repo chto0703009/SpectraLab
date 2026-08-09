@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v0.8.3-dev
+Version: v0.9.0-beta.1
 Status: CURRENT
 -->
 
@@ -25,6 +25,12 @@ consistent with ArgyllCMS Spotread's own device identification and support.
 ## Current Release
 
 **SpectraLab v0.8.2** is the current stable release.
+
+**SpectraLab v0.9.0-beta.1** is the current field-validation prerelease.
+It is intended for controlled real-world testing before the v1.0.0 release
+and must not yet be treated as the stable production release.
+
+- [v0.9.0-beta.1 prerelease notes](releases/RELEASE_NOTES_v0.9.0-beta.1.md)
 
 - [Release overview and notes](https://github.com/chto0703009/SpectraLab/releases/tag/v0.8.2)
 - [Download SpectraLab v0.8.2](https://github.com/chto0703009/SpectraLab/releases/download/v0.8.2/SpectraLab_v0.8.2.zip)

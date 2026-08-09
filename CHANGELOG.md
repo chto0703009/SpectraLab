@@ -8,9 +8,36 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
-## Unreleased - v0.8.3-dev
+## ColorChecker Field Validation Beta - v0.9.0-beta.1
 
-Development branch opened after the v0.8.2 release.
+Released 2026-08-09 for controlled real-world validation.
+
+### Added
+
+- Complete ColorChecker reflectance acquisition with resumable sessions,
+  immutable MAT archives per patch and session-level JSON traceability.
+- Derived ColorChecker XYZ and CIELAB conversion under bundled CIE D50,
+  bundled CIE D65 or a selected illuminant spectrum.
+- Recalculation-based integrity verification of converted colorimetry against
+  the immutable patch spectra, UUIDs and SHA-256 content hashes.
+- Optional traceable ColorChecker CSV export.
+- ColorChecker PDF reports containing session provenance, quality summaries,
+  patch-level traceability and compact evaluated-colour previews.
+
+### Improved
+
+- One-shot reflectance reports compare Spotread and SpectraLab colorimetry.
+- Reflectance figures and report products include an approximate sRGB colour
+  preview while keeping numerical results in the appropriate report section.
+- Side legends adapt their dimensions to the number and length of entries.
+- Spotread one-shot spectrum validation tolerates the instrument's harmless
+  text/file representation differences while retaining strict data checks.
+
+### Release status
+
+This is a prerelease for physical field validation. The current stable
+release remains v0.8.2. Successful field validation leads to v1.0.0 release
+candidates and subsequently v1.0.0.
 
 ---
 
