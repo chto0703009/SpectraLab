@@ -10,6 +10,10 @@ function [comparison, csvFile] = compare_colorchecker_xrite_lab(options)
 %
 % Output columns contain nominal and measured Lab values plus
 % dL = measured L* - nominal L*. Values are written with two decimals.
+%
+% Official X-Rite references:
+%   https://www.xrite.com/categories/calibration-profiling/colorchecker-digital-sg
+%   https://www.xrite.com/-/media/xrite/files/apps_engineering_techdocuments/c/custom_reference_data_en.pdf
 
 arguments
     options.JsonFile (1,1) string = ""

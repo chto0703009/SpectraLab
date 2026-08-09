@@ -65,7 +65,9 @@ laboratory measurement claim.
 `compare_colorchecker_xrite_lab` is a measurement-chain consistency check,
 not a formal metrological validation. The user selects the separately licensed
 nominal X-Rite Lab text file; proprietary nominal data is not distributed with
-SpectraLab.
+SpectraLab. See X-Rite's official
+[ColorChecker Digital SG product information](https://www.xrite.com/categories/calibration-profiling/colorchecker-digital-sg)
+and [custom reference-data guidance](https://www.xrite.com/-/media/xrite/files/apps_engineering_techdocuments/c/custom_reference_data_en.pdf).
 
 `remeasure_colorchecker_patches` creates immutable replacement MAT archives,
 an amendment JSON and a new amended session JSON. Original session data is
