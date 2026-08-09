@@ -6,10 +6,11 @@ A ColorChecker acquisition is represented by a JSON session manifest and
 one immutable standard SpectraLab archive per patch. A session never
 duplicates spectral values held by an archive.
 
-The reusable acquisition and persistence implementation is owned by
-`spectralab.colorchecker.measureSeries`. Work scripts collect operator GUI
-choices and call this public function; they do not implement Spotread
-protocol handling or patch persistence.
+The Work script `measure_colorchecker_reflectance` guides the operator through
+instrument selection, calibration, patch placement and session resume. It uses
+the public `spectralab.colorchecker` session functions and the standard
+SpectraLab instrument driver. The earlier separate Spotread series acquisition
+path is not part of this architecture.
 
 ## Geometry
 

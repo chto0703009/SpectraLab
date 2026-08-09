@@ -38,13 +38,18 @@ end
 import mlreportgen.dom.*
 document = Document(char(erase(pdfFile, ".pdf")), "pdf");
 layout = PDFPageLayout;
-layout.PageSize.Orientation = "landscape";
-layout.PageSize.Width = "297mm";
-layout.PageSize.Height = "210mm";
+layout.PageSize.Orientation = "portrait";
+layout.PageSize.Width = "210mm";
+layout.PageSize.Height = "297mm";
 layout.PageMargins.Top = "12mm";
 layout.PageMargins.Bottom = "12mm";
 layout.PageMargins.Left = "14mm";
 layout.PageMargins.Right = "14mm";
+layout.PageMargins.Header = "6mm";
+layout.PageMargins.Footer = "6mm";
+layout.PageHeaders = [pageHeader("default"), pageHeader("even")];
+layout.PageFooters = [pageFooter(session, "default"), ...
+    pageFooter(session, "even")];
 append(document, layout);
 
 title = Paragraph("ColorChecker colorimetry");
@@ -112,9 +117,8 @@ quality(end+1,:) = {"Colorimetry recalculation", ...
         verification.MaximumLabDifference)};
 append(document, keyValueTable(quality));
 
-resultsHeading = sectionHeading("Results");
-resultsHeading.Style{end+1} = PageBreakBefore(true);
-append(document, resultsHeading);
+append(document, PageBreak());
+append(document, sectionHeading("Results"));
 rows = cell(numel(results) + 1, 8);
 rows(1,:) = {"Patch", "", "X", "Y", "Z", "L*", "a*", "b*"};
 for index = 1:numel(results)
@@ -163,18 +167,12 @@ note.Style = {FontFamily("Helvetica"), FontSize("8pt"), ...
 append(document, note);
 
 append(document, sectionHeading("Patch provenance and quality"));
-traceabilityTable = Table(provenanceRows);
-traceabilityTable.Style = {Border("solid", "#9EADB8", "0.5pt"), ...
-    RowSep("solid", "#D9E0E5", "0.25pt"), ...
-    ColSep("solid", "#D9E0E5", "0.25pt"), Width("100%"), ...
-    FontFamily("Helvetica"), FontSize("6pt"), ...
-    OuterMargin("0pt", "0pt", "0pt", "4pt")};
-traceabilityTable.TableEntriesVAlign = "middle";
-for column = 1:size(provenanceRows, 2)
-    traceabilityTable.Children(1).Children(column).Style = { ...
-        BackgroundColor("#DCE6F1"), Bold(true), HAlign("center")};
-end
-append(document, traceabilityTable);
+summaryRows = provenanceRows(:, [1, 2, 5, 6]);
+append(document, provenanceTable(summaryRows, [12, 100, 25, 40], "7pt"));
+
+append(document, sectionHeading("Archive integrity references"));
+integrityRows = provenanceRows(:, [1, 3, 4]);
+append(document, provenanceTable(integrityRows, [12, 55, 110], "6pt"));
 
 close(document);
 info = struct( ...
@@ -195,6 +193,75 @@ paragraph = Paragraph(value);
 paragraph.Style = {FontFamily("Helvetica"), FontSize("12pt"), ...
     Bold(true), Color("#1F4E79"), ...
     OuterMargin("0pt", "0pt", "4pt", "2pt")};
+end
+
+function header = pageHeader(pageType)
+import mlreportgen.dom.*
+header = PDFPageHeader(pageType);
+left = Paragraph("SpectraLab");
+left.Style = {FontFamily("Helvetica"), FontSize("10pt"), ...
+    Bold(true), Color("#1F4E79"), HAlign("left"), ...
+    OuterMargin("0pt")};
+right = Paragraph("ColorChecker colorimetry");
+right.Style = {FontFamily("Helvetica"), FontSize("8pt"), ...
+    Color("#555555"), HAlign("right"), OuterMargin("0pt")};
+table = Table({left, right});
+table.Style = {Width("177mm"), Border("none"), RowSep("none"), ...
+    ColSep("none"), FontFamily("Helvetica"), ...
+    OuterMargin("0pt", "0pt", "0pt", "2pt")};
+table.Children(1).Children(1).Style = {Width("50%")};
+table.Children(1).Children(2).Style = {Width("50%")};
+append(header, table);
+end
+
+function footer = pageFooter(session, pageType)
+import mlreportgen.dom.*
+footer = PDFPageFooter(pageType);
+left = Paragraph("Session " + string(session.Identity.UUID));
+left.Style = footerTextStyle("left");
+center = Paragraph("SpectraLab " + spectralab.version());
+center.Style = footerTextStyle("center");
+right = Paragraph();
+right.Style = footerTextStyle("right");
+append(right, Text("Page "));
+append(right, Page());
+append(right, Text(" of "));
+append(right, NumPages());
+table = Table({left, center, right});
+table.Style = {Width("177mm"), Border("none"), RowSep("none"), ...
+    ColSep("none"), FontFamily("Helvetica"), ...
+    OuterMargin("0pt")};
+for column = 1:3
+    table.Children(1).Children(column).Style = {Width("33.33%")};
+end
+append(footer, table);
+end
+
+function style = footerTextStyle(alignment)
+import mlreportgen.dom.*
+style = {FontFamily("Helvetica"), FontSize("6.5pt"), ...
+    Color("#555555"), HAlign(alignment), OuterMargin("0pt")};
+end
+
+function table = provenanceTable(rows, widths, fontSize)
+import mlreportgen.dom.*
+table = Table(rows);
+table.Style = {Border("solid", "#9EADB8", "0.5pt"), ...
+    RowSep("solid", "#D9E0E5", "0.25pt"), ...
+    ColSep("solid", "#D9E0E5", "0.25pt"), Width("177mm"), ...
+    FontFamily("Helvetica"), FontSize(fontSize), ...
+    OuterMargin("0pt", "0pt", "0pt", "4pt")};
+table.TableEntriesVAlign = "middle";
+for column = 1:size(rows, 2)
+    table.Children(1).Children(column).Style = { ...
+        BackgroundColor("#DCE6F1"), Bold(true), HAlign("center")};
+end
+for row = 1:numel(table.Children)
+    for column = 1:numel(widths)
+        table.Children(row).Children(column).Style{end+1} = ...
+            Width(sprintf("%dmm", widths(column)));
+    end
+end
 end
 
 function table = keyValueTable(rows)
@@ -278,8 +345,9 @@ for index = 1:numel(patches)
     status = qualityStatus(isValid, isSaturated, warning, comment, ...
         uuidMatches && hashMatches);
     rows(index+1,:) = {string(patch.Coordinate), ...
-        string(patch.ArchiveFile), string(patch.ArchiveUUID), ...
-        string(patch.ArchiveContentHash), ...
+        wrapArchiveReference(string(patch.ArchiveFile)), ...
+        wrapFixed(string(patch.ArchiveUUID), 18), ...
+        wrapFixed(string(patch.ArchiveContentHash), 32), ...
         string(patch.CalibrationSequence), status};
     if index == 1
         instrumentName = valueOrDash(archive.Instrument, "Name");
@@ -341,4 +409,19 @@ end
 
 function value = ternary(condition, trueValue, falseValue)
 if condition, value = trueValue; else, value = falseValue; end
+end
+
+function value = wrapArchiveReference(value)
+value = replace(value, "/", "/" + newline);
+value = replace(value, "_", "_" + newline);
+end
+
+function value = wrapFixed(value, width)
+parts = strings(0,1);
+while strlength(value) > width
+    parts(end+1,1) = extractBefore(value, width + 1); %#ok<AGROW>
+    value = extractAfter(value, width);
+end
+parts(end+1,1) = value;
+value = join(parts, newline);
 end
