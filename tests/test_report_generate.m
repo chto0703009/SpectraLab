@@ -93,6 +93,22 @@ verifyFalse(testCase, isfile(fullfile(reportFolder, ...
     "separate_figure_measurement_ANL-SPECTRUM_figure.png")));
 end
 
+function testCanGeneratePdfWithoutSeparatePng(testCase)
+
+folder = string(testCase.TestData.TempFolder);
+archiveFile = fullfile(folder, "pdf_only_measurement.mat");
+outputFolder = fullfile(folder, "reports");
+createArchiveFile(archiveFile);
+
+info = spectralab.report.generate( ...
+    archiveFile, "ANL-SPECTRUM", outputFolder, ExportPNG=false);
+
+verifyTrue(testCase, isfile(info.PDFFile));
+verifyEqual(testCase, string(info.PNGFile), "");
+verifyFalse(testCase, isfile(fullfile(outputFolder, ...
+    "pdf_only_measurement_ANL-SPECTRUM_figure.png")));
+end
+
 function testGeneratesCriReportByAnalysisId(testCase)
 
 folder = string(testCase.TestData.TempFolder);

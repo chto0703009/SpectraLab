@@ -31,6 +31,7 @@ arguments
     options.OutputBaseName (1,1) string = ""
     options.DerivedArchiveFile (1,1) string = ""
     options.FigureOutputFolder (1,1) string = ""
+    options.ExportPNG (1,1) logical = true
 end
 
 archiveFiles = normalizeArchiveFiles(archiveFiles);
@@ -146,9 +147,11 @@ end
     spectralab.report.internal.layoutRenderResults( ...
         renderContext, renderResults);
 
-if definition.HasFigure
+if definition.HasFigure && options.ExportPNG
     pngInfo = spectralab.report.internal.exportPNG( ...
         pngFile, renderContext);
+elseif definition.HasFigure
+    pngFile = "";
 end
 
 pdfFile = buildPdfFilename( ...

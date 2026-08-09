@@ -501,7 +501,8 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 spectralab.drivers.spotread.Parser.parseSpectrumFile( ...
                     spectrumFile);
             validateMatchingSpectrum(wl, power, fileWl, filePower);
-            validateReportableSignal(wl, power, rawOutput, obj.MeasurementKind);
+            validateReportableSignal( ...
+                fileWl, filePower, rawOutput, obj.MeasurementKind);
 
             metadata = struct();
             metadata.backend = "spotread-bounded-one-shot";
@@ -511,6 +512,8 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             metadata.raw_output = rawOutput;
             metadata.parse_info = parseInfo;
             metadata.spectrum_file_info = fileInfo;
+            metadata.spectrum_source = "spotread spectrum.sp";
+            metadata.text_spectrum_samples = numel(wl);
             metadata.one_shot = true;
             metadata.high_resolution = any(args == "-H");
             metadata.skip_initial_calibration = any(args == "-N");
@@ -523,7 +526,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 colorimetryMetadata(rawOutput, obj.MeasurementOptions);
 
             spec = spectralab.core.Spectrum( ...
-                wl, power, label, obj.getInfo(), ...
+                fileWl, filePower, label, obj.getInfo(), ...
                 obj.LastCalibration.toStruct(), metadata, ...
                 spectrumUnit(obj.MeasurementKind));
         end
@@ -722,12 +725,26 @@ end
 end
 
 function validateMatchingSpectrum(wl, power, fileWl, filePower)
-if ~isequal(wl, fileWl)
+gridTolerance = 1e-8;
+sameGrid = numel(wl) == numel(fileWl) && ...
+    all(abs(wl - fileWl) <= gridTolerance);
+if sameGrid
+    comparisonPower = filePower;
+elseif fileWl(1) <= wl(1) + gridTolerance && ...
+        fileWl(end) >= wl(end) - gridTolerance && ...
+        numel(fileWl) >= numel(wl)
+    % With Spotread -H, terminal output may retain the standard coarse
+    % control grid while spectrum.sp contains the full high-resolution
+    % grid. Compare values at the terminal wavelengths, but preserve the
+    % file grid as the authoritative measurement.
+    comparisonPower = interp1(fileWl, filePower, wl, "linear");
+else
     error("SpectraLab:Spotread:SpectrumMismatch", ...
         "Spotread text and spectrum file use different wavelength grids.");
 end
 tolerance = max(1e-9, 1e-5 * max(abs(filePower)));
-if any(abs(power - filePower) > tolerance)
+if any(~isfinite(comparisonPower)) || ...
+        any(abs(power - comparisonPower) > tolerance)
     error("SpectraLab:Spotread:SpectrumMismatch", ...
         "Spotread text and spectrum file contain different values.");
 end

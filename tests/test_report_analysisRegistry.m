@@ -158,7 +158,7 @@ for analysisId = ["ANL-SPECTRUM", "ANL-CRI"]
 end
 end
 
-function testReflectanceFigureShowsInstrumentReportedColorimetry(testCase)
+function testReflectanceFigureKeepsColorimetryOutOfPlot(testCase)
 registry = spectralab.report.internal.createAnalysisRegistry();
 entry = findEntry(registry, "ANL-SPECTRUM");
 archive = makeCriArchive();
@@ -180,9 +180,9 @@ result = entry.AnalysisRunner(archive);
 entry.FigureRenderer(ax, archive, result);
 
 panelText = findall(fig, "Tag", "SpectraLabReflectanceColorimetry");
-verifyNotEmpty(testCase, panelText);
-textValue = join(string(panelText.String), newline);
-verifyTrue(testCase, contains(textValue, "XYZ: 55.310, 56.724, 5.551"));
+verifyEmpty(testCase, panelText);
+verifyEqual(testCase, result.XYZText, "XYZ: 55.310, 56.724, 5.551");
+verifyEqual(testCase, result.LabText, "Lab: 80.024, 1.548, 84.211");
 verifyTrue(testCase, contains(textValue, "Lab: 80.024, 1.548, 84.211"));
 end
 
