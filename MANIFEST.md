@@ -1,8 +1,8 @@
 <!--
 SpectraLab Documentation
 Document: MANIFEST.md
-Version: v0.9.0-beta.2
-Status: PRERELEASE
+Version: v1.0.0-rc.1
+Status: OFFICIAL RELEASE CANDIDATE PRERELEASE
 -->
 
 # SpectraLab Release Manifest
@@ -22,8 +22,8 @@ A release is considered complete only when all required components are present a
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.9.0-beta.2 |
-| Release type | ColorChecker Field Validation Prerelease |
+| Version | v1.0.0-rc.1 |
+| Release type | Official v1.0 Release Candidate Prerelease |
 | License | GNU General Public License v3 |
 | Primary environment | MATLAB |
 | Current instrument workflow | Bounded ArgyllCMS `spotread` with X-Rite i1Pro2 |
@@ -105,8 +105,9 @@ Primary location:
 examples/
 ```
 
-The v0.8.2 release includes categorized measurement, analysis, plotting and
-inventory workflows, synthetic non-identifying SLAB-MAT fixtures, and
+The v1.0.0-rc.1 release includes categorized measurement, analysis, plotting,
+ColorChecker quality-control and inventory workflows, synthetic
+non-identifying SLAB-MAT fixtures, and
 examples that follow the approved graphical-presentation profile.
 
 ---
@@ -191,7 +192,7 @@ The release itself should remain the authoritative engineering record.
 A typical official release has the conceptual form:
 
 ```text
-SpectraLab_v0.8.1/
+SpectraLab_v1.0.0-rc.1/
     README.md
     LICENSE
     VERSION

@@ -22,6 +22,10 @@ end
 function testProfileReservesLabelAndSideColumnSpace(testCase)
 profile = spectralab.report.internal.figureLayoutProfile();
 
+verifyEqual(testCase, profile.InteractiveFigurePosition, ...
+    [100 100 1400 700]);
+verifyEqual(testCase, profile.PNGFigureSizePoints, [1008 504]);
+verifyEqual(testCase, profile.PNGResolution, 100);
 verifyGreaterThanOrEqual(testCase, profile.AxesWithSidebar(1), 0.10);
 verifyGreaterThanOrEqual(testCase, profile.AxesWithLegend(1), 0.10);
 verifyLessThan(testCase, profile.AxesWithSidebar(1) + ...
@@ -30,5 +34,9 @@ verifyLessThan(testCase, profile.AxesWithLegend(1) + ...
     profile.AxesWithLegend(3), profile.SideLegend(1));
 verifyEqual(testCase, profile.SidePanel(1), profile.SideLegend(1));
 verifyEqual(testCase, profile.SidePanel(3), profile.SideLegend(3));
+verifyGreaterThanOrEqual(testCase, profile.SidePanel(4), 0.55);
+verifyGreaterThanOrEqual(testCase, profile.SidePanel(3), 0.28);
+verifyLessThanOrEqual(testCase, profile.SidePanelFontSize, 8);
+verifyLessThanOrEqual(testCase, profile.MaximumSideLegendCharacters, 12);
 verifyGreaterThanOrEqual(testCase, profile.MaximumSideColumnCharacters, 20);
 end

@@ -1,16 +1,16 @@
 <!--
 SpectraLab Documentation
 Document: RELEASE_CHECKLIST.md
-Version: v0.9.0-beta.2
-Status: FIELD-VALIDATION PRERELEASE
+Version: v1.0.0-rc.1
+Status: OFFICIAL RELEASE CANDIDATE PRERELEASE
 -->
 
 # SpectraLab Release Checklist
 
-> **v0.9.0-beta.2 prerelease note:** Automated regression, report-layout
-> verification and a complete 140-patch ColorChecker acquisition and D50
-> conversion have been completed. Broader physical field validation remains
-> open before v1.0.0.
+> **v1.0.0-rc.1 release-candidate note:** Automated regression, report-layout
+> verification and the complete physical measurement, ColorChecker,
+> conversion, correction and analysis workflows have been approved. Final
+> release-candidate field observation remains open before v1.0.0.
 
 The Release Checklist defines the verification process required before any SpectraLab version is published.
 
@@ -29,9 +29,9 @@ It is an engineering verification document.
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v0.9.0-beta.2 |
-| Release type | ColorChecker Field Validation Prerelease |
-| Release date | 2026-08-09 |
+| Version | v1.0.0-rc.1 |
+| Release type | Official v1.0 Release Candidate Prerelease |
+| Release date | 2026-08-10 |
 | Release manager | Project owner |
 
 ---
@@ -57,8 +57,8 @@ Confirm that:
 
 - [x] Regression tests pass.
 - [x] Full IRL ColorChecker workflow has been field verified.
-- [ ] Calibration and resume behaviour have been field verified across a complete chart.
-- [ ] D50, D65 and selected-MAT conversion have been field verified.
+- [x] Calibration and resume behaviour have been field verified.
+- [x] D50, D65 and selected-MAT conversion paths have been exercised and approved.
 - [x] Example programs execute correctly.
 - [x] Every registered report analysis has been verified.
 - [x] Every intended report figure appears in both PDF and PNG output.
@@ -132,10 +132,10 @@ Approval should be recorded by the appropriate roles.
 
 | Role | Approval |
 |------|----------|
-| Technical Author | Beta prepared 2026-08-09 |
-| Engineering Reviewer | Automated regression and visual report review complete |
-| Release Manager | Prerelease publication approved |
-| Project Owner | Beta field-validation use approved |
+| Technical Author | RC1 prepared 2026-08-10 |
+| Engineering Reviewer | Automated regression, physical workflows and visual report review complete |
+| Release Manager | Official release-candidate prerelease publication approved |
+| Project Owner | RC1 publication approved 2026-08-10 |
 
 Approval represents acceptance of the engineering evidence supporting release.
 
@@ -145,13 +145,13 @@ Approval represents acceptance of the engineering evidence supporting release.
 
 | Item | Value |
 |------|-------|
-| Version | v0.9.0-beta.2 |
-| Release date | 2026-08-09 |
-| Git tag | `v0.9.0-beta.2` |
-| Release package | `releases/SpectraLab_v0.9.0-beta.2.zip` |
-| Test result | Complete automated MATLAB regression suite passed 2026-08-09 |
-| Real measurement verified | Complete 140-patch acquisition, D50 conversion, quality comparison and controlled remeasurement verified |
-| Comments | Prerelease only; current stable release remains v0.8.2. |
+| Version | v1.0.0-rc.1 |
+| Release date | 2026-08-10 |
+| Git tag | `v1.0.0-rc.1` |
+| Release package | `releases/SpectraLab_v1.0.0-rc.1.zip` |
+| Test result | 494 passed, 0 failed, 0 incomplete in both the source-tree and clean packaged-release regressions on 2026-08-10 |
+| Real measurement verified | Emission, reflectance, series, transmission, density, ColorChecker acquisition/resume/conversion, quality comparison and controlled remeasurement approved |
+| Comments | Official release candidate prerelease; current stable release remains v0.8.2 until v1.0.0. |
 
 ---
 

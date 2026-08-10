@@ -8,6 +8,49 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
+## Official v1.0 Release Candidate - v1.0.0-rc.1
+
+Released 2026-08-10 for final controlled validation before v1.0.0.
+
+### Added
+
+- A canonical plot-presentation architecture for interactive figures, PNG
+  exports and PDF report figures.
+- Display-only report figures for successful one-shot measurement feedback.
+- Explicit user documentation explaining why transmission requires a measured
+  source reference while reflectance uses instrument white-reference
+  calibration.
+
+### Improved
+
+- Emission series identify every numbered measurement and synchronize audible
+  start feedback with operator confirmation.
+- Transmission and reflectance percent plots use a standard 0–100 % y-axis;
+  transmission Results and console summaries are expressed in percent.
+- PNG output preserves the approved 1400 x 700 screen composition, with
+  compact legends and aligned provenance and analysis information.
+- Status A, Status M, ISO visual density, optical density and transmission
+  reports identify their ordered source archives consistently.
+- Status A and Status M transmittances are reported as percentages.
+- Paused ColorChecker acquisitions are clearly separated from controlled
+  correction amendments and resume through the acquisition workflow.
+
+### Verified
+
+- All current Work measurement, plotting, density, ColorChecker, conversion,
+  quality-control and remeasurement routines were physically exercised and
+  approved by the project owner.
+- A complete ColorChecker acquisition and conversion and independent one-shot
+  reflectance checks have verified the measurement chain in real use.
+
+### Release status
+
+This is the official v1.0 release candidate and the best field-validated
+SpectraLab build. It remains a GitHub prerelease; v0.8.2 remains the stable
+release until final v1.0.0 approval.
+
+---
+
 ## Traceable ColorChecker Validation Beta - v0.9.0-beta.2
 
 Released 2026-08-09 for continued controlled real-world validation.

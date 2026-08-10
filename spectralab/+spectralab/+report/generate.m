@@ -199,8 +199,7 @@ if analysisId == "ANL-009"
             result.Analysis.Sources(index).Filename = displayFiles(index);
         end
     end
-elseif numel(archiveFiles) ~= 2 || ...
-        ~isfield(result, "SourceAFile") || ~isfield(result, "SourceBFile")
+elseif numel(archiveFiles) ~= 2
     return
 else
     [~, firstName, firstExtension] = fileparts(archiveFiles(1));

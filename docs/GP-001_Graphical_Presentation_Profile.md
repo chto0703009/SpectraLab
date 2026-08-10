@@ -1,9 +1,10 @@
 # GP-001 --- SpectraLab Graphical Presentation Profile
 
 **Document ID:** GP-001  
-**Version:** 1.1
+**Version:** 1.2
 **Status:** Approved  
 **Applies from:** SpectraLab v0.8.2
+**Architectural decision:** `ED-024_Plot_Presentation_Architecture.md`
 
 ## Purpose
 
@@ -23,12 +24,29 @@ Every public plot and every report figure shall use two distinct areas:
 The plot area shall not contain a legend, summary box, annotation box or
 other explanatory text that can obscure a curve.
 
+The standard interactive and PNG composition has a 2:1 aspect ratio and a
+nominal size of 1400 x 700 pixels. A PNG shall preserve the approved screen
+composition; it shall not use the PDF report figure's aspect ratio.
+
+## Axes
+
+- Wavelength axes use nanometres.
+- Every percent y-axis defaults to 0–100 %.
+- Transmission ratios are multiplied by 100 for plotting and labelled
+  `Transmission (%)`; the stored and calculated transmission remains
+  dimensionless.
+- Reflectance is labelled `Relative reflectance (%)` and defaults to 0–100 %.
+- Emission uses its recorded power quantity and data-dependent range.
+
 ## Legend
 
 - A legend shall be placed to the right of the plot area.
 - A legend shall not cover data, axes or the spectral colour bar.
 - The same legend shall be present in the interactive figure, exported
   PNG and report PDF.
+- Legend height shall adapt to its content. One curve shall use a compact
+  legend.
+- Presentation wrapping shall not alter a curve's `DisplayName`.
 
 ## Measurement and Analysis Information
 
@@ -38,6 +56,8 @@ other explanatory text that can obscure a curve.
 - Text shall wrap or be split into short lines; it shall never be clipped.
 - Every value shown in a right-side information area shall also be declared
   as a Result field for the corresponding analysis.
+- A colour-evaluating reflectance output may include a square evaluated-colour
+  patch. The generic spectrum viewer does not implicitly calculate XYZ or Lab.
 
 ## PDF Figure Rule
 

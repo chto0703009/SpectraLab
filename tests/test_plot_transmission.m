@@ -57,7 +57,7 @@ function testPlotsResultData(testCase)
     verifyEqual( ...
         testCase, ...
         h.YData(:), ...
-        result.Result.Value(:));
+        100 .* result.Result.Value(:));
 end
 
 
@@ -147,7 +147,7 @@ function testAxisLabels(testCase)
     verifyEqual( ...
         testCase, ...
         string(ax.YLabel.String), ...
-        "Transmission");
+        "Transmission (%)");
 end
 
 
@@ -156,7 +156,7 @@ function testYAxisStartsAtZero(testCase)
     result = testCase.TestData.Result;
     h = spectralab.plot.transmission(result);
 
-    verifyEqual(testCase, h.Parent.YLim(1), 0, "AbsTol", 1e-12);
+    verifyEqual(testCase, h.Parent.YLim, [0 100], "AbsTol", 1e-12);
 end
 
 function testShowsSpectralColorBarByDefault(testCase)

@@ -430,6 +430,22 @@ function testDefaultYLimStartsAtZero(testCase)
     verifyEqual(testCase, h.Parent.YLim(1), 0, "AbsTol", 1e-12);
 end
 
+function testReflectanceDefaultsToZeroToOneHundredPercent(testCase)
+
+    wavelength = (400:10:700).';
+    reflectance = linspace(5, 95, numel(wavelength)).';
+    spec = spectralab.core.Spectrum( ...
+        wavelength, reflectance, "Reflectance test", ...
+        struct("Name", "Test instrument"), struct(), ...
+        struct("Operator", "Test"), "relative reflectance (%)");
+
+    h = spectralab.plot.spectrum(spec, ShowSummary=false);
+
+    verifyEqual(testCase, h.Parent.YLim, [0 100], "AbsTol", 1e-12);
+    verifyEqual(testCase, string(h.Parent.YLabel.String), ...
+        "Relative reflectance (%)");
+end
+
 
 function testCustomYLimitsRetainZeroLowerLimit(testCase)
 

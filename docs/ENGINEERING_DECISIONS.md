@@ -96,7 +96,9 @@ Engineering Decisions document concrete implementation choices.
 | ED-002 | Scientific Provenance | Approved |
 | ED-003 | Deterministic Scientific Identity | Approved |
 | ED-004 | Interactive Instrument Handshake | Approved |
-| ED-022 | Colorimetry and Measurement Export Architecture | Approved for v0.8.3-dev implementation |
+| ED-022 | Colorimetry and Measurement Export Architecture | Implemented for v1.0.0-rc.1 |
+| ED-023 | ColorChecker Session Architecture | Approved |
+| ED-024 | Plot Presentation Architecture | Approved |
 
 ------------------------------------------------------------------------
 

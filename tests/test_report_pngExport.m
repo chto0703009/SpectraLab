@@ -8,21 +8,21 @@ function testExportsFullResolutionPNG(testCase)
 [pngFile, cleanupFolder] = temporaryPNG(); %#ok<ASGLU>
 [renderContext, cleanupGraphics] = makeRenderContext(); %#ok<ASGLU>
 
-info = spectralab.report.internal.exportPNG( ...
-    pngFile, renderContext, Resolution=300);
+info = spectralab.report.internal.exportPNG(pngFile, renderContext);
 
 verifyTrue(testCase, isfile(pngFile));
 fileInfo = dir(pngFile);
 verifyGreaterThan(testCase, fileInfo.bytes, 1000);
 verifyEqual(testCase, info.Format, "PNG");
-verifyEqual(testCase, info.Resolution, 300);
-verifyEqual(testCase, info.WidthPoints / info.HeightPoints, 3/2, ...
+verifyEqual(testCase, info.Resolution, 100);
+verifyEqual(testCase, info.WidthPoints / info.HeightPoints, 2, ...
     "AbsTol", 1e-12);
 
 imageInfo = imfinfo(pngFile);
-verifyEqual(testCase, imageInfo.Width / imageInfo.Height, 3/2, ...
+verifyEqual(testCase, imageInfo.Width / imageInfo.Height, 2, ...
     "RelTol", 0.02);
-verifyGreaterThanOrEqual(testCase, imageInfo.Width, 1000);
+verifyEqual(testCase, imageInfo.Width, 1400);
+verifyEqual(testCase, imageInfo.Height, 700);
 end
 
 function testUsesRequestedResolution(testCase)
@@ -30,12 +30,12 @@ function testUsesRequestedResolution(testCase)
 [renderContext, cleanupGraphics] = makeRenderContext(); %#ok<ASGLU>
 
 info = spectralab.report.internal.exportPNG( ...
-    pngFile, renderContext, Resolution=144);
+    pngFile, renderContext, Resolution=72);
 imageInfo = imfinfo(pngFile);
 
-verifyEqual(testCase, info.Resolution, 144);
-verifyLessThan(testCase, imageInfo.Width, 1000);
-verifyGreaterThan(testCase, imageInfo.Width, 400);
+verifyEqual(testCase, info.Resolution, 72);
+verifyEqual(testCase, imageInfo.Width, 1008);
+verifyEqual(testCase, imageInfo.Height, 504);
 end
 
 function testDoesNotOverwriteExistingPNG(testCase)
@@ -54,7 +54,7 @@ end
 function testRejectsInvalidExtension(testCase)
 folder = string(tempname);
 mkdir(folder);
-cleanupFolder = onCleanup(@() removeFolder(folder)); %#ok<NASGU>
+cleanupFolder = onCleanup(@() removeFolder(folder));
 [renderContext, cleanupGraphics] = makeRenderContext(); %#ok<ASGLU>
 
 verifyError(testCase, @() ...

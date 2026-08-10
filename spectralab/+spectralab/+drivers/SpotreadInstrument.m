@@ -449,7 +449,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 allowRecalibration = true;
             end
 
-            obj.confirmPlacement(obj.measurementPlacementMessage());
+            obj.confirmPlacement(obj.measurementPlacementMessage(label));
 
             if obj.AutomaticTrigger == "instrument" && ...
                     obj.InstrumentSwitchSettleSeconds > 0
@@ -533,8 +533,8 @@ classdef SpotreadInstrument < spectralab.core.Instrument
 
         function confirmPlacement(obj, message)
             if ~isempty(obj.PlacementConfirmation)
-                obj.notifyOperationStart();
                 obj.PlacementConfirmation(string(message));
+                obj.notifyOperationStart();
                 return
             end
 
@@ -544,13 +544,6 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 fprintf("Wait until Spotread reports READY before pressing the button.\n");
             else
                 if usejava('desktop')
-                    feedbackTimer = timer( ...
-                        "ExecutionMode", "singleShot", ...
-                        "StartDelay", 0.05, ...
-                        "TimerFcn", @(~,~) obj.notifyOperationStart());
-                    timerCleanup = onCleanup( ...
-                        @() cleanupFeedbackTimer(feedbackTimer));
-                    start(feedbackTimer);
                     choice = questdlg( ...
                         char(message), ...
                         "SpectraLab one-shot operation", ...
@@ -561,10 +554,11 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                         error("SpectraLab:Spotread:OperationCancelled", ...
                             "The operator cancelled the Spotread operation.");
                     end
-                else
                     obj.notifyOperationStart();
+                else
                     fprintf("\nSpectraLab one-shot operation:\n%s\n", message);
                     input("Press ENTER to continue, or Ctrl-C to abort: ", "s");
+                    obj.notifyOperationStart();
                 end
             end
         end
@@ -596,12 +590,15 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             end
         end
 
-        function message = measurementPlacementMessage(obj)
+        function message = measurementPlacementMessage(obj, label)
+            measurementIdentity = "Measurement " + string(label) + ". ";
             if obj.MeasurementKind == "reflectance"
-                message = "Place the instrument on the reflectance patch. " + ...
+                message = measurementIdentity + ...
+                    "Place the instrument on the reflectance patch. " + ...
                     "Do not measure the white calibration reference.";
             else
-                message = "Place the instrument on the source or sample to be measured.";
+                message = measurementIdentity + ...
+                    "Place the instrument on the source or sample to be measured.";
             end
         end
     end
@@ -714,13 +711,6 @@ if isfield(result, "artifacts_retained") && ...
         result.artifacts_retained && ...
         isfolder(result.working_directory)
     rmdir(result.working_directory, "s");
-end
-end
-
-function cleanupFeedbackTimer(timerObject)
-if isvalid(timerObject)
-    stop(timerObject);
-    delete(timerObject);
 end
 end
 

@@ -146,6 +146,13 @@ Confirm the following before running the first example:
 - `spotread` detected
 - No other software is using the instrument
 
+If you intend to measure transmission, you must also measure the source
+without the sample as the transmission reference. This is separate from the
+instrument's white-reference calibration. Reflectance instead uses the white
+reference during reflective calibration and normally requires only the sample
+archive. See **Why transmission requires a separate reference** in
+`USER_GUIDE.md`.
+
 ---
 
 ## First Measurement

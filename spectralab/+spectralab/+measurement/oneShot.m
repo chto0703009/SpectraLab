@@ -15,6 +15,7 @@ arguments
     options.Comment (1,1) string = ""
     options.ExportCSV (1,1) logical = false
     options.GenerateReport (1,1) logical = false
+    options.ShowFigure (1,1) logical = true
 end
 if ~isfolder(archiveFolder), mkdir(archiveFolder); end
 archiveFile = fullfile(archiveFolder, measurementName + ".mat");
@@ -54,8 +55,11 @@ if options.GenerateReport
     if ~isfolder(reportFolder), mkdir(reportFolder); end
     if ~isfolder(plotFolder), mkdir(plotFolder); end
     reportInfo = spectralab.report.generate(archiveFile, ...
-        "ANL-SPECTRUM", reportFolder, ShowFigure=true, OpenPDF=false, ...
+        "ANL-SPECTRUM", reportFolder, ...
+        ShowFigure=options.ShowFigure, OpenPDF=false, ...
         FigureOutputFolder=plotFolder);
+elseif options.ShowFigure
+    spectralab.report.showFigure(archive, "ANL-SPECTRUM");
 end
 outputs = struct("ArchiveFile", string(archiveFile), ...
     "CSVFile", string(csvFile), "Report", reportInfo);

@@ -3,7 +3,7 @@ function info = exportPNG(pngFile, renderContext, options)
 %
 %   info = spectralab.report.internal.exportPNG(pngFile, renderContext)
 %   info = spectralab.report.internal.exportPNG( ...
-%       pngFile, renderContext, Resolution=300)
+%       pngFile, renderContext, Resolution=100)
 %
 % The exporter reads the completed figure model and the report-owned axes
 % from RenderContext. It creates a separate hidden export figure so that
@@ -13,11 +13,12 @@ function info = exportPNG(pngFile, renderContext, options)
 arguments
     pngFile (1,1) string
     renderContext (1,1) struct
-    options.Resolution (1,1) double {mustBeFinite, mustBePositive} = 300
+    options.Resolution (1,1) double ...
+        {mustBeFinite, mustBePositive} = defaultPNGResolution()
 end
 
 pngFile = validateTarget(pngFile);
-[model, sourceAxes] = validateRenderContext(renderContext);
+sourceAxes = validateRenderContext(renderContext);
 resolution = double(options.Resolution);
 
 folder = string(fileparts(pngFile));
@@ -29,7 +30,7 @@ temporaryFile = string(tempname(folder)) + ".png";
 cleanupTemporary = onCleanup(@() deleteIfExists(temporaryFile));
 profile = spectralab.report.internal.figureLayoutProfile();
 
-exportFigure = createExportFigure(model);
+exportFigure = createExportFigure(profile);
 cleanupFigure = onCleanup(@() closeIfValid(exportFigure));
 
 sourceLegend = findall(ancestor(sourceAxes, "figure"), "Type", "legend");
@@ -71,15 +72,16 @@ if ~ok
         "Unable to finalize PNG figure '%s': %s", pngFile, message);
 end
 
-pixelWidth = round(model.Width / 72 * resolution);
-pixelHeight = round(model.Height / 72 * resolution);
+pngSizePoints = profile.PNGFigureSizePoints;
+pixelWidth = round(pngSizePoints(1) / 72 * resolution);
+pixelHeight = round(pngSizePoints(2) / 72 * resolution);
 
 info = struct( ...
     "PNGFile", pngFile, ...
     "Format", "PNG", ...
     "Resolution", resolution, ...
-    "WidthPoints", double(model.Width), ...
-    "HeightPoints", double(model.Height), ...
+    "WidthPoints", double(pngSizePoints(1)), ...
+    "HeightPoints", double(pngSizePoints(2)), ...
     "ExpectedPixelWidth", double(pixelWidth), ...
     "ExpectedPixelHeight", double(pixelHeight));
 end
@@ -135,7 +137,7 @@ labels = string(labels);
 profile = spectralab.report.internal.figureLayoutProfile();
 for index = 1:numel(labels)
     labels(index) = spectralab.report.internal.wrapValue( ...
-        labels(index), profile.MaximumSideColumnCharacters);
+        labels(index), profile.MaximumSideLegendCharacters);
 end
 labels = cellstr(labels);
 end
@@ -159,7 +161,7 @@ if isfile(pngFile)
 end
 end
 
-function [model, sourceAxes] = validateRenderContext(renderContext)
+function sourceAxes = validateRenderContext(renderContext)
 if ~isfield(renderContext, "Graphics") || ...
         ~isfield(renderContext.Graphics, "Axes")
     error("SpectraLab:Report:InvalidRenderContext", ...
@@ -222,20 +224,26 @@ if string(model.Format) ~= "SLAB-REPORT-FIGURE" || ...
 end
 end
 
-function fig = createExportFigure(model)
+function fig = createExportFigure(profile)
+sizePoints = double(profile.PNGFigureSizePoints);
 fig = figure( ...
     "Visible", "off", ...
     "Color", "white", ...
     "Units", "points", ...
-    "Position", [100 100 double(model.Width) double(model.Height)], ...
+    "Position", [100 100 sizePoints], ...
     "PaperUnits", "points", ...
-    "PaperSize", [double(model.Width) double(model.Height)], ...
-    "PaperPosition", [0 0 double(model.Width) double(model.Height)], ...
+    "PaperSize", sizePoints, ...
+    "PaperPosition", [0 0 sizePoints], ...
     "PaperPositionMode", "manual", ...
     "InvertHardcopy", "off", ...
     "MenuBar", "none", ...
     "ToolBar", "none", ...
     "HandleVisibility", "off");
+end
+
+function resolution = defaultPNGResolution()
+profile = spectralab.report.internal.figureLayoutProfile();
+resolution = profile.PNGResolution;
 end
 
 function deleteIfExists(file)

@@ -13,7 +13,11 @@ function styleAxes(ax, xLabelText, yLabelText, titleText, showGrid)
         titleHandle = title(ax, titleText, "Interpreter", "none");
         titleHandle.Units = "normalized";
         titlePosition = titleHandle.Position;
-        titlePosition(2) = 1.045;
+        if contains(titleText, newline)
+            titlePosition(2) = 1.015;
+        else
+            titlePosition(2) = 1.045;
+        end
         titleHandle.Position = titlePosition;
     end
 

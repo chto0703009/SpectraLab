@@ -45,12 +45,15 @@ function h = spectrum(spec, options)
     if options.Normalize
         y = spec.normalizedPower();
         yLabelText = "Relative spectral power";
+        usesPercentAxis = false;
     elseif contains(lower(spec.PowerUnit), "reflectance")
         y = spec.Power;
         yLabelText = "Relative reflectance (%)";
+        usesPercentAxis = true;
     else
         y = spec.Power;
         yLabelText = "Spectral power";
+        usesPercentAxis = false;
     end
 
     [wavelengthNm, y] = validateXY( ...
@@ -72,7 +75,11 @@ function h = spectrum(spec, options)
     end
 
     styleAxes(ax, "Wavelength (nm)", yLabelText, titleText, options.ShowGrid);
-    applyYLimits(ax, options.YLimits);
+    requestedYLimits = options.YLimits;
+    if usesPercentAxis && isempty(requestedYLimits)
+        requestedYLimits = [0 100];
+    end
+    applyYLimits(ax, requestedYLimits);
 
     if options.ShowSummary
         addSummaryText(ax, spec, options.SummaryLocation);

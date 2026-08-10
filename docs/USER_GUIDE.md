@@ -49,3 +49,53 @@ Use `spotread` after the mock workflow works.
 ```matlab
 inst = spectralab.drivers.createInstrument("spotread");
 ```
+
+## Why transmission requires a separate reference
+
+Transmission and reflectance are both relative spectral quantities, but
+SpectraLab obtains their reference information at different stages of the
+measurement.
+
+| Measurement | Archived inputs | Reference operation |
+|---|---:|---|
+| Transmission | Reference and sample | Measure the source without the sample, then measure the same source through the sample. |
+| Reflectance | Reflectance sample | Calibrate the reflectance instrument on its supplied white reference, then measure the sample. |
+
+### Transmission
+
+An emissive measurement records the detected spectrum; it is not already a
+transmission value. SpectraLab therefore needs:
+
+```text
+reference(lambda) = source measured without the sample
+sample(lambda)    = source measured through the sample
+
+T(lambda) = sample(lambda) / reference(lambda)
+```
+
+The ratio removes the measured source spectrum and the common response of the
+measurement chain. It leaves the fraction transmitted by the sample, provided
+that the source, instrument position, optical geometry, exposure and other
+conditions remain unchanged. A new reference is required when those conditions
+change. Instrument calibration alone cannot replace this measurement because
+calibration does not record the spectrum and level incident on the sample.
+
+### Reflectance
+
+In reflective mode, the instrument is calibrated against its supplied white
+reflectance reference. Spotread then reports the sample relative to that
+calibrated reference as the spectral reflectance factor `R(lambda)`, stored by
+SpectraLab in percent. Consequently, a normal reflectance archive does not need
+a second user-measured white-reference archive.
+
+The white tile is nevertheless a real physical reference and remains essential:
+it belongs to the calibration step rather than to a later two-archive ratio.
+The instrument and its matching white reference must be used as instructed,
+and SpectraLab records the calibration provenance.
+
+These workflows must not be interchanged. A transmission source reference is
+not a substitute for reflective white calibration, and reflective white
+calibration is not a substitute for measuring the incident transmission
+source. Technical details are recorded in
+`ED-011_Filtered_Transmission_Density.md` and
+`REFLECTANCE_COLORIMETRY.md`.
