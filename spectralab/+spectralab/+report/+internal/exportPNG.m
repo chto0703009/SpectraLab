@@ -254,6 +254,9 @@ end
 
 function closeIfValid(fig)
 if isgraphics(fig, "figure")
-    close(fig);
+    % This hidden figure is owned exclusively by the exporter. Deleting the
+    % explicit handle avoids MATLAB close/current-figure interactions that
+    % can otherwise close a visible report source figure.
+    delete(fig);
 end
 end

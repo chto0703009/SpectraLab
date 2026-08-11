@@ -107,6 +107,21 @@ verifyEqual(testCase, numel(findall(ax, "Type", "line")), lineCount);
 verifyEqual(testCase, findall(groot, "Type", "figure"), figuresBefore);
 end
 
+function testPreservesVisibleSourceGraphics(testCase)
+[pngFile, cleanupFolder] = temporaryPNG(); %#ok<ASGLU>
+[renderContext, cleanupGraphics] = makeRenderContext(); %#ok<ASGLU>
+fig = renderContext.Graphics.Figure;
+ax = renderContext.Graphics.Axes;
+fig.Visible = "on";
+figure(fig);
+
+spectralab.report.internal.exportPNG(pngFile, renderContext);
+
+verifyTrue(testCase, isgraphics(fig, "figure"));
+verifyTrue(testCase, isgraphics(ax, "axes"));
+verifyEqual(testCase, string(fig.Visible), "on");
+end
+
 function testExportsSideInformationPanel(testCase)
 [pngFile, cleanupFolder] = temporaryPNG(); %#ok<ASGLU>
 [renderContext, cleanupGraphics] = makeRenderContext(); %#ok<ASGLU>

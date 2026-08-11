@@ -93,3 +93,12 @@ session-level reports are explicit later operations.
 CSV and aggregate MAT files are likewise explicit secondary exports. The
 standard acquisition output remains the raw manifest and immutable patch
 archives.
+
+## Camera-41 hand-off
+
+The target-defined session JSON and referenced patch archives form the
+read-only physical-target hand-off to Camera-41. Image-specific patch roles,
+RAW illumination-uniformity assessment and camera-profile fitting belong to a
+separately versioned Camera-41 imaging definition keyed by the canonical target
+ID. They do not rewrite SpectraLab's session JSON or MAT archives. The complete
+boundary and quality gate are defined by ED-025.

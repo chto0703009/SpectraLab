@@ -9,8 +9,7 @@ function info = generate(archiveFiles, analysisId, outputFolder, options)
 %       analysisId, outputFolder)
 %
 %   Use FigureOutputFolder to save a figure directly outside the PDF
-%   report folder. This keeps report and plot products separate even if
-%   PDF generation subsequently fails.
+%   report folder. This keeps report and plot products separate.
 %
 % RP-019 provides the public orchestration pipeline.
 % RP-020 requires every reportable analysis to be resolved from the
@@ -147,19 +146,36 @@ end
     spectralab.report.internal.layoutRenderResults( ...
         renderContext, renderResults);
 
-if definition.HasFigure && options.ExportPNG
-    pngInfo = spectralab.report.internal.exportPNG( ...
-        pngFile, renderContext);
-elseif definition.HasFigure
-    pngFile = "";
-end
-
 pdfFile = buildPdfFilename( ...
     outputFolder, primaryArchiveFile, ...
     definition.AnalysisId, options.OutputBaseName);
 
 pdfInfo = spectralab.report.internal.exportPDF( ...
     pdfFile, layoutPlan, renderContext);
+
+% PDF consumes the report-owned axes first. Some MATLAB graphics backends
+% can invalidate a visible source axes after a long sequence of PNG print
+% operations; exporting in this order keeps PDF rendering independent of
+% global current-figure state.
+if definition.HasFigure && options.ExportPNG
+    pngRenderContext = spectralab.report.internal.createRenderContext( ...
+        context, manifest, ShowFigure=options.ShowFigure);
+    pngRenderContext.State = renderContext.State;
+    pngGraphicsCleanup = onCleanup(@() ...
+        spectralab.report.internal.releaseRenderContext(pngRenderContext));
+    if definition.AnalysisId == "ANL-009"
+        entry.FigureRenderer( ...
+            pngRenderContext.Graphics.Axes, archives, [], result);
+    else
+        entry.FigureRenderer( ...
+            pngRenderContext.Graphics.Axes, archives{:}, result);
+    end
+    pngInfo = spectralab.report.internal.exportPNG( ...
+        pngFile, pngRenderContext);
+    clear pngGraphicsCleanup
+elseif definition.HasFigure
+    pngFile = "";
+end
 
 info = struct( ...
     "ArchiveFiles", archiveFiles, ...

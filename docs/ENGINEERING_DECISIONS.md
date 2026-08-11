@@ -99,6 +99,7 @@ Engineering Decisions document concrete implementation choices.
 | ED-022 | Colorimetry and Measurement Export Architecture | Implemented for v1.0.0-rc.1 |
 | ED-023 | ColorChecker Session Architecture | Approved |
 | ED-024 | Plot Presentation Architecture | Approved |
+| ED-025 | Camera-41 Hand-off Contract | Approved |
 
 ------------------------------------------------------------------------
 
