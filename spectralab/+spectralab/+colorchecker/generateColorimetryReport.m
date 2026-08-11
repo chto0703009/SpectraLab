@@ -57,7 +57,11 @@ title.Style = {FontFamily("Helvetica"), FontSize("20pt"), ...
     Bold(true), Color("#1F4E79"), ...
     OuterMargin("0pt", "0pt", "0pt", "2pt")};
 append(document, title);
-subtitle = Paragraph(string(session.Definition.Name));
+targetName = targetValue(session, "Name");
+if targetName == "-"
+    targetName = string(session.Definition.Name);
+end
+subtitle = Paragraph(targetName);
 subtitle.Style = {FontFamily("Helvetica"), FontSize("12pt"), ...
     Color("#555555"), OuterMargin("0pt", "0pt", "0pt", "4pt")};
 append(document, subtitle);
@@ -69,7 +73,13 @@ details = {
     "SpectraLab measurement version", string(session.Identity.Software);
     "Operator", valueOrDash(session.Context, "Operator");
     "Project", valueOrDash(session.Context, "Project");
-    "Chart ID", valueOrDash(session.Definition, "ChartID");
+    "Official target model", targetValue(session, "Name");
+    "Target canonical ID", targetValue(session, "CanonicalID");
+    "Target definition SHA-256", ...
+        valueOrDash(session.Definition, "TargetDefinitionHash");
+    "Measurement session name", valueOrDash(session.Definition, "Name");
+    "Physical chart ID (operator supplied)", ...
+        valueOrDash(session.Definition, "ChartID");
     "Chart serial number", valueOrDash(session.Definition, "ChartSerialNumber");
     "Chart manufactured", valueOrDash(session.Definition, "ChartManufacturedDate");
     "Chart geometry", sprintf("%d rows x %d columns", ...
@@ -400,6 +410,14 @@ if isstruct(container) && isfield(container, field)
     if isscalar(candidate) && strlength(candidate) > 0
         value = candidate;
     end
+end
+end
+
+function value = targetValue(session, field)
+value = "-";
+if isfield(session, "Definition") && ...
+        isfield(session.Definition, "TargetDefinition")
+    value = valueOrDash(session.Definition.TargetDefinition, field);
 end
 end
 

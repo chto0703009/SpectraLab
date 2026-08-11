@@ -14,7 +14,22 @@ path is not part of this architecture.
 
 ## Geometry
 
-The chart has user-declared rows and columns. Columns are lettered from
+The chart has user-declared rows and columns, unless an
+architecture-controlled target definition is selected. A controlled target
+definition identifies a manufacturer's nominal chart contract by a canonical
+ID and name and locks its model, geometry, patch count, orientation and
+nominal-specification identity. The first controlled definition is
+`xrite-colorchecker-digital-sg-140`, named
+`X-Rite ColorChecker Digital SG`.
+
+The controlled model identity is separate from the free session name and from
+the optional ID, serial number, manufacture date or lot marking of one physical
+chart instance. SpectraLab embeds the complete controlled definition and its
+SHA-256 hash in the session JSON. The manufacturer's nominal values define what
+the model is intended to contain; the immutable measured R(lambda) archives
+characterise the actual physical chart used by the operator.
+
+Columns are lettered from
 left to right (`A`, `B`, ..., `Z`, `AA`, ...); rows are numbered from top
 to bottom. `A1` is therefore the upper-left patch. The required acquisition
 order is row-major: `A1`, `B1`, ... followed by `A2`, `B2`, ....

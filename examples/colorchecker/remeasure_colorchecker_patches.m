@@ -140,7 +140,7 @@ for entry = reshape(pending, 1, [])
     measurement = spectralab.colorchecker.reflectanceOnlySpectrum( ...
         measurement, Coordinate=coordinate, ...
         SessionUUID=string(source.Identity.UUID), ...
-        ChartName=string(source.Definition.Name), ...
+        ChartName=targetName(source), ...
         ChartManufacturedDate=string(source.Definition.ChartManufacturedDate));
 
     archiveName = safeName(source.Definition.Name) + "_" + coordinate + ...
@@ -185,6 +185,14 @@ function output = safeName(value)
 output = regexprep(strtrim(string(value)), "[^A-Za-z0-9_-]+", "_");
 output = strip(regexprep(output, "_+", "_"), "_");
 if output == "", output = "ColorChecker"; end
+end
+
+function value = targetName(session)
+if isfield(session.Definition, "TargetDefinition")
+    value = string(session.Definition.TargetDefinition.Name);
+else
+    value = string(session.Definition.Name);
+end
 end
 
 function value = displayValue(value)

@@ -11,6 +11,7 @@ function session = create(sessionFolder, options)
 arguments
     sessionFolder (1,1) string
     options.Name (1,1) string = ""
+    options.TargetDefinitionID (1,1) string = ""
     options.Rows (1,1) double {mustBeInteger, mustBePositive} = 1
     options.Columns (1,1) double {mustBeInteger, mustBePositive} = 1
     options.CalibrationIntervalMinutes (1,1) double {mustBePositive} = 30
@@ -59,10 +60,21 @@ else
     name = strtrim(options.Name);
 end
 
-patches = repmat(emptyPatch(), options.Rows * options.Columns, 1);
+targetDefinition = struct();
+if strlength(strtrim(options.TargetDefinitionID)) > 0
+    targetDefinition = spectralab.colorchecker.targetDefinition( ...
+        options.TargetDefinitionID);
+    rows = targetDefinition.Rows;
+    columns = targetDefinition.Columns;
+else
+    rows = options.Rows;
+    columns = options.Columns;
+end
+
+patches = repmat(emptyPatch(), rows * columns, 1);
 index = 0;
-for row = 1:options.Rows
-    for column = 1:options.Columns
+for row = 1:rows
+    for column = 1:columns
         index = index + 1;
         patches(index).Coordinate = columnLabel(column) + string(row);
         patches(index).Column = column;
@@ -83,11 +95,16 @@ session.Definition = struct( ...
     "ChartID", strtrim(options.ChartID), ...
     "ChartSerialNumber", strtrim(options.ChartSerialNumber), ...
     "ChartManufacturedDate", normaliseManufacturedDate(options.ChartManufacturedDate), ...
-    "Rows", options.Rows, ...
-    "Columns", options.Columns, ...
+    "Rows", rows, ...
+    "Columns", columns, ...
     "CoordinateConvention", ...
         "Column letters increase left-to-right; row numbers increase top-to-bottom; A1 is upper left.", ...
     "MeasurementOrder", "row-major: A1, B1, ... then A2, B2, ...");
+if ~isempty(fieldnames(targetDefinition))
+    session.Definition.TargetDefinition = targetDefinition;
+    session.Definition.TargetDefinitionHash = ...
+        spectralab.archive.contentHash(targetDefinition);
+end
 session.MeasurementDefinition = struct( ...
     "IntendedUse", "camera colour calibration", ...
     "MeasurementKind", "reflectance", ...

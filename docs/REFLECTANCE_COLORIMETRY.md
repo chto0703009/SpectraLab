@@ -107,6 +107,16 @@ they preserve `R(lambda)` and acquisition provenance but deliberately omit
 instrument-reported XYZ and Lab. The original `colorchecker_session.json`
 is immutable measurement documentation.
 
+A recognised chart model is selected through an architecture-controlled
+target definition. `X-Rite ColorChecker Digital SG` is identified by the
+canonical ID `xrite-colorchecker-digital-sg-140`; its 10 by 14 geometry,
+140-patch count, orientation and nominal-specification identity cannot be
+redefined by a session dialog. The model name identifies X-Rite's nominal
+chart contract. A free session name and optional chart ID, serial number,
+manufacture date or lot marking instead identify the acquisition and physical
+chart instance. The complete definition and its SHA-256 hash are embedded in
+the session JSON for independent downstream verification.
+
 `spectralab.colorchecker.calculateColorimetry` reads a complete session and
 its patch archives, calculates XYZ and CIELAB for an explicit illuminant and
 observer, and writes a separate suffixed JSON copy. The source session JSON

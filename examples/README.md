@@ -34,9 +34,42 @@ calculate_spectral_difference_report
 calculate_statusA_iso_visual_density_report
 calculate_statusM_iso_visual_density_report
 list_archive_folder
+measure_emission_spectrum
+measure_emission_series
+measure_transmission_pair
+measure_colorchecker_reflectance
+assign_colorchecker_target_definition
+calculate_colorchecker_colorimetry
 compare_colorchecker_xrite_lab
 remeasure_colorchecker_patches
 ```
+
+## Recommended onboarding path
+
+Start with one complete workflow at a time. Each measurement example owns the
+instrument interaction, identity prompts, immutable archive and its registered
+presentation outputs.
+
+1. **Emission:** run `measure_emission_spectrum`. Confirm that one MAT archive,
+   one ANL-SPECTRUM PDF report and one PNG figure are created. Continue with
+   `measure_emission_series` when repeated measurements are needed; the dialog
+   selects the series length.
+2. **Transmission:** run `measure_transmission_pair`. First measure the source
+   without the sample, then insert the sample without changing source,
+   geometry or exposure. The workflow preserves both source measurements and
+   creates the separate ANL-001 transmission PDF and PNG.
+3. **ColorChecker:** run `measure_colorchecker_reflectance`. New X-Rite
+   ColorChecker Digital SG sessions contain the controlled target definition
+   from creation. Then run `calculate_colorchecker_colorimetry`; use
+   `compare_colorchecker_xrite_lab` for the optional nominal-data chain check.
+4. **Legacy ColorChecker data:** run
+   `assign_colorchecker_target_definition` once before recalculating
+   colorimetry. This creates a new JSON and never modifies the source JSON or
+   MAT archives.
+
+Read the Command Window summary after every workflow. It lists the saved MAT,
+PDF and PNG files explicitly; reports and figures are never silent side
+effects and existing files are never overwritten.
 
 Generated files are written below `examples/output/`. Existing files are
 never overwritten. Delete the relevant example output before repeating a
@@ -58,9 +91,22 @@ laboratory measurement claim.
 | `calculate_statusA_iso_visual_density_report` | reference + sample A | ANL-005 PDF; no registered figure |
 | `calculate_statusM_iso_visual_density_report` | reference + sample A | ANL-008 PDF; no registered figure |
 | `list_archive_folder` | all bundled MAT files | read-only Command Window inventory |
+| `measure_emission_spectrum` | emitted light + i1Pro/i1Pro2 | immutable MAT + ANL-SPECTRUM PDF + PNG |
+| `measure_emission_series` | emitted light series + user-selected count | one immutable MAT + ANL-SPECTRUM PDF + PNG per measurement |
+| `measure_transmission_pair` | unfiltered source reference, then same source through sample | reference MAT/PDF/PNG + sample MAT/PDF/PNG + ANL-001 transmission PDF/PNG |
+| `measure_colorchecker_reflectance` | X-Rite ColorChecker Digital SG + i1Pro/i1Pro2 | session JSON + one immutable MAT archive per patch |
+| `assign_colorchecker_target_definition` | completed legacy ColorChecker session | verified target-defined session JSON; source and MAT files unchanged |
+| `calculate_colorchecker_colorimetry` | original, amended or target-defined session JSON | verified colorimetry JSON + PDF; optional CSV |
 | `compare_colorchecker_xrite_lab` | converted ColorChecker JSON + licensed nominal Lab TXT | traceable comparison CSV |
 
 ## ColorChecker quality workflows
+
+`measure_colorchecker_reflectance` uses the architecture-controlled
+`xrite-colorchecker-digital-sg-140` definition for new X-Rite ColorChecker
+Digital SG sessions. `assign_colorchecker_target_definition` adds that same
+verified contract to a completed legacy session without modifying its source
+JSON or patch MAT archives. `calculate_colorchecker_colorimetry` then derives
+and verifies XYZ and Lab from the immutable reflectance archives.
 
 `compare_colorchecker_xrite_lab` is a measurement-chain consistency check,
 not a formal metrological validation. The user selects the separately licensed
@@ -83,7 +129,17 @@ or i1Pro2 with its matching white calibration plate:
 ```matlab
 measure_spectrum
 measure_spectrum_series_5
+measure_emission_spectrum
+measure_emission_series
+measure_transmission_pair
 ```
+
+The explicitly named emission and transmission commands are recommended for
+new users. `measure_transmission_pair` guides the operator through the
+unfiltered reference first and the sample second, preserves each source
+measurement independently, and then creates the registered transmission
+report and figure. The older generic `measure_spectrum` names remain available
+for compatibility and lower-level experimentation.
 
 The examples have been physically verified with both an X-Rite i1Pro2 and
 an original GretagMacbeth Eye-One Pro Rev. B. SpectraLab records the latter

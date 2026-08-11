@@ -50,6 +50,17 @@ Use `spotread` after the mock workflow works.
 inst = spectralab.drivers.createInstrument("spotread");
 ```
 
+## Controlled ColorChecker target definitions
+
+For an X-Rite ColorChecker Digital SG acquisition, the Work script selects the
+architecture-controlled `xrite-colorchecker-digital-sg-140` definition. The
+operator does not enter its geometry: the canonical model name fixes the
+10-row, 14-column and 140-patch contract associated with X-Rite's nominal
+target specification. Session name and optional markings from the physical
+chart remain separate traceability information. Other chart models can be
+introduced later as additional versioned definitions without changing
+existing sessions.
+
 ## Why transmission requires a separate reference
 
 Transmission and reflectance are both relative spectral quantities, but

@@ -78,7 +78,9 @@ end
 
 [nominalPatch, nominalLab] = readNominalLab(nominalFile);
 results = conversion.Results;
-measuredPatch = string({results.Coordinate}).';
+% jsondecode preserves the JSON array orientation. Normalise explicitly so
+% both row- and column-oriented Results arrays compare identically.
+measuredPatch = reshape(string({results.Coordinate}), [], 1);
 labResults = [results.Lab];
 measuredLab = [[labResults.L]; [labResults.a]; [labResults.b]].';
 
