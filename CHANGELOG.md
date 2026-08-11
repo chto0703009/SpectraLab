@@ -8,6 +8,48 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
+## Stable v1.0 Release - v1.0.0
+
+Released 2026-08-11 after successful automated regression and physical
+field validation of the complete measurement chain.
+
+### Added
+
+- An architecture-controlled X-Rite ColorChecker Digital SG 140 target
+  definition with canonical identity and SHA-256 verification.
+- Public, release-packaged examples for emission, transmission, reflectance,
+  ColorChecker acquisition, conversion, quality control and controlled
+  remeasurement.
+- A formal read-only SpectraLab hand-off contract for Camera-41 covering
+  target spectra, measured illumination, hashes, provenance and RAW quality
+  responsibilities.
+
+### Improved
+
+- ColorChecker sessions can be assigned a controlled target definition
+  without repeating valid physical measurements.
+- Report PDF and PNG graphics are rendered in independent contexts, removing
+  the ANL-007 export-order failure while preserving the graphical profile.
+- User onboarding now identifies required inputs, generated archives, plots
+  and reports for every principal measurement workflow.
+
+### Verified
+
+- Complete ColorChecker acquisition, conversion, comparison and selective
+  remeasurement were exercised with physical hardware and immutable source
+  data.
+- One-shot reflectance agreed with Spotread colour values at the second
+  decimal place in the verified samples.
+- The full source-tree regression passed 498 tests with 0 failed and
+  0 incomplete on 2026-08-11.
+
+### Release status
+
+This is the official stable SpectraLab v1.0.0 release and supersedes v0.8.2
+as the recommended production version.
+
+---
+
 ## Official v1.0 Release Candidate - v1.0.0-rc.1
 
 Released 2026-08-10 for final controlled validation before v1.0.0.

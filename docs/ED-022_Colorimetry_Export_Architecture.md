@@ -1,6 +1,6 @@
 # ED-022 — Colorimetry and Measurement Export Architecture
 
-**Status:** Implemented for v1.0.0-rc.1
+**Status:** Implemented for v1.0.0
 **Scope:** Reflectance points and ColorChecker patch sets.
 
 ## Decision
@@ -49,7 +49,7 @@ archive identities and calculation version. A later correction to the
 central calculation creates a new derived result; it does not silently
 rewrite an older export or archive.
 
-## v1.0.0-rc.1 delivery
+## v1.0.0 delivery
 
 The first delivery creates a one-sample dataset and exports JSON, CGATS,
 CSV and concise XYZ/Lab representations. The API and serialized structure

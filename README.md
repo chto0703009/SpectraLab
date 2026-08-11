@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v1.0.0-rc.1
+Version: v1.0.0
 Status: CURRENT
 -->
 
@@ -24,18 +24,12 @@ consistent with ArgyllCMS Spotread's own device identification and support.
 
 ## Current Release
 
-**SpectraLab v0.8.2** is the current stable release.
+**SpectraLab v1.0.0** is the current stable production release. It completes
+the field-validated measurement, analysis, reporting and ColorChecker
+workflows established through the v0.9 betas and v1.0 release candidate.
 
-**SpectraLab v1.0.0-rc.1** is the current official release candidate and the
-best field-validated SpectraLab build. It is intended for final controlled
-real-world validation before v1.0.0 and is published as a GitHub prerelease;
-it does not yet replace v0.8.2 as the stable production release.
-
-- [v1.0.0-rc.1 release-candidate notes](releases/RELEASE_NOTES_v1.0.0-rc.1.md)
-- [Download SpectraLab v1.0.0-rc.1](https://github.com/chto0703009/SpectraLab/releases/download/v1.0.0-rc.1/SpectraLab_v1.0.0-rc.1.zip)
-
-- [Release overview and notes](https://github.com/chto0703009/SpectraLab/releases/tag/v0.8.2)
-- [Download SpectraLab v0.8.2](https://github.com/chto0703009/SpectraLab/releases/download/v0.8.2/SpectraLab_v0.8.2.zip)
+- [v1.0.0 release notes](releases/RELEASE_NOTES_v1.0.0.md)
+- [Download SpectraLab v1.0.0](https://github.com/chto0703009/SpectraLab/releases/download/v1.0.0/SpectraLab_v1.0.0.zip)
 - [Getting started](docs/GETTING_STARTED.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 
@@ -51,9 +45,9 @@ Reliable measurements require reliable software.
 
 SpectraLab was developed to provide a clean separation between measurement, data management, visualisation, export and instrument communication. This makes user applications independent of specific instruments while allowing new devices to be added through dedicated drivers.
 
-The v0.8.2 release adds stability and difference metrics, explicit archive
-selection, reliable separate PNG output, and a single graphical
-presentation standard for interactive figures, PNG files and PDF reports.
+The v1.0.0 release combines traceable measurement and archive handling with
+registered analysis, controlled ColorChecker workflows, reliable PDF and PNG
+output, and one graphical presentation standard.
 
 ---
 
@@ -67,6 +61,8 @@ presentation standard for interactive figures, PNG files and PDF reports.
 - Registered scientific analyses
 - PDF reports with analysis-specific figures where applicable
 - Full-resolution PNG export of report figures
+- Controlled ColorChecker acquisition, conversion and remeasurement
+- Architecture-controlled target identity and integrity verification
 - JSON-based measurement storage
 - CSV and text export
 - Automatic environment verification
@@ -78,7 +74,7 @@ presentation standard for interactive figures, PNG files and PDF reports.
 
 ## Supported Environment
 
-The v0.8.2 release has been verified with the following environment.
+The v1.0.0 release has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|

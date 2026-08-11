@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v1.0.0-rc.1
+Version: v1.0.0
 Status: CURRENT
 -->
 
@@ -34,19 +34,19 @@ These principles should remain stable even as the software evolves.
 
 The roadmap describes engineering priorities rather than detailed feature lists.
 
-### Field-validation path to v1.0.0
+### Completed field-validation path to v1.0.0
 
 The ColorChecker, reflectance-colorimetry, integrity-verification and report
 workflows entered controlled real-world validation with v0.9.0-beta.1 and
 continued with traceable correction and quality-control validation in
 v0.9.0-beta.2. The complete approved workflow entered final validation as
-v1.0.0-rc.1.
+v1.0.0-rc.1 and completed successfully with stable v1.0.0 on 2026-08-11.
 
 The approved release progression is:
 
 1. `v0.9.0-beta.1` and later beta revisions for physical field testing;
 2. `v1.0.0-rc.1` when the feature set is complete and only final validation remains (reached 2026-08-10);
-3. `v1.0.0` after successful IRL validation and resolution of release-blocking findings.
+3. `v1.0.0` after successful IRL validation and resolution of release-blocking findings (reached 2026-08-11).
 
 Every beta and release candidate is identified by an immutable Git tag so
 that measurements and validation records can be traced to the exact code used.

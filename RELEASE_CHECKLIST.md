@@ -1,16 +1,16 @@
 <!--
 SpectraLab Documentation
 Document: RELEASE_CHECKLIST.md
-Version: v1.0.0-rc.1
-Status: OFFICIAL RELEASE CANDIDATE PRERELEASE
+Version: v1.0.0
+Status: OFFICIAL STABLE RELEASE
 -->
 
 # SpectraLab Release Checklist
 
-> **v1.0.0-rc.1 release-candidate note:** Automated regression, report-layout
-> verification and the complete physical measurement, ColorChecker,
-> conversion, correction and analysis workflows have been approved. Final
-> release-candidate field observation remains open before v1.0.0.
+> **v1.0.0 release note:** Automated regression, report-layout verification
+> and the complete physical measurement, ColorChecker, conversion, correction
+> and analysis workflows have been approved. Release-candidate field
+> observation is complete.
 
 The Release Checklist defines the verification process required before any SpectraLab version is published.
 
@@ -29,9 +29,9 @@ It is an engineering verification document.
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v1.0.0-rc.1 |
-| Release type | Official v1.0 Release Candidate Prerelease |
-| Release date | 2026-08-10 |
+| Version | v1.0.0 |
+| Release type | Official stable release |
+| Release date | 2026-08-11 |
 | Release manager | Project owner |
 
 ---
@@ -132,10 +132,10 @@ Approval should be recorded by the appropriate roles.
 
 | Role | Approval |
 |------|----------|
-| Technical Author | RC1 prepared 2026-08-10 |
+| Technical Author | v1.0.0 prepared 2026-08-11 |
 | Engineering Reviewer | Automated regression, physical workflows and visual report review complete |
-| Release Manager | Official release-candidate prerelease publication approved |
-| Project Owner | RC1 publication approved 2026-08-10 |
+| Release Manager | Official stable publication approved |
+| Project Owner | v1.0.0 publication approved 2026-08-11 |
 
 Approval represents acceptance of the engineering evidence supporting release.
 
@@ -145,13 +145,13 @@ Approval represents acceptance of the engineering evidence supporting release.
 
 | Item | Value |
 |------|-------|
-| Version | v1.0.0-rc.1 |
-| Release date | 2026-08-10 |
-| Git tag | `v1.0.0-rc.1` |
-| Release package | `releases/SpectraLab_v1.0.0-rc.1.zip` |
-| Test result | 494 passed, 0 failed, 0 incomplete in both the source-tree and clean packaged-release regressions on 2026-08-10 |
+| Version | v1.0.0 |
+| Release date | 2026-08-11 |
+| Git tag | `v1.0.0` |
+| Release package | `releases/SpectraLab_v1.0.0.zip` |
+| Test result | 498 passed, 0 failed, 0 incomplete in both the source-tree and clean packaged-release regressions on 2026-08-11 |
 | Real measurement verified | Emission, reflectance, series, transmission, density, ColorChecker acquisition/resume/conversion, quality comparison and controlled remeasurement approved |
-| Comments | Official release candidate prerelease; current stable release remains v0.8.2 until v1.0.0. |
+| Comments | Official stable v1.0.0 release; supersedes v0.8.2 as the recommended production version. |
 
 ---
 
