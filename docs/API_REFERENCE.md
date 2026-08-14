@@ -41,13 +41,15 @@ same operation; the API is not a `private` implementation detail.
 [measurement, archive, outputs] = spectralab.measurement.oneShot( ...
     "i1Pro2", "sample_name", archiveFolder, ...
     MeasurementKind="emissive", GenerateReport=true, ...
-    PNGSpectrumSummary=true);
+    PNGInformation=true);
 ```
 
-`PNGSpectrumSummary=true` adds peak wavelength and value, spectral integral,
-wavelength range, sample count, project, operator, timestamp and instrument
-identity to the ANL-SPECTRUM PNG. The single-emission workflow enables it;
-series workflows leave it disabled so repeated-series plots remain compact.
+`PNGInformation=true` adds spectral summary values and measurement provenance
+to the separately exported PNG. In the PDF, the spectrum figure remains a
+clean curve with legend; peak wavelength and value, spectral integral,
+wavelength range and sample count are instead listed in the report Results
+section without repeating operator or instrument fields. The single-emission
+workflow enables PNG information; series workflows leave it disabled.
 
 ## IO
 

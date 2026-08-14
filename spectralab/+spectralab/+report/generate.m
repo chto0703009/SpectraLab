@@ -31,7 +31,7 @@ arguments
     options.DerivedArchiveFile (1,1) string = ""
     options.FigureOutputFolder (1,1) string = ""
     options.ExportPNG (1,1) logical = true
-    options.PNGSpectrumSummary (1,1) logical = false
+    options.PNGInformation (1,1) logical = false
 end
 
 archiveFiles = normalizeArchiveFiles(archiveFiles);
@@ -172,10 +172,10 @@ if definition.HasFigure && options.ExportPNG
             pngRenderContext.Graphics.Axes, archives{:}, result);
     end
     if definition.AnalysisId == "ANL-SPECTRUM" && ...
-            options.PNGSpectrumSummary
+            options.PNGInformation
         spec = spectralab.archive.restore(primaryArchive);
-        spectralab.plot.spectrumSummaryPanel( ...
-            pngRenderContext.Graphics.Axes, spec, Archive=primaryArchive);
+        spectralab.plot.spectrumPNGInformationPanel( ...
+            pngRenderContext.Graphics.Axes, spec, primaryArchive);
     end
     pngInfo = spectralab.report.internal.exportPNG( ...
         pngFile, pngRenderContext);

@@ -73,9 +73,20 @@ verifyTrue(testCase, definition.HasFigure);
 verifyEqual(testCase, ...
     [definition.ResultFields.Field], ...
     ["SampleCount", "WavelengthMinimum", "WavelengthMaximum", ...
+     "PeakWavelength", "PeakValueText", "IntegratedPowerText", ...
      "ColorimetrySource", "SpotreadXYZText", "SpectraLabXYZText", ...
      "DeltaXYZText", "SpotreadLabText", "SpectraLabLabText", ...
      "DeltaLabText"]);
+end
+
+function testMeasuredSpectrumRunnerAddsSpectralReportValues(testCase)
+entry = spectralab.report.internal.resolveAnalysisSpecification( ...
+    "ANL-SPECTRUM");
+result = entry.AnalysisRunner(makeCriArchive());
+
+verifyTrue(testCase, isfinite(result.PeakWavelength));
+verifyTrue(testCase, contains(result.PeakValueText, "relative"));
+verifyTrue(testCase, contains(result.IntegratedPowerText, "*nm"));
 end
 
 function testResolvesCri(testCase)
@@ -91,7 +102,9 @@ verifyEqual(testCase, definition.AnalysisId, "ANL-CRI");
 verifyTrue(testCase, definition.HasFigure);
 verifyEqual(testCase, ...
     [definition.ResultFields.Field], ...
-    ["CCT", "Duv", "Ra"]);
+    ["CCT", "Duv", "Ra", "SampleCount", "WavelengthMinimum", ...
+     "WavelengthMaximum", "PeakWavelength", "PeakValueText", ...
+     "IntegratedPowerText"]);
 verifyEqual(testCase, definition.Method, "CIE 13.3");
 end
 
@@ -109,6 +122,9 @@ verifyTrue(testCase, isfield(result, "Ra"));
 verifyTrue(testCase, isfinite(result.CCT));
 verifyTrue(testCase, isfinite(result.Duv));
 verifyTrue(testCase, isfinite(result.Ra));
+verifyTrue(testCase, isfinite(result.PeakWavelength));
+verifyTrue(testCase, contains(result.PeakValueText, "relative"));
+verifyTrue(testCase, contains(result.IntegratedPowerText, "*nm"));
 end
 
 function testSpectrumReportFiguresPlaceLegendsOutsidePlot(testCase)
@@ -141,34 +157,10 @@ for analysisId = ["ANL-SPECTRUM", "ANL-CRI"]
     verifyLessThanOrEqual(testCase, titleTopInFigure, 1, ...
         "The registered figure title must remain inside the figure area.");
 
-    if analysisId == "ANL-CRI"
-        profile = spectralab.report.internal.figureLayoutProfile();
-        verifyEqual(testCase, string(legendHandle.Location), "none");
-        summary = findall(fig, "Tag", "SpectraLabCriSummary");
-        verifyNotEmpty(testCase, summary);
-        summaryText = replace(join(string(summary.String), newline), newline, " ");
-        verifyTrue(testCase, contains(summaryText, "Integrated"));
-        verifyTrue(testCase, contains(summaryText, "Peak"));
-        verifyTrue(testCase, contains(summaryText, "CCT"));
-        verifyTrue(testCase, contains(summaryText, "Duv"));
-        verifyTrue(testCase, contains(summaryText, "CRI (Ra)"));
-        verifyTrue(testCase, contains(summaryText, "Project"));
-        verifyTrue(testCase, contains(summaryText, "Instrument"));
-        verifyTrue(testCase, contains(summaryText, "Serial"));
-        verifyEqual(testCase, ax.Position, profile.AxesWithSidebar, ...
-            "AbsTol", 1e-12);
-        informationPanel = findall(fig, "Type", "axes", ...
-            "Tag", "SpectraLabFigureInformationPanel");
-        verifyEqual(testCase, informationPanel.Position, profile.SidePanel, ...
-            "AbsTol", 1e-12);
-        expectedLegendPosition = ...
-            spectralab.report.internal.sideLegendPosition( ...
-                legendHandle.String);
-        verifyEqual(testCase, legendHandle.Position, expectedLegendPosition, ...
-            "AbsTol", 1e-12);
-    else
-        verifyEqual(testCase, string(legendHandle.Location), "eastoutside");
-    end
+    verifyEqual(testCase, string(legendHandle.Location), "eastoutside");
+    verifyEmpty(testCase, findall(fig, "Type", "axes", ...
+        "Tag", "SpectraLabFigureInformationPanel"), ...
+        "PDF spectrum figures must contain the curve and legend only.");
 
     clear cleanup
 end
