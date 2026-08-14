@@ -7,6 +7,7 @@
 scriptFile = string(mfilename("fullpath"));
 examplesRoot = string(fileparts(fileparts(scriptFile)));
 dataFolder = fullfile(examplesRoot, "data");
+dataFolder = spectralab.ui.archiveFolder(dataFolder);
 archiveFolder = fullfile(examplesRoot, "output", "archive");
 reportFolder = fullfile(examplesRoot, "output", "report");
 plotFolder = fullfile(examplesRoot, "output", "plot");

@@ -15,7 +15,7 @@ end
 
 if ~isfolder(initialFolder), initialFolder=string(pwd); end
 sourceFiles=strings(1,0);
-currentFolder=initialFolder;
+currentFolder=spectralab.ui.archiveFolder(initialFolder);
 
 while true
     dialogTitle=options.Title+" (currently selected: "+ ...
@@ -29,6 +29,7 @@ while true
     end
 
     selectedFolder=string(selectedFolder);
+    spectralab.ui.archiveFolder(currentFolder,selectedFolder);
     selectedNames=reshape(string(selectedNames),1,[]);
     currentFolder=selectedFolder;
     additions=fullfile(selectedFolder,selectedNames);
