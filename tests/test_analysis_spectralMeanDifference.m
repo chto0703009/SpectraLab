@@ -61,6 +61,34 @@ verifyTrue(testCase, ...
     spectralab.archive.validate(analysis.Result.DerivedArchive).IsValid);
 end
 
+function testMeanPreservesCommonMeasurementKind(testCase)
+a = makeArchive([400; 500], [1; 2], "A");
+b = makeArchive([400; 500], [2; 3], "B");
+a.Measurement.Context.Kind = "emissive";
+b.Measurement.Context.Kind = "emissive";
+a = refreshContentHash(a);
+b = refreshContentHash(b);
+
+analysis = spectralab.analysis.spectralMean(a, b);
+
+verifyEqual(testCase, ...
+    analysis.Result.DerivedArchive.Measurement.Context.Kind, "emissive");
+end
+
+function testMeanDoesNotInventMixedMeasurementKind(testCase)
+a = makeArchive([400; 500], [1; 2], "A");
+b = makeArchive([400; 500], [2; 3], "B");
+a.Measurement.Context.Kind = "emissive";
+b.Measurement.Context.Kind = "reflectance";
+a = refreshContentHash(a);
+b = refreshContentHash(b);
+
+analysis = spectralab.analysis.spectralMean(a, b);
+
+verifyEqual(testCase, ...
+    analysis.Result.DerivedArchive.Measurement.Context.Kind, "");
+end
+
 function testMismatchRequiresExplicitResampling(testCase)
 a = makeArchive([400; 500; 600], [2; 4; 6], "A");
 b = makeArchive([400; 450; 500; 550; 600], [1; 2; 3; 4; 5], "B");
@@ -87,4 +115,10 @@ spec = spectralab.core.Spectrum(wavelength, value, name, ...
     struct("Name", "Test instrument"), struct(), ...
     struct("Operator", "Test"), unit);
 archive = spectralab.archive.create(spec);
+end
+
+function archive = refreshContentHash(archive)
+payload = struct("Measurement", archive.Measurement, ...
+    "Instrument", archive.Instrument, "Quality", archive.Quality);
+archive.Identity.ContentHash = spectralab.archive.contentHash(payload);
 end

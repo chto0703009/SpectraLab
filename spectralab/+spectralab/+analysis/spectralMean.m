@@ -57,6 +57,11 @@ metadata = struct( ...
     "Description", "Derived arithmetic mean of " + ...
         aligned.SourceCount + " SpectraLab archives", ...
     "Comment", "Sources: " + strjoin(sourceDescriptions, "; "));
+commonMeasurementKind = commonArchiveText(archives, ...
+    ["Measurement.Context.Kind"]);
+if commonMeasurementKind ~= ""
+    metadata.measurement_kind = commonMeasurementKind;
+end
 spec = spectralab.core.Spectrum( ...
     aligned.WavelengthNm, meanValue, options.ResultName, ...
     instrument, struct(), metadata, aligned.Unit);
@@ -198,6 +203,42 @@ source = struct( ...
     "MeasurementName", string(archive.Measurement.Name), ...
     "UUID", string(archive.Identity.UUID), ...
     "ContentHash", string(archive.Identity.ContentHash));
+end
+
+function value = commonArchiveText(archives, paths)
+%COMMONARCHIVETEXT Preserve shared categorical measurement provenance.
+values = strings(1, numel(archives));
+for archiveIndex = 1:numel(archives)
+    current = archives{archiveIndex};
+    for path = string(paths)
+        candidate = nestedValue(current, path);
+        if candidate ~= ""
+            values(archiveIndex) = candidate;
+            break
+        end
+    end
+end
+nonempty = strlength(strtrim(values)) > 0;
+if all(nonempty) && all(strcmpi(values, values(1)))
+    value = lower(strtrim(values(1)));
+else
+    value = "";
+end
+end
+
+function value = nestedValue(container, path)
+value = "";
+for fieldName = split(path, ".").'
+    if ~isstruct(container) || ~isscalar(container) || ...
+            ~isfield(container, char(fieldName))
+        return
+    end
+    container = container.(char(fieldName));
+end
+candidate = string(container);
+if isscalar(candidate) && ~ismissing(candidate)
+    value = strtrim(candidate);
+end
 end
 
 function value = displaySource(source)
