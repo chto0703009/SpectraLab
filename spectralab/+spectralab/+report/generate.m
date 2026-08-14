@@ -100,7 +100,7 @@ end
 manifest = spectralab.report.internal.buildManifest(context);
 document = spectralab.report.internal.buildDocumentModel(manifest);
 renderContext = spectralab.report.internal.createRenderContext( ...
-    context, manifest, ShowFigure=options.ShowFigure);
+    context, manifest, ShowFigure=false);
 
 cleanup = onCleanup(@() ...
     spectralab.report.internal.releaseRenderContext(renderContext));
@@ -163,7 +163,7 @@ if definition.HasFigure && options.ExportPNG
         context, manifest, ShowFigure=options.ShowFigure);
     pngRenderContext.State = renderContext.State;
     pngGraphicsCleanup = onCleanup(@() ...
-        spectralab.report.internal.releaseRenderContext(pngRenderContext));
+        releasePNGRenderContext(pngRenderContext, options.ShowFigure));
     if definition.AnalysisId == "ANL-009"
         entry.FigureRenderer( ...
             pngRenderContext.Graphics.Axes, archives, [], result);
@@ -210,6 +210,12 @@ required = ["PeakWavelength", "PeakValueText", ...
     "WavelengthMaximum", "SampleCount"];
 value = isstruct(result) && isscalar(result) && ...
     all(isfield(result, required));
+end
+
+function releasePNGRenderContext(renderContext, keepFigure)
+if ~keepFigure
+    spectralab.report.internal.releaseRenderContext(renderContext);
+end
 end
 
 function result = addSourceFilenames( ...
