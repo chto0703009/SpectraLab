@@ -40,8 +40,14 @@ same operation; the API is not a `private` implementation detail.
 ```matlab
 [measurement, archive, outputs] = spectralab.measurement.oneShot( ...
     "i1Pro2", "sample_name", archiveFolder, ...
-    MeasurementKind="emissive", GenerateReport=true);
+    MeasurementKind="emissive", GenerateReport=true, ...
+    PNGSpectrumSummary=true);
 ```
+
+`PNGSpectrumSummary=true` adds peak wavelength and value, spectral integral,
+wavelength range, sample count, project, operator, timestamp and instrument
+identity to the ANL-SPECTRUM PNG. The single-emission workflow enables it;
+series workflows leave it disabled so repeated-series plots remain compact.
 
 ## IO
 

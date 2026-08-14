@@ -16,6 +16,7 @@ arguments
     options.ExportCSV (1,1) logical = false
     options.GenerateReport (1,1) logical = false
     options.ShowFigure (1,1) logical = true
+    options.PNGSpectrumSummary (1,1) logical = false
 end
 if ~isfolder(archiveFolder), mkdir(archiveFolder); end
 archiveFile = fullfile(archiveFolder, measurementName + ".mat");
@@ -57,7 +58,8 @@ if options.GenerateReport
     reportInfo = spectralab.report.generate(archiveFile, ...
         "ANL-SPECTRUM", reportFolder, ...
         ShowFigure=options.ShowFigure, OpenPDF=false, ...
-        FigureOutputFolder=plotFolder);
+        FigureOutputFolder=plotFolder, ...
+        PNGSpectrumSummary=options.PNGSpectrumSummary);
 elseif options.ShowFigure
     spectralab.report.showFigure(archive, "ANL-SPECTRUM");
 end

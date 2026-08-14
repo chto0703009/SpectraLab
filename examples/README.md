@@ -91,7 +91,7 @@ laboratory measurement claim.
 | `calculate_statusA_iso_visual_density_report` | reference + sample A | ANL-005 PDF; no registered figure |
 | `calculate_statusM_iso_visual_density_report` | reference + sample A | ANL-008 PDF; no registered figure |
 | `list_archive_folder` | all bundled MAT files | read-only Command Window inventory |
-| `measure_emission_spectrum` | emitted light + i1Pro/i1Pro2 | immutable MAT + ANL-SPECTRUM PDF + PNG |
+| `measure_emission_spectrum` | emitted light + i1Pro/i1Pro2 | immutable MAT + ANL-SPECTRUM PDF + detailed PNG with peak, integral and provenance |
 | `measure_emission_series` | emitted light series + user-selected count | one immutable MAT + ANL-SPECTRUM PDF + PNG per measurement |
 | `measure_transmission_pair` | unfiltered source reference, then same source through sample | reference MAT/PDF/PNG + sample MAT/PDF/PNG + ANL-001 transmission PDF/PNG |
 | `measure_colorchecker_reflectance` | X-Rite ColorChecker Digital SG + i1Pro/i1Pro2 | session JSON + one immutable MAT archive per patch |
