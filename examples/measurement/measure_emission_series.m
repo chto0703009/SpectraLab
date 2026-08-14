@@ -51,7 +51,8 @@ highResolution = strcmp(resolutionChoice, "High resolution");
 
 inst = spectralab.drivers.createInstrument( ...
     instrumentId, MeasurementKind="emissive", ...
-    HighResolution=highResolution);
+    HighResolution=highResolution, ...
+    PlacementConfirmation=@spectralab.ui.confirmInstrumentPlacement);
 instrumentCleanup = onCleanup(@() inst.close());
 sess = spectralab.core.Session(inst, AudibleFeedback=true);
 sess = sess.withOperator(operatorName);
