@@ -23,6 +23,8 @@ fig = figure("Name", spec.Label, "Color", "white");
 ax = axes("Parent", fig);
 spectralab.plot.spectrum(spec, Parent=ax, ...
     Title=spec.Label, DisplayName=spec.Label, ShowSummary=false);
+spectralab.plot.archiveInformationPanel( ...
+    ax, spec, archive, ArchiveName="example_reference");
 legend(ax, "Location", "eastoutside", "Interpreter", "none");
 exportgraphics(fig, pngFile, "Resolution", 300);
 
