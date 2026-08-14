@@ -1,7 +1,9 @@
 % calculate_cri_report
 %
 % Run the registered ANL-CRI analysis for the bundled synthetic reference.
-% The PDF is written to output/report and the PNG to output/plot.
+% The PDF is written to output/report and the PNG to output/plot. Spectral
+% summary values belong in the PDF Results section; its spectrum figure and
+% the companion report PNG contain only the curve and legend.
 
 scriptFile = string(mfilename("fullpath"));
 examplesRoot = string(fileparts(fileparts(scriptFile)));

@@ -51,9 +51,11 @@ instrument interaction, identity prompts, immutable archive and its registered
 presentation outputs.
 
 1. **Emission:** run `measure_emission_spectrum`. Confirm that one MAT archive,
-   one ANL-SPECTRUM PDF report and one PNG figure are created. Continue with
-   `measure_emission_series` when repeated measurements are needed; the dialog
-   selects the series length.
+   one ANL-SPECTRUM PDF report and one detailed standalone PNG are created. The
+   PNG contains peak, integral and measurement provenance. In the PDF, those
+   spectral values are placed in Results while the embedded spectrum figure
+   contains only the curve and legend. Continue with `measure_emission_series`
+   when repeated measurements are needed; the dialog selects the series length.
 2. **Transmission:** run `measure_transmission_pair`. First measure the source
    without the sample, then insert the sample without changing source,
    geometry or exposure. The workflow preserves both source measurements and
@@ -85,7 +87,7 @@ laboratory measurement claim.
 |---|---|---|
 | `plot_spectrum` | `example_reference.mat` | one spectrum PNG |
 | `plot_transmission` | reference + `example_sample_a.mat` | one optical-density PNG |
-| `calculate_cri_report` | `example_reference.mat` | ANL-CRI PDF + PNG |
+| `calculate_cri_report` | `example_reference.mat` | ANL-CRI PDF with spectral values in Results + clean curve-and-legend PNG |
 | `calculate_spectral_mean_report` | sample A + sample B | derived MAT + ANL-009 PDF + PNG |
 | `calculate_spectral_difference_report` | sample A + sample B | ANL-010 PDF + PNG; no MAT |
 | `calculate_statusA_iso_visual_density_report` | reference + sample A | ANL-005 PDF; no registered figure |

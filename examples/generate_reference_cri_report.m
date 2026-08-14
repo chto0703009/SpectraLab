@@ -6,7 +6,10 @@ function info = generate_reference_cri_report(outputFolder)
 %
 % The example uses deterministic synthetic spectrum data for visual design
 % review. RP-020 requires all report metadata, analysis execution, and
-% figure rendering to come from the canonical ANL-CRI registry entry.
+% figure rendering to come from the canonical ANL-CRI registry entry. The
+% PDF Results section presents CRI and spectral summary values; the spectrum
+% figure embedded in the PDF and the companion PNG remain curve-and-legend
+% figures without a duplicated information panel.
 
 arguments
     outputFolder (1,1) string = fullfile(pwd, "reference_report_output")
