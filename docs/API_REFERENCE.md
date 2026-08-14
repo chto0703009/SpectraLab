@@ -28,6 +28,21 @@ Pass `HighResolution=true` to request the physically verified i1Pro2 `-H`
 mode. The setting is applied to both calibration and measurement. Standard
 resolution remains the default.
 
+## Single-spectrum measurement
+
+`spectralab.measurement.oneShot` is the public shared API for one complete
+calibrate–measure–archive operation. Set `MeasurementKind="emissive"` for an
+emitted-light spectrum or `MeasurementKind="reflectance"` for a reflected-light
+spectrum. The user-facing `measure_emission_spectrum` and
+`measure_reflectance_spectrum` workflows are mode-specific front ends to this
+same operation; the API is not a `private` implementation detail.
+
+```matlab
+[measurement, archive, outputs] = spectralab.measurement.oneShot( ...
+    "i1Pro2", "sample_name", archiveFolder, ...
+    MeasurementKind="emissive", GenerateReport=true);
+```
+
 ## IO
 
 - `spectralab.io.saveSpectrum`

@@ -43,25 +43,15 @@ commentLines = strip(string(answers{4}), "right");
 measurementComment = strip(strjoin(commentLines, newline));
 highResolution = strcmp(resolutionChoice, "High resolution");
 
-inst = spectralab.drivers.createInstrument( ...
-    instrumentId, MeasurementKind="emissive", ...
-    HighResolution=highResolution);
-instrumentCleanup = onCleanup(@() inst.close());
-sess = spectralab.core.Session(inst, AudibleFeedback=true);
-sess = sess.withOperator(operatorName);
-sess = sess.withProject(projectName);
-sess = sess.withSample(measurementName);
-sess = sess.withComment(measurementComment);
-sess = sess.open();
-sess = sess.calibrate("Mode", "automatic");
-calibrationSerialNumber = verify_spotread_instrument( ...
-    inst, "", "calibration");
-pause(1.0)
-measurement = sess.measure(measurementName, "Mode", "automatic");
-verify_spotread_instrument( ...
-    inst, calibrationSerialNumber, "measurement");
+[measurement, archive, outputs] = spectralab.measurement.oneShot( ...
+    instrumentId, measurementName, fullfile(outputRoot, "archive"), ...
+    MeasurementKind="emissive", ...
+    HighResolution=highResolution, ...
+    Operator=operatorName, Project=projectName, ...
+    Comment=measurementComment, ...
+    GenerateReport=true, ShowFigure=true); %#ok<ASGLU>
 
-saveInfo = internal_save_spectrum_outputs( ...
-    measurement, measurementName, outputRoot);
-sess = sess.close();
-clear instrumentCleanup
+fprintf("SpectraLab emitted-light spectrum saved:\n");
+fprintf("  Archive: %s\n", outputs.ArchiveFile);
+fprintf("  PDF:     %s\n", outputs.Report.PDFFile);
+fprintf("  PNG:     %s\n", outputs.Report.PNGFile);
