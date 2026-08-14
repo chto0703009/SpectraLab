@@ -34,6 +34,7 @@ exportFigure = createExportFigure(profile);
 cleanupFigure = onCleanup(@() closeIfValid(exportFigure));
 
 sourceLegend = findall(ancestor(sourceAxes, "figure"), "Type", "legend");
+informationPanel = copyInformationPanel(sourceAxes, exportFigure);
 if isempty(sourceLegend)
     exportAxes = copyobj(sourceAxes, exportFigure);
     exportLegend = gobjects(0);
@@ -44,7 +45,6 @@ else
     error("SpectraLab:Report:InvalidFigureLegend", ...
         "A report figure may contain at most one legend.");
 end
-informationPanel = copyInformationPanel(sourceAxes, exportFigure);
 positionLegend(exportLegend, ~isempty(informationPanel));
 if ~isempty(informationPanel)
     set(exportAxes, ...
