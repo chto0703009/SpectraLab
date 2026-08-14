@@ -15,6 +15,7 @@ arguments
     options.Comment (1,1) string = ""
     options.ExportCSV (1,1) logical = false
     options.GenerateReport (1,1) logical = false
+    options.ExportPNG (1,1) logical = false
     options.ShowFigure (1,1) logical = true
     options.PNGInformation (1,1) logical = false
 end
@@ -23,6 +24,16 @@ archiveFile = fullfile(archiveFolder, measurementName + ".mat");
 if isfile(archiveFile)
     error("SpectraLab:Measurement:OutputFileAlreadyExists", ...
         "SpectraLab refuses to overwrite the existing file:\n%s", archiveFile);
+end
+pngFile = "";
+exportStandalonePNG = options.ExportPNG || options.PNGInformation;
+if exportStandalonePNG
+    pngFile = fullfile(string(fileparts(archiveFolder)), ...
+        "plot", measurementName + ".png");
+    if isfile(pngFile)
+        error("SpectraLab:Measurement:OutputFileAlreadyExists", ...
+            "SpectraLab refuses to overwrite the existing file:\n%s", pngFile);
+    end
 end
 
 inst = spectralab.drivers.createInstrument(instrumentId, ...
@@ -49,6 +60,10 @@ if options.ExportCSV
     spectralab.io.exportCsv(measurement, csvFile);
 end
 reportInfo = struct();
+if exportStandalonePNG
+    spectralab.plot.exportArchivePNG(archive, pngFile, ...
+        Information=options.PNGInformation, ShowFigure=options.ShowFigure);
+end
 if options.GenerateReport
     analysisRoot = string(fileparts(archiveFolder));
     reportFolder = fullfile(analysisRoot, "report");
@@ -60,9 +75,10 @@ if options.GenerateReport
         ShowFigure=options.ShowFigure, OpenPDF=false, ...
         FigureOutputFolder=plotFolder, ...
         PNGInformation=options.PNGInformation);
-elseif options.ShowFigure
+elseif options.ShowFigure && ~exportStandalonePNG
     spectralab.report.showFigure(archive, "ANL-SPECTRUM");
 end
 outputs = struct("ArchiveFile", string(archiveFile), ...
-    "CSVFile", string(csvFile), "Report", reportInfo);
+    "CSVFile", string(csvFile), "PNGFile", string(pngFile), ...
+    "Report", reportInfo);
 end
