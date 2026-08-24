@@ -7,6 +7,7 @@ arguments
     measurementName (1,1) string
     outputRoot (1,1) string
     options.OpenPDF (1,1) logical = true
+    options.PNGInformation (1,1) logical = false
 end
 
 measurementName = strtrim(measurementName);
@@ -40,7 +41,8 @@ archive = spectralab.archive.create(measurement);
 spectralab.archive.save(archive, archiveFile);
 reportInfo = spectralab.report.generate( ...
     archiveFile, "ANL-SPECTRUM", reportFolder, ...
-    ShowFigure=false, OpenPDF=false, FigureOutputFolder=plotFolder);
+    ShowFigure=false, OpenPDF=false, FigureOutputFolder=plotFolder, ...
+    PNGInformation=options.PNGInformation);
 if options.OpenPDF
     open(char(reportInfo.PDFFile));
 end

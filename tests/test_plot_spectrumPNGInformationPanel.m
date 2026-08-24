@@ -29,7 +29,9 @@ for expected = ["Measurement:", "Peak wavelength:", "Peak value:", ...
 end
 verifyEqual(testCase, string(panel.Tag), ...
     "SpectraLabSpectrumPNGInformation");
-verifyEqual(testCase, panel.Position(1:2), [0.02 0.98], "AbsTol", 1e-12);
+verifyEqual(testCase, panel.Position(1:2), [0 1], "AbsTol", 1e-12);
+verifyEqual(testCase, string(panel.Parent.Tag), ...
+    "SpectraLabFigureInformationPanel");
 end
 
 
@@ -47,7 +49,7 @@ axesHandle = axes("Parent", figureHandle);
 spectralab.plot.spectrumPNGInformationPanel(axesHandle, spectrum, archive);
 spectralab.plot.spectrumPNGInformationPanel(axesHandle, spectrum, archive);
 
-panels = findall(axesHandle, "Type", "text", ...
+panels = findall(figureHandle, "Type", "text", ...
     "Tag", "SpectraLabSpectrumPNGInformation");
 verifyNumElements(testCase, panels, 1);
 end

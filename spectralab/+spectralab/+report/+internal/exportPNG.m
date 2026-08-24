@@ -115,7 +115,8 @@ function legendHandle = createLegend(targetAxes, sourceLegend)
 
 legendHandle = legend(targetAxes, wrapLegendLabels(sourceLegend.String), ...
     "Location", "none", "Interpreter", sourceLegend.Interpreter);
-legendHandle.FontSize = sourceLegend.FontSize;
+legendHandle.FontSize = min(sourceLegend.FontSize, ...
+    spectralab.report.internal.sideLegendFontSize(legendHandle.String));
 end
 
 function positionLegend(legendHandle, ~)

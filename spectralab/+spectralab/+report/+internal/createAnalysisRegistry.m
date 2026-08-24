@@ -384,7 +384,8 @@ for index = 1:numel(archives)
     end
     plot(ax, archives{index}.Measurement.Wavelength, ...
         archives{index}.Measurement.Value, "--", "LineWidth", 1.0, ...
-        "DisplayName", displayLabel + ": " + sourceName);
+        "DisplayName", meanLegendLabel( ...
+            displayLabel, sourceName, numel(archives)));
     maximumDisplayedValue = max(maximumDisplayedValue, ...
         max(archives{index}.Measurement.Value));
 end
@@ -402,6 +403,15 @@ addFigureInformationPanel(ax, sprintf( ...
     result.RMSDifference, char(result.Unit), ...
     result.RMSDifferencePercent), ...
     "SpectraLabMeanStabilitySummary");
+end
+
+function label = meanLegendLabel(sourceLabel, sourceName, sourceCount)
+%MEANLEGENDLABEL Keep multi-source legends inside the reserved column.
+if sourceCount > 4
+    label = sourceLabel;
+else
+    label = sourceLabel + ": " + sourceName;
+end
 end
 
 function definition = spectralMeanDefinition()
@@ -528,6 +538,8 @@ assert(isscalar(legendHandle), ...
     "A report figure may contain at most one legend.");
 
 legendHandle.Units = "normalized";
+legendHandle.FontSize = ...
+    spectralab.report.internal.sideLegendFontSize(legendHandle.String);
 legendHandle.Position = ...
     spectralab.report.internal.sideLegendPosition(legendHandle.String);
 legendHandle.Location = "none";

@@ -180,10 +180,10 @@ right = 1 - layout.MarginRight / layout.PageWidth;
 contentWidth = right - left;
 
 headerY = 1 - 34 / layout.PageHeight;
-footerY = 20 / layout.PageHeight;
+footerY = 12 / layout.PageHeight;
 
 headerHeight = 16 / layout.PageHeight;
-footerHeight = 16 / layout.PageHeight;
+footerHeight = 10 / layout.PageHeight;
 
 headerLeft = [left headerY contentWidth/2 headerHeight];
 headerRight = [left + contentWidth/2 headerY contentWidth/2 headerHeight];
@@ -191,10 +191,14 @@ headerRight = [left + contentWidth/2 headerY contentWidth/2 headerHeight];
 footerLeft = [left footerY contentWidth/3 footerHeight];
 footerCenter = [left + contentWidth/3 footerY contentWidth/3 footerHeight];
 footerRight = [left + 2*contentWidth/3 footerY contentWidth/3 footerHeight];
+footerFilename = [left 23/layout.PageHeight contentWidth 8/layout.PageHeight];
 
 drawPageFrameHeaderText( ...
     fig, headerLeft, headerRight, model, style);
 
+drawPageFrameText(fig, footerFilename, model.FooterFilename, ...
+    "left", max(5, style.PageFrame.FooterFontSize - 0.5), ...
+    style.Font.WeightNormal, "normal", "middle", style);
 drawPageFrameText(fig, footerLeft, model.FooterLeft, ...
     "left", style.PageFrame.FooterFontSize, ...
     style.Font.WeightNormal, "normal", "middle", style);
@@ -290,6 +294,7 @@ required = [ ...
     "Version"
     "HeaderLeft"
     "HeaderRight"
+    "FooterFilename"
     "FooterLeft"
     "FooterCenter"];
 
@@ -701,7 +706,8 @@ if hasLegend
     reportAxes = copyobj(sourceAxes, fig);
     reportLegend = legend(reportAxes, wrapLegendLabels(sourceLegend.String), ...
         "Location", "none", "Interpreter", sourceLegend.Interpreter);
-    reportLegend.FontSize = sourceLegend.FontSize;
+    reportLegend.FontSize = min(sourceLegend.FontSize, ...
+        spectralab.report.internal.sideLegendFontSize(reportLegend.String));
 else
     reportAxes = copyobj(sourceAxes, fig);
 end

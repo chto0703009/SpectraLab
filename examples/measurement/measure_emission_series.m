@@ -75,7 +75,8 @@ for measurementIndex = 1:measurementCount
         calibrationSerialNumber, ...
         "measurement " + string(measurementIndex));
     internal_save_spectrum_outputs( ...
-        measurement, measurementName, outputRoot, OpenPDF=false);
+        measurement, measurementName, outputRoot, ...
+        OpenPDF=false, PNGInformation=true);
 end
 
 sess = sess.close();
