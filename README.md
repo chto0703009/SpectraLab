@@ -12,7 +12,11 @@ Status: DEVELOPMENT
 This worktree is the `v1.0.1-dev` patch-development line for corrections to
 the accepted v1.0.0 release. It is not a published release.
 
-SpectraLab is an open-source MATLAB toolbox for reliable spectral measurements.
+SpectraLab is an open-source MATLAB package for reliable spectral measurements.
+Standard/base MATLAB only is the binding runtime policy; MathWorks add-on
+toolboxes are not permitted dependencies. The ColorChecker PDF generators use
+the same base-MATLAB graphics/PDF backend as the other reports, and the policy
+is enforced by a repository regression test.
 
 It provides a stable engineering framework for acquiring, managing, analysing and preserving calibrated spectra while keeping measurement workflows simple, reproducible and understandable.
 

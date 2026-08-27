@@ -17,7 +17,7 @@ cd(rootDir);
 addpath(rootDir);
 examplesDir = fullfile(rootDir, "examples");
 addpath(examplesDir);
-for category = ["measurement", "analysis", "inventory"]
+for category = ["measurement", "analysis", "inventory", "colorchecker"]
     categoryDir = fullfile(examplesDir, category);
     if isfolder(categoryDir)
         addpath(categoryDir);
@@ -73,6 +73,16 @@ for k = 1:numel(testListing)
             string(ME.identifier) + " :: " + string(ME.message); %#ok<SAGROW>
         fprintf(2," FAIL\n");
         fprintf(2, "          %s\n", ME.message);
+        if exist("fileResults", "var") && any([fileResults.Failed])
+            failedResults = fileResults([fileResults.Failed]);
+            for failedResult = reshape(failedResults, 1, [])
+                fprintf(2, "          Failed case: %s\n", failedResult.Name);
+                records = failedResult.Details.DiagnosticRecord;
+                for record = reshape(records, 1, [])
+                    fprintf(2, "          %s\n", string(record.Report));
+                end
+            end
+        end
     end
 end
 
@@ -97,7 +107,7 @@ end
 % measure_led works immediately after run_all_tests.
 addpath(rootDir);
 addpath(examplesDir);
-for category = ["measurement", "analysis", "inventory"]
+for category = ["measurement", "analysis", "inventory", "colorchecker"]
     categoryDir = fullfile(examplesDir, category);
     if isfolder(categoryDir)
         addpath(categoryDir);
