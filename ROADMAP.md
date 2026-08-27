@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v1.0.0
+Version: v1.0.1
 Status: CURRENT
 -->
 
@@ -33,6 +33,14 @@ These principles should remain stable even as the software evolves.
 ## Strategic Development Priorities
 
 The roadmap describes engineering priorities rather than detailed feature lists.
+
+### Completed stabilization release v1.0.1
+
+Version 1.0.1 preserves the v1.0.0 scientific and archive contracts while
+correcting issues found through practical use. It harmonizes emission
+workflows, improves spectral stability reporting and report metadata, and
+removes the remaining MATLAB Report Generator dependency from ColorChecker
+PDF reports. The complete release remains restricted to standard/base MATLAB.
 
 ### Completed field-validation path to v1.0.0
 

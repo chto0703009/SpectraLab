@@ -5,6 +5,6 @@ type: software
 authors:
   - family-names: Törnkvist
     given-names: Christer
-version: 1.0.0
-date-released: 2026-08-11
+version: 1.0.1
+date-released: 2026-08-27
 license: GPL-3.0-or-later

@@ -8,6 +8,39 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
+## Stable patch release - v1.0.1
+
+Released 2026-08-27 after complete automated regression and practical
+verification of the affected measurement, analysis, plotting and reporting
+workflows.
+
+### Corrected
+
+- Spectral mean stability now reports relative RMS difference instead of a
+  misleading mean of pointwise relative standard deviations near zero.
+- Emission and CRI figures consistently expose the intended spectral result
+  information while PDF figures remain clean report components.
+- ColorChecker session and colorimetry PDF reports retain measurement
+  comments and use the base-MATLAB PDF backend.
+- New analysis sessions start from the most recently used archive folder.
+
+### Improved
+
+- One-shot emission PNGs include peak, integral, range, instrument, operator
+  and provenance information.
+- Emission-series dialogs, naming and one-shot terminology are harmonized.
+- Large source legends use a reduced font size to remain inside the figure.
+- Report footers identify the generated PDF filename.
+
+### Verified
+
+- Standard/base MATLAB is the only required MathWorks product.
+- All 86 test files and 515 test cases passed with zero failures and zero
+  incomplete tests on 2026-08-27.
+- The affected workflows were approved in practical use by the project owner.
+
+---
+
 ## Stable v1.0 Release - v1.0.0
 
 Released 2026-08-11 after successful automated regression and physical
