@@ -1,15 +1,16 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v1.0.1
-Status: OFFICIAL STABLE RELEASE
+Version: v1.0.2-dev
+Status: DEVELOPMENT
 -->
 
 # SpectraLab
 
 > **Measure once. Save forever. Verify always.**
 
-SpectraLab v1.0.1 is the current stable patch release.
+This worktree is the `v1.0.2-dev` patch-development line for possible future
+corrections to the accepted v1.0.1 release. It is not a published release.
 
 SpectraLab is an open-source MATLAB package for reliable spectral measurements.
 Standard/base MATLAB only is the binding runtime policy; MathWorks add-on
