@@ -20,6 +20,11 @@ is enforced by a repository regression test.
 
 It provides a stable engineering framework for acquiring, managing, analysing and preserving calibrated spectra while keeping measurement workflows simple, reproducible and understandable.
 
+For a concise introduction, see
+[SpectraLab: spectral measurement, analysis and provenance](docs/spectralab_summary_spectral_measurement.pdf).
+The complete scientific and architectural description is available as
+[Spectral Measurement, Analysis and Provenance](docs/scientific-reports/spectralab_spectral_measurement_analysis_and_provenance.pdf).
+
 The current release supports ArgyllCMS `spotread` together with the X-Rite i1Pro2 spectrophotometer. The architecture is instrument-independent and designed for future expansion.
 
 The post-release measurement examples have also been physically verified
@@ -204,6 +209,8 @@ the bounded `automatic` mode above.
 | `docs/TROUBLESHOOTING.md` | Error diagnosis and recovery |
 | `docs/REPOSITORY_STRUCTURE.md` | Project organisation |
 | `docs/DEVELOPMENT_PHILOSOPHY.md` | Engineering principles |
+| `docs/spectralab_summary_spectral_measurement.pdf` | Concise English project presentation |
+| `docs/scientific-reports/spectralab_spectral_measurement_analysis_and_provenance.pdf` | Scientific and architectural description |
 | `CONTRIBUTING.md` | Contribution guidelines |
 | `DISCLAIMER.md` | Engineering and scientific responsibility |
 | `CHANGELOG.md` | Release history and engineering significance |
