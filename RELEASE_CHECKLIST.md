@@ -66,6 +66,7 @@ Confirm that:
   limits for signed difference plots.
 - [x] Supported environments have been verified.
 - [x] Version information is consistent.
+- [x] Release tag, `VERSION`, `spectralab.version()` and README identity agree.
 - [x] No obsolete release candidate or build version strings remain in user-facing files.
 
 Verification shall be based on objective evidence.

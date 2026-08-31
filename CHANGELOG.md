@@ -298,6 +298,16 @@ SpectraLab uses version numbers to communicate release significance.
 
 Only public releases are recorded as release history.
 
+### Historical tag identity note
+
+The published tags `v0.5.0`, `v0.6.0` and `v0.7.0` are retained unchanged for
+provenance, although their committed `VERSION` files contain `0.4.0`, `0.5.1`
+and `0.5.1`, respectively. Rewriting those public tags would invalidate
+existing references. From `v0.8.0` onward, tag and committed version agree.
+The automated release-identity gate now rejects future mismatches between
+`VERSION`, `spectralab.version()`, the README version and a proposed or exact
+Git tag.
+
 ---
 
 ## Release History
