@@ -364,6 +364,18 @@ function source = makeSourceSummary(archive)
 
     source.Timestamp = ...
         readValue(archive.Measurement, "Timestamp");
+
+    source.Origin = "measured";
+    source.DerivationType = "";
+    if isfield(archive, "Derivation") && ...
+            isstruct(archive.Derivation) && isscalar(archive.Derivation)
+        source.Origin = "derived";
+        if isfield(archive.Derivation, "Definition") && ...
+                isstruct(archive.Derivation.Definition)
+            source.DerivationType = readText( ...
+                archive.Derivation.Definition, "Type");
+        end
+    end
 end
 
 

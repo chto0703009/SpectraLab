@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: MANIFEST.md
-Version: v1.0.1
+Version: v1.1.0
 Status: OFFICIAL STABLE RELEASE
 -->
 
@@ -22,7 +22,7 @@ A release is considered complete only when all required components are present a
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v1.0.1 |
+| Version | v1.1.0 |
 | Release type | Official stable release |
 | License | GNU General Public License v3 |
 | Primary environment | MATLAB |
@@ -105,7 +105,7 @@ Primary location:
 examples/
 ```
 
-The v1.0.1 release includes categorized measurement, analysis, plotting,
+The v1.1.0 release includes categorized measurement, analysis, plotting,
 ColorChecker quality-control and inventory workflows, synthetic
 non-identifying SLAB-MAT fixtures, and
 examples that follow the approved graphical-presentation profile.
@@ -192,7 +192,7 @@ The release itself should remain the authoritative engineering record.
 A typical official release has the conceptual form:
 
 ```text
-SpectraLab_v1.0.1/
+SpectraLab_v1.1.0/
     README.md
     LICENSE
     VERSION

@@ -98,13 +98,16 @@ end
 end
 
 function rows = compactMeasurementRows(sources)
-rows = repmat(row("", ""), 2 * numel(sources), 1);
-index = 1;
-for source = sources
-    role = source.Role;
-    rows(index) = archiveRow(role + " archive",source.Filename); index=index+1;
-    rows(index) = row(role + " measurement", ...
-        valueAt(source,"Measurement.Name")); index=index+1;
+% A spectral-mean report can contain many sources.  The archive filename is
+% the stable, unambiguous source identifier and normally already contains
+% the measurement name.  Repeating both values makes a ten-source table
+% taller than an A4 content area after deterministic filename wrapping.
+% Keep one source row here; the source archives retain the complete
+% measurement metadata and the provenance table repeats the file identity.
+rows = repmat(row("", ""), numel(sources), 1);
+for index = 1:numel(sources)
+    source = sources(index);
+    rows(index) = archiveRow(source.Role + " archive", source.Filename);
 end
 end
 

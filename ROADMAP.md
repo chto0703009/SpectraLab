@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v1.0.1
+Version: v1.1.0
 Status: CURRENT
 -->
 
@@ -31,6 +31,14 @@ These principles should remain stable even as the software evolves.
 ---
 
 ## Strategic Development Priorities
+
+### Completed spectral exchange release v1.1.0
+
+Version 1.1.0 makes measured and derived spectra reusable as typed,
+self-contained artifacts. It adds controlled transmission, reflectance and
+ColorChecker export for Camera-41, compact artifact naming, explicit
+reference/sample confirmation and comparison of independent transmission and
+density pairs. The standard/base-MATLAB-only policy remains binding.
 
 The roadmap describes engineering priorities rather than detailed feature lists.
 

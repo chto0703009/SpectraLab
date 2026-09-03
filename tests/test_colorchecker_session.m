@@ -69,6 +69,34 @@ verifyEqual(testCase, string(session.Patches(1).ArchiveFile), ...
 verifyEqual(testCase, spectralab.colorchecker.nextPatch(session), struct());
 end
 
+function testCamera41ArtifactRestrictsAllPatchesTo400Through730(testCase)
+root=string(tempname);
+cleanup=onCleanup(@() removeTree(root)); %#ok<NASGU>
+session=spectralab.colorchecker.create(root,Rows=1,Columns=1);
+session=spectralab.colorchecker.recordCalibration(session,struct("name","mock"));
+wavelength=(370:10:750)';
+spec=spectralab.core.Spectrum(wavelength,linspace(10,90,numel(wavelength))', ...
+    "A1",struct(),struct(),struct( ...
+    "measurement_kind","reflectance", ...
+    "signal_quantity","spectral reflectance factor"), ...
+    "relative reflectance (%)");
+archive=spectralab.archive.create(spec);
+archiveFile=fullfile(root,"archive","A1.mat");
+spectralab.archive.save(archive,archiveFile);
+session=spectralab.colorchecker.recordMeasurement(session,"A1",archiveFile);
+spectralab.colorchecker.save(session);
+artifact=spectralab.colorchecker.createSpectralArtifact( ...
+    fullfile(root,"colorchecker_session.json"));
+verifyTrue(testCase,spectralab.archive.validateSpectralArtifact(artifact).IsValid);
+verifyEqual(testCase,artifact.Payload.WavelengthNm([1 end]),[400;730]);
+verifySize(testCase,artifact.Payload.Values,[34 1]);
+verifyEqual(testCase,artifact.Payload.RequestedWavelengthRangeNm,[400 730]);
+verifyEqual(testCase,artifact.Provenance.EffectiveOutputWavelengthRangeNm, ...
+    [400 730]);
+source=spectralab.archive.load(archiveFile,Quiet=true,Validation="error");
+verifyEqual(testCase,source.Measurement.Wavelength([1 end]),[370;750]);
+end
+
 function testManufacturedMonthIsAccepted(testCase)
 root = string(tempname);
 cleanup = onCleanup(@() removeTree(root));

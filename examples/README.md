@@ -28,6 +28,8 @@ startup
 
 plot_spectrum
 plot_transmission
+create_camera41_transmission_input
+create_camera41_reflectance_input
 calculate_cri_report
 calculate_spectral_mean_report
 calculate_spectral_difference_report
@@ -74,8 +76,9 @@ PDF and PNG files explicitly; reports and figures are never silent side
 effects and existing files are never overwritten.
 
 Generated files are written below `examples/output/`. Existing files are
-never overwritten. Delete the relevant example output before repeating a
-workflow.
+never overwritten. Camera-41 artifact examples automatically select the next
+`vNN` revision instead. Other examples may require the relevant output to be
+deleted before repeating a workflow.
 
 The archives in `data/` are synthetic. They contain neutral example
 metadata and no real operator identity, instrument serial number or
@@ -87,6 +90,8 @@ laboratory measurement claim.
 |---|---|---|
 | `plot_spectrum` | `example_reference.mat` | one spectrum PNG |
 | `plot_transmission` | reference + `example_sample_a.mat` | one optical-density PNG |
+| `create_camera41_transmission_input` | separately labelled reference (source without sample) and sample (through film/filter), measured or derived mean; assignment is confirmed before processing | one self-contained transmission MAT + proof PNG; no PDF |
+| `create_camera41_reflectance_input` | separately labelled white reference and target/material sample, measured or derived mean; assignment is confirmed before processing | one self-contained reflectance MAT + proof PNG; no PDF |
 | `calculate_cri_report` | `example_reference.mat` | ANL-CRI PDF with spectral values in Results + clean curve-and-legend PNG |
 | `calculate_spectral_mean_report` | sample A + sample B | derived MAT + ANL-009 PDF + PNG |
 | `calculate_spectral_difference_report` | sample A + sample B | ANL-010 PDF + PNG; no MAT |

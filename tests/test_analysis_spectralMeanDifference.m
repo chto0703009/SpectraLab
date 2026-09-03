@@ -19,6 +19,32 @@ verifyEqual(testCase, derived.Measurement.Value, [3; 6; 9]);
 verifyEqual(testCase, derived.Derivation.Definition.AnalysisId, "ANL-009");
 verifyEqual(testCase, [derived.Derivation.Sources.UUID], ...
     [string(a.Identity.UUID), string(b.Identity.UUID)]);
+verifyEqual(testCase, derived.Measurement.Context.Origin, "derived");
+verifyEqual(testCase, derived.Derivation.Output.Type, "Spectrum");
+verifyEqual(testCase, derived.Derivation.Output.Cardinality, 1);
+verifyEqual(testCase, derived.Derivation.Output.Role, ...
+    "ReusableAnalysisInput");
+end
+
+function testDerivedMeanActsAsOneTransmissionInput(testCase)
+referenceA = makeArchive([400; 500; 600], [10; 20; 30], "Reference A");
+referenceB = makeArchive([400; 500; 600], [14; 24; 34], "Reference B");
+sample = makeArchive([400; 500; 600], [3; 6; 9], "Sample");
+meanAnalysis = spectralab.analysis.spectralMean(referenceA, referenceB, ...
+    ResultName="Mean reference");
+derivedReference = meanAnalysis.Result.DerivedArchive;
+
+transmission = spectralab.analysis.transmission(derivedReference, sample, ...
+    WarnAboveOne=false);
+
+verifyEqual(testCase, transmission.Result.Value, ...
+    sample.Measurement.Value ./ derivedReference.Measurement.Value, ...
+    "AbsTol", 1e-12);
+verifyEqual(testCase, transmission.Source.Reference.Origin, "derived");
+verifyEqual(testCase, transmission.Source.Reference.DerivationType, ...
+    "DerivedMeanSpectrum");
+verifyEqual(testCase, transmission.Source.Sample.Origin, "measured");
+verifyEqual(testCase, transmission.Source.Sample.DerivationType, "");
 end
 
 function testDifferenceIsSignedAndNotArchivableResult(testCase)

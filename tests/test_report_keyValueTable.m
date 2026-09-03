@@ -69,3 +69,26 @@ verifyEqual(testCase, [model.Rows.DisplayText], ...
     ["Resolved name", "Project 081", "Sample A", "Operator A", ...
      "2026-08-01 10:17:07", "Stability run after warm-up"]);
 end
+
+function testTenSourceMeasurementTableFitsOnePage(testCase)
+source = struct("Role", "", "Filename", "", "Measurement", struct(), ...
+    "Metadata", struct());
+sources = repmat(source, 1, 10);
+for index = 1:numel(sources)
+    sources(index).Role = "Source " + index;
+    sources(index).Filename = sprintf( ...
+        "emission_series_20260817_205516_%02d.mat", index);
+    sources(index).Measurement = struct( ...
+        "Name", "emission_series_20260817_205516_" + sprintf("%02d", index));
+end
+context = struct("SourceArchives", sources);
+
+model = spectralab.report.internal.buildKeyValueTable( ...
+    "measurementInformation", context);
+height = spectralab.report.internal.estimateResultsTableHeight(model);
+layout = spectralab.report.internal.createLayoutState();
+
+verifyEqual(testCase, numel(model.Rows), 10);
+verifyEqual(testCase, [model.Rows.Label], "Source " + (1:10) + " archive");
+verifyLessThanOrEqual(testCase, height, layout.ContentHeight);
+end

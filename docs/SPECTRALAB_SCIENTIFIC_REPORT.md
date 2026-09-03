@@ -13,7 +13,8 @@ Generated working copies remain below `output/pdf/` and are not the stable
 repository links used by README or GitHub About.
 
 The report describes the accepted SpectraLab v1.0.1 scientific and archive
-contract while identifying the reviewed source worktree as v1.0.2-dev. It
+foundation retained by v1.1.0. The v1.1.0 spectral-artifact exchange layer is
+specified separately in `docs/SPECTRAL_ARTIFACT.md` and its release notes. It
 covers instrument acquisition, ArgyllCMS Spotread, archive identity, spectral
 processing, registered analyses, reports, ColorChecker sessions, provenance,
 base-MATLAB policy, limitations and the Camera-41 hand-off.

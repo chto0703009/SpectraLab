@@ -40,6 +40,21 @@ end
 
 S = load(filename, "-mat");
 
+if isfield(S,"spectralArtifact")
+    artifactValidation=spectralab.archive.validateSpectralArtifact( ...
+        S.spectralArtifact);
+    if ~artifactValidation.IsValid
+        error("SpectraLab:Archive:InvalidArtifact", "%s", ...
+            strjoin(artifactValidation.Errors,newline));
+    end
+    if string(S.spectralArtifact.Kind)~="single_spectrum" || ...
+            ~isfield(S.spectralArtifact.Payload,"Archive")
+        error("SpectraLab:Archive:ArtifactNotSingleSpectrum", ...
+            "This spectral artifact is not one loadable spectrum.");
+    end
+    S.archive=S.spectralArtifact.Payload.Archive;
+end
+
 if ~isfield(S, "archive")
     error("SpectraLab:Archive:InvalidFile", ...
         "MAT-file does not contain a SpectraLab archive.");

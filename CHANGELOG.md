@@ -8,6 +8,36 @@ Every public release represents a verified engineering milestone rather than a c
 
 ---
 
+## Spectral exchange release - v1.1.0
+
+Released 2026-09-03 after automated regression and practical development use.
+
+### Added
+
+- Self-contained, typed spectral artifacts for measured spectra, arithmetic
+  means, transmission, reflectance and ColorChecker reflectance sets.
+- Camera-41 exports constrained by a declared 400-730 nm use interval while
+  retaining source provenance.
+- Independent transmission-pair and density-pair comparison workflows.
+- Compact artifact identifiers and revisioned filenames.
+
+### Improved
+
+- Transmission and reflectance exports identify `REFERENCE` and `SAMPLE`
+  explicitly and require confirmation before processing or saving.
+- Proof PNGs show transmission and reflectance on a fixed 0-100 percent scale
+  and are saved in the directory from which work began.
+- Derived spectral means remain traceable but can be consumed as one reusable
+  spectrum.
+- Large report content blocks paginate instead of exceeding page height.
+
+### Compatibility
+
+- Existing SLAB-MAT measurement archives remain the immutable source record.
+- Standard/base MATLAB remains the only required MathWorks product.
+
+---
+
 ## Stable patch release - v1.0.1
 
 Released 2026-08-27 after complete automated regression and practical
