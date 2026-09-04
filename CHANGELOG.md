@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1-dev
+
+- Opened the post-v1.2.0 patch-development line.
+- Removed obsolete version numbers from user-facing dialog titles so those
+  workflows follow the active runtime without release-specific edits.
+
 ## Spectral transmission workflow release - v1.2.0
 
 Released 2026-09-04.

@@ -115,7 +115,8 @@ for k = 1:numel(analysisIds)
     matrix(k).PNGFile = string(info.PNGFile);
 end
 
-fprintf("SpectraLab v0.8.1 report matrix created:\n  %s\n", outputFolder);
+fprintf("SpectraLab %s report matrix created:\n  %s\n", ...
+    spectralab.version(),outputFolder);
 end
 
 function archiveFile = saveArchive(folder, wavelengthNm, power, name)
