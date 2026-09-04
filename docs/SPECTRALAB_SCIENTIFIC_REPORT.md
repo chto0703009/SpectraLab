@@ -13,7 +13,8 @@ Generated working copies remain below `output/pdf/` and are not the stable
 repository links used by README or GitHub About.
 
 The report describes the accepted SpectraLab v1.0.1 scientific and archive
-foundation retained by v1.1.0. The v1.1.0 spectral-artifact exchange layer is
+foundation retained by v1.2.0. The spectral-artifact exchange layer introduced
+in v1.1.0 and refined in v1.2.0 is
 specified separately in `docs/SPECTRAL_ARTIFACT.md` and its release notes. It
 covers instrument acquisition, ArgyllCMS Spotread, archive identity, spectral
 processing, registered analyses, reports, ColorChecker sessions, provenance,

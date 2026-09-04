@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: ROADMAP.md
-Version: v1.1.0
+Version: v1.2.0
 Status: CURRENT
 -->
 
@@ -31,6 +31,15 @@ These principles should remain stable even as the software evolves.
 ---
 
 ## Strategic Development Priorities
+
+### Completed transmission workflow release v1.2.0
+
+Version 1.2.0 makes the Camera-41 spectral boundary unambiguous: calibrated
+reflectance is passed through directly, while transmission is exported as one
+self-contained `T(lambda)` artifact. A common reference can be applied to N
+selected sample measurements without losing the identity of any series
+member. Compact comparison dialogs and data-driven transmission displays
+improve practical use without changing the underlying archive format.
 
 ### Completed spectral exchange release v1.1.0
 

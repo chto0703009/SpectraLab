@@ -1,15 +1,15 @@
 <!--
 SpectraLab Documentation
 Document: RELEASE_CHECKLIST.md
-Version: v1.1.0
+Version: v1.2.0
 Status: OFFICIAL STABLE RELEASE
 -->
 
 # SpectraLab Release Checklist
 
-> **v1.1.0 release note:** Automated regression, base-MATLAB dependency
-> verification, spectral-artifact exchange and affected report workflows
-> have been approved.
+> **v1.2.0 release note:** Automated regression, base-MATLAB dependency
+> verification, transmission-series exchange and affected comparison
+> workflows have been approved. Tag and publication follow the release commit.
 
 The Release Checklist defines the verification process required before any SpectraLab version is published.
 
@@ -28,9 +28,9 @@ It is an engineering verification document.
 | Item | Value |
 |------|-------|
 | Project | SpectraLab |
-| Version | v1.1.0 |
+| Version | v1.2.0 |
 | Release type | Official stable release |
-| Release date | 2026-09-03 |
+| Release date | 2026-09-04 |
 | Release manager | Project owner |
 
 ---
@@ -132,10 +132,10 @@ Approval should be recorded by the appropriate roles.
 
 | Role | Approval |
 |------|----------|
-| Technical Author | v1.1.0 prepared 2026-09-03 |
-| Engineering Reviewer | Automated regression, physical workflows and visual report review complete |
-| Release Manager | Official stable publication approved |
-| Project Owner | v1.1.0 publication approved 2026-09-03 |
+| Technical Author | v1.2.0 prepared 2026-09-04 |
+| Engineering Reviewer | Automated regression and affected workflow review complete |
+| Release Manager | Stable release publication approved |
+| Project Owner | v1.2.0 publication approved 2026-09-04 |
 
 Approval represents acceptance of the engineering evidence supporting release.
 
@@ -145,13 +145,13 @@ Approval represents acceptance of the engineering evidence supporting release.
 
 | Item | Value |
 |------|-------|
-| Version | v1.1.0 |
-| Release date | 2026-09-03 |
-| Git tag | `v1.1.0` (to be created from the approved release commit) |
-| Release package | `releases/SpectraLab_v1.1.0.zip` |
-| Test result | 530 passed, 0 failed, 0 incomplete in both the source-tree and clean packaged-release regressions on 2026-09-03 |
+| Version | v1.2.0 |
+| Release date | 2026-09-04 |
+| Git tag | `v1.2.0` (to be created from the approved release commit) |
+| Release package | `releases/SpectraLab_v1.2.0.zip` (to be built after commit) |
+| Test result | 531 passed, 0 failed, 0 incomplete in both the source-tree and clean temporary packaged-release regressions on 2026-09-04 |
 | Real measurement verified | Emission, reflectance, series, transmission, density, ColorChecker acquisition/resume/conversion, quality comparison and controlled remeasurement approved |
-| Comments | Stable v1.1.0 minor release; supersedes v1.0.1 after tag and publication. |
+| Comments | Stable v1.2.0 minor release; supersedes v1.1.0 after tag and publication. |
 
 ---
 

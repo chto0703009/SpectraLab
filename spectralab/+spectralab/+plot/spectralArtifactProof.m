@@ -17,10 +17,6 @@ if ~any(string(artifact.Quantity)== ...
     error("SpectraLab:ArtifactProof:UnsupportedQuantity", ...
         "The proof figure requires transmission or reflectance data.");
 end
-if ~isfield(artifact.Payload,"SourceArchives")
-    error("SpectraLab:ArtifactProof:MissingSources", ...
-        "The artifact does not contain its reference and sample sources.");
-end
 if isfile(pngFile)
     error("SpectraLab:ArtifactProof:OutputExists", ...
         "SpectraLab refuses to overwrite the existing file:\n%s",pngFile);
@@ -34,25 +30,29 @@ fig=figure("Color","white","Visible",visibility, ...
     "Name","SpectraLab spectral artifact proof", ...
     "Position",[100 100 1500 900]);
 cleanup=onCleanup(@() closeIfHidden(fig,options.ShowFigure));
-layout=tiledlayout(fig,2,1,"TileSpacing","compact","Padding","compact");
+hasSources=isfield(artifact.Payload,"SourceArchives");
+layout=tiledlayout(fig,1+double(hasSources),1, ...
+    "TileSpacing","compact","Padding","compact");
 
-reference=artifact.Payload.SourceArchives.Reference.Measurement;
-sample=artifact.Payload.SourceArchives.Sample.Measurement;
-ax1=nexttile(layout);
-plot(ax1,double(reference.Wavelength(:)),double(reference.Value(:)), ...
-    "LineWidth",1.5,"DisplayName","Reference");
-hold(ax1,"on");
-plot(ax1,double(sample.Wavelength(:)),double(sample.Value(:)), ...
-    "LineWidth",1.5,"DisplayName","Sample");
-grid(ax1,"on"); box(ax1,"on");
-xlabel(ax1,"Wavelength (nm)"); ylabel(ax1,"Measured spectral value");
-title(ax1,"Source spectra on their original common scale");
-legend(ax1,"Location","eastoutside","Interpreter","none");
+if hasSources
+    reference=artifact.Payload.SourceArchives.Reference.Measurement;
+    sample=artifact.Payload.SourceArchives.Sample.Measurement;
+    ax1=nexttile(layout);
+    plot(ax1,double(reference.Wavelength(:)),double(reference.Value(:)), ...
+        "LineWidth",1.5,"DisplayName","Reference");
+    hold(ax1,"on");
+    plot(ax1,double(sample.Wavelength(:)),double(sample.Value(:)), ...
+        "LineWidth",1.5,"DisplayName","Sample");
+    grid(ax1,"on"); box(ax1,"on");
+    xlabel(ax1,"Wavelength (nm)"); ylabel(ax1,"Measured spectral value");
+    title(ax1,"Source spectra on their original common scale");
+    legend(ax1,"Location","eastoutside","Interpreter","none");
+end
 
 derived=artifact.Payload.Archive.Measurement;
 value=double(derived.Value(:)); wavelength=double(derived.Wavelength(:));
 percentValue=100.*value;
-xlim(ax1,[wavelength(1) wavelength(end)]);
+if hasSources, xlim(ax1,[wavelength(1) wavelength(end)]); end
 ax2=nexttile(layout);
 plot(ax2,wavelength,percentValue,"k-","LineWidth",1.7, ...
     "DisplayName",displayName(artifact.Quantity));

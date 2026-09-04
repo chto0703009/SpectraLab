@@ -31,7 +31,7 @@ plot_transmission
 plot_compare_spectra
 compare_transmission_pairs
 create_camera41_transmission_input
-create_camera41_reflectance_input
+create_camera41_transmission_series_input
 calculate_cri_report
 calculate_spectral_mean_report
 calculate_spectral_difference_report
@@ -95,7 +95,7 @@ laboratory measurement claim.
 | `plot_compare_spectra` | two derived Camera-41 MAT artifacts, two reference/sample pairs, or two measured/mean spectra | one comparison PNG; derived transmission and reflectance are displayed in percent with data-driven limits |
 | `compare_transmission_pairs` | two independently selected, confirmed reference/sample pairs | overlaid transmission and signed-difference PNG |
 | `create_camera41_transmission_input` | separately labelled reference (source without sample) and sample (through film/filter), measured or derived mean; assignment is confirmed before processing | one self-contained transmission MAT + proof PNG; no PDF |
-| `create_camera41_reflectance_input` | separately labelled white reference and target/material sample, measured or derived mean; assignment is confirmed before processing | one self-contained reflectance MAT + proof PNG; no PDF |
+| `create_camera41_transmission_series_input` | one common reference plus N emission-series sample archives; assignment and count are confirmed before processing | N independently traceable Camera-41 transmission MAT artifacts + N proof PNGs; no PDF |
 | `calculate_cri_report` | `example_reference.mat` | ANL-CRI PDF with spectral values in Results + clean curve-and-legend PNG |
 | `calculate_spectral_mean_report` | sample A + sample B | derived MAT + ANL-009 PDF + PNG |
 | `calculate_spectral_difference_report` | sample A + sample B | ANL-010 PDF + PNG; no MAT |

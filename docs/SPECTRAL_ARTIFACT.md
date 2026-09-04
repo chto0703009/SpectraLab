@@ -1,7 +1,7 @@
 # Self-contained spectral artifacts
 
 SpectraLab can export a measured spectrum, a derived mean, a transmission
-result, a reflectance result or a complete ColorChecker session as one MAT
+result or a complete ColorChecker session as one MAT
 file with schema
 `spectralab.spectral-artifact/1.0`.
 
@@ -12,35 +12,39 @@ input and never has to reinterpret a group of source files.
 
 An artifact declares whether its primary result is `measured` or `derived`,
 its kind (`single_spectrum` or `spectrum_set`) and its quantity. It retains the
-SpectraLab archive and source provenance. Transmission artifacts also retain
-the original reference and sample archives plus Status M RGB and ISO visual
-white density. Reflectance artifacts retain both source archives and the
-derived sample/reference reflectance spectrum. ColorChecker artifacts contain
+SpectraLab archive and source provenance. A transmission artifact delivers
+only its primary `T(lambda)` spectrum; Camera-41 calculates spectral, Status A,
+Status M and ISO visual density from that curve. A measured reflectance archive
+already contains the i1Pro/i1Pro2 reflectance factor and is never divided by a
+second user-selected reference. ColorChecker artifacts contain
 all patch spectra and the latest D50 colorimetry.
 
 Use `export_spectrum_artifact.m` for a measured spectrum or derived mean,
-`create_camera41_transmission_input.m` or
-`create_camera41_reflectance_input.m` for an explicitly ordered
-reference/sample pair, and
+`create_camera41_transmission_input.m` for an explicitly ordered
+transmission reference/sample pair,
+`create_camera41_transmission_series_input.m` for N sample spectra sharing
+one explicitly selected reference, and
 `export_colorchecker_spectral_artifact.m` for a completed ColorChecker
 session. Artifact files can still be opened by `spectralab.archive.load` when
 they contain one spectrum.
 
-The two Camera-41 input routines accept either original measurement archives
-or saved mean artifacts. They create no PDF. Each saves one exchange MAT file
-and one proof PNG that shows the unnormalised reference and sample together
-with the derived ratio. A reflectance pair must contain source readings made
-for sample/reference division; do not divide an archive that already contains
-a calibrated reflectance factor by another reference a second time.
+The Camera-41 transmission-input routines accept either original measurement
+archives or saved mean artifacts. The series routine calculates an independent
+`T_i(lambda) = S_i(lambda) / R(lambda)` artifact for every selected sample;
+the same reference and its provenance are retained in every result. They
+create no PDF and save one exchange MAT file plus one proof PNG per result.
+Reflectance is exported directly from a calibrated
+reflectance archive with `export_spectrum_artifact.m`, or as the complete
+ColorChecker spectrum set with `export_colorchecker_spectral_artifact.m`.
 
-Transmission, reflectance and ColorChecker spectrum-set artifacts intended
+Transmission and ColorChecker spectrum-set artifacts intended
 for Camera-41 are restricted to its selected working interval, 400-730 nm.
 Input archives may extend beyond that range; their original content is
 retained as provenance, while only samples inside the Camera-41 interval are
 included in the exported spectral result and proof plot where applicable.
-The derived transmission or reflectance panel in each proof PNG is displayed
-as percent with a fixed 0-100 % y-axis. This is a presentation conversion
-only; the MAT artifact retains the scientific fractional values from 0 to 1.
+The derived transmission panel in its proof PNG is displayed as percent with
+data-driven limits. This is a presentation conversion only; the MAT artifact
+retains the scientific fractional values.
 
 ## Short filenames and revisions
 

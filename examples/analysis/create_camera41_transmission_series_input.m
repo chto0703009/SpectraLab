@@ -1,0 +1,73 @@
+% Create N Camera-41 transmission inputs using one common reference.
+workingFolder=string(pwd);
+[referenceName,referenceFolder]=uigetfile({"*.mat","SpectraLab MAT (*.mat)"}, ...
+    "Transmission REFERENCE - source without film, filter or sample", ...
+    spectralab.ui.archiveFolder(workingFolder));
+if isequal(referenceName,0), return; end
+referenceFile=fullfile(string(referenceFolder),string(referenceName));
+spectralab.ui.archiveFolder(workingFolder,string(referenceFolder));
+
+sampleFiles=spectralab.ui.selectArchiveFiles(string(referenceFolder), ...
+    Title="Transmission SAMPLES - select all series measurements", ...
+    MinimumSelection=1);
+if isempty(sampleFiles), return; end
+[~,order]=sort(lower(sampleFiles)); sampleFiles=sampleFiles(order);
+if any(sampleFiles==referenceFile)
+    error("SpectraLab:Work:ReferenceSelectedAsSample", ...
+        "The common reference cannot also be selected as a sample.");
+end
+
+[sampleFolder,~,~]=fileparts(sampleFiles(1));
+if any(string(cellfun(@fileparts,cellstr(sampleFiles), ...
+        "UniformOutput",false))~=sampleFolder)
+    error("SpectraLab:Work:MixedSampleFolders", ...
+        "All series samples must be selected from one archive folder.");
+end
+archiveFolder=string(sampleFolder);
+plotFolder=fullfile(fileparts(archiveFolder),"plot");
+if ~isfolder(plotFolder), mkdir(plotFolder); end
+
+confirmation=questdlg(char( ...
+    "Create "+numel(sampleFiles)+" spectral transmissions as SAMPLE / REFERENCE?"+newline+newline+ ...
+    "COMMON REFERENCE:"+newline+referenceFile+newline+newline+ ...
+    "SAMPLES: "+numel(sampleFiles)+" selected series archives"+newline+ ...
+    "First: "+sampleFiles(1)+newline+"Last:  "+sampleFiles(end)+newline+newline+ ...
+    "MAT ARTIFACT FOLDER:"+newline+archiveFolder+newline+newline+ ...
+    "PROOF PNG FOLDER:"+newline+plotFolder), ...
+    "Confirm Camera-41 transmission series", ...
+    "Create inputs","Cancel","Cancel");
+if ~strcmp(confirmation,"Create inputs")
+    disp("Camera-41 transmission-series input cancelled. Nothing was saved.");
+    return
+end
+
+[~,firstStem]=fileparts(sampleFiles(1));
+defaultID=spectralab.archive.normalizeArtifactID( ...
+    regexprep(firstStem,"_\d+$",""));
+answer=inputdlg("Short series artifact ID (film, filter or purpose)", ...
+    "Camera-41 transmission-series input",[1 60],cellstr(defaultID));
+if isempty(answer), return; end
+seriesID=spectralab.archive.normalizeArtifactID(string(answer{1}));
+
+reference=spectralab.archive.load(referenceFile,Quiet=true,Validation="error");
+samples=cell(1,numel(sampleFiles));
+for index=1:numel(sampleFiles)
+    samples{index}=spectralab.archive.load( ...
+        sampleFiles(index),Quiet=true,Validation="error");
+end
+artifacts=spectralab.analysis.createTransmissionArtifactSeries( ...
+    reference,samples,ReferenceFile=referenceFile,SampleFiles=sampleFiles);
+
+fprintf("\nCamera-41 transmission-series input complete\n");
+fprintf("  Common reference: %s\n  Samples: %d\n",referenceFile,numel(samples));
+for index=1:numel(artifacts)
+    memberID=seriesID+"_"+compose("%02d",index);
+    outputs=spectralab.archive.nextArtifactOutput(archiveFolder, ...
+        memberID,"transmission",ProofFolder=plotFolder);
+    spectralab.archive.saveSpectralArtifact(artifacts{index},outputs.ArtifactFile);
+    proof=spectralab.plot.spectralArtifactProof( ...
+        artifacts{index},outputs.ProofPNG,ShowFigure=false);
+    fprintf("  %02d  %s\n      MAT: %s\n      PNG: %s\n", ...
+        index,sampleFiles(index),outputs.ArtifactFile,proof.PNGFile);
+end
+fprintf("  Wavelength interval: 400-730 nm\n");

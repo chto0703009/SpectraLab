@@ -1,5 +1,18 @@
 # Changelog
 
+## Spectral transmission workflow release - v1.2.0
+
+Released 2026-09-04.
+
+- Added a Camera-41 transmission-series export: one common measured or
+  derived reference normalises N selected sample spectra into independent,
+  revisioned `T(lambda)` artifacts and proof PNGs.
+- Removed the misleading two-file Camera-41 reflectance-ratio export. An
+  i1Pro/i1Pro2 reflective measurement already contains the calibrated spectral
+  reflectance factor and is exported directly without a second division.
+- Camera-41 transmission artifacts now expose only their primary `T(lambda)`
+  spectrum; Camera-41 owns subsequent densitometric calculations.
+
 This changelog records the engineering significance of public SpectraLab releases.
 
 It is not a commit log and does not list every internal modification.

@@ -1,17 +1,17 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v1.1.1-dev
-Status: DEVELOPMENT
+Version: v1.2.0
+Status: OFFICIAL STABLE RELEASE
 -->
 
 # SpectraLab
 
 > **Measure once. Save forever. Verify always.**
 
-This worktree is the `v1.1.1-dev` patch-development line for corrections to
-the accepted v1.1.0 release. It is not a published release. SpectraLab v1.1.0
-remains the current stable production version.
+This worktree defines the SpectraLab `v1.2.0` stable release. Publication is
+completed by committing these reviewed contents, creating the matching Git
+tag and publishing the release package.
 
 SpectraLab is an open-source MATLAB package for reliable spectral measurements.
 Standard/base MATLAB only is the binding runtime policy; MathWorks add-on
@@ -37,12 +37,13 @@ consistent with ArgyllCMS Spotread's own device identification and support.
 
 ## Current Release
 
-**SpectraLab v1.1.0** is the current stable production release. It preserves
-the accepted v1.0 measurement and archive contracts while adding reusable
-mean, transmission, reflectance and ColorChecker spectral inputs.
+**SpectraLab v1.2.0** is the current stable production release. It
+preserves the accepted measurement and archive contracts while making the
+Camera-41 exchange boundary explicit and adding reusable transmission-series
+exports.
 
-- [v1.1.0 release notes](releases/RELEASE_NOTES_v1.1.0.md)
-- [Download SpectraLab v1.1.0](https://github.com/chto0703009/SpectraLab/releases/download/v1.1.0/SpectraLab_v1.1.0.zip)
+- [v1.2.0 release notes](releases/RELEASE_NOTES_v1.2.0.md)
+- [Download SpectraLab v1.2.0](https://github.com/chto0703009/SpectraLab/releases/download/v1.2.0/SpectraLab_v1.2.0.zip)
 - [Getting started](docs/GETTING_STARTED.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 
@@ -58,7 +59,7 @@ Reliable measurements require reliable software.
 
 SpectraLab was developed to provide a clean separation between measurement, data management, visualisation, export and instrument communication. This makes user applications independent of specific instruments while allowing new devices to be added through dedicated drivers.
 
-The v1.1.0 release combines traceable measurement and archive handling with
+The v1.2.0 release combines traceable measurement and archive handling with
 registered analysis, controlled ColorChecker workflows, reliable PDF and PNG
 output, and one graphical presentation standard.
 
@@ -87,7 +88,7 @@ output, and one graphical presentation standard.
 
 ## Supported Environment
 
-The v1.1.0 release has been verified with the following environment.
+The v1.2.0 release has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|
