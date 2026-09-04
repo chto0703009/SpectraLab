@@ -37,8 +37,10 @@ Reflectance is exported directly from a calibrated
 reflectance archive with `export_spectrum_artifact.m`, or as the complete
 ColorChecker spectrum set with `export_colorchecker_spectral_artifact.m`.
 
-Transmission and ColorChecker spectrum-set artifacts intended
-for Camera-41 are restricted to its selected working interval, 400-730 nm.
+Transmission and ColorChecker spectrum-set artifacts intended for Camera-41
+are governed by `spectralab.io.camera41ExportContract`. Every such export must
+contain the complete inclusive 400-730 nm visible-light interval; callers cannot override
+this interchange boundary.
 Input archives may extend beyond that range; their original content is
 retained as provenance, while only samples inside the Camera-41 interval are
 included in the exported spectral result and proof plot where applicable.

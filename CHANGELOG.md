@@ -29,7 +29,8 @@ Released 2026-09-03 after automated regression and practical development use.
 
 - Self-contained, typed spectral artifacts for measured spectra, arithmetic
   means, transmission, reflectance and ColorChecker reflectance sets.
-- Camera-41 exports constrained by a declared 400-730 nm use interval while
+- Camera-41 exports constrained by the shared, non-overridable 400-730 nm
+  visible-light contract while
   retaining source provenance.
 - Independent transmission-pair and density-pair comparison workflows.
 - Compact artifact identifiers and revisioned filenames.

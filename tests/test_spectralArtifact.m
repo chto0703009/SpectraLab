@@ -3,16 +3,25 @@ tests = functiontests(localfunctions);
 end
 
 function testTransmissionArtifactIsOneSelfContainedInput(testCase)
-reference = makeArchive([400;500;600],[10;20;30],"Reference");
-sample = makeArchive([400;500;600],[5;10;15],"Sample");
+reference = makeArchive([400;500;600;730],[10;20;30;40],"Reference");
+sample = makeArchive([400;500;600;730],[5;10;15;20],"Sample");
 artifact = spectralab.analysis.createTransmissionArtifact(reference,sample, ...
     Resample=false,ReferenceFile="reference.mat",SampleFile="sample.mat");
 verifyTrue(testCase,spectralab.archive.validateSpectralArtifact(artifact).IsValid);
 verifyEqual(testCase,artifact.Kind,"single_spectrum");
 verifyEqual(testCase,artifact.Quantity,"spectral_transmittance");
-verifyEqual(testCase,artifact.Payload.Archive.Measurement.Value,0.5*ones(3,1), ...
+verifyEqual(testCase,artifact.Payload.Archive.Measurement.Value,0.5*ones(4,1), ...
     "AbsTol",1e-12);
 verifyEqual(testCase,fieldnames(artifact.Payload),{'Archive'});
+end
+
+function testCamera41ContractRejectsIncompleteCoverage(testCase)
+wavelength=(400:10:720)';
+reference=makeArchive(wavelength,2*ones(size(wavelength)),"Reference");
+sample=makeArchive(wavelength,ones(size(wavelength)),"Sample");
+verifyError(testCase,@() spectralab.analysis.createTransmissionArtifact( ...
+    reference,sample,Resample=false), ...
+    "SpectraLab:Camera41:IncompleteWavelengthRange");
 end
 
 function testTransmissionSeriesUsesOneReferenceForEverySample(testCase)

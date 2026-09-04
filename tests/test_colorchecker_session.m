@@ -69,7 +69,7 @@ verifyEqual(testCase, string(session.Patches(1).ArchiveFile), ...
 verifyEqual(testCase, spectralab.colorchecker.nextPatch(session), struct());
 end
 
-function testCamera41ArtifactRestrictsAllPatchesTo400Through730(testCase)
+function testCamera41ArtifactEnforcesExportContract(testCase)
 root=string(tempname);
 cleanup=onCleanup(@() removeTree(root)); %#ok<NASGU>
 session=spectralab.colorchecker.create(root,Rows=1,Columns=1);
@@ -93,6 +93,8 @@ verifySize(testCase,artifact.Payload.Values,[34 1]);
 verifyEqual(testCase,artifact.Payload.RequestedWavelengthRangeNm,[400 730]);
 verifyEqual(testCase,artifact.Provenance.EffectiveOutputWavelengthRangeNm, ...
     [400 730]);
+verifyEqual(testCase,artifact.Provenance.Camera41ExportContract, ...
+    spectralab.io.camera41ExportContract());
 source=spectralab.archive.load(archiveFile,Quiet=true,Validation="error");
 verifyEqual(testCase,source.Measurement.Wavelength([1 end]),[370;750]);
 end
