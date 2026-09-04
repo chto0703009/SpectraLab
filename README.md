@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v1.2.0
+Version: v1.2.1
 Status: OFFICIAL STABLE RELEASE
 -->
 
@@ -9,7 +9,7 @@ Status: OFFICIAL STABLE RELEASE
 
 > **Measure once. Save forever. Verify always.**
 
-This worktree defines the SpectraLab `v1.2.0` stable release. Publication is
+This worktree defines the SpectraLab `v1.2.1` stable release. Publication is
 completed by committing these reviewed contents, creating the matching Git
 tag and publishing the release package.
 
@@ -37,13 +37,13 @@ consistent with ArgyllCMS Spotread's own device identification and support.
 
 ## Current Release
 
-**SpectraLab v1.2.0** is the current stable production release. It
+**SpectraLab v1.2.1** is the current stable production release. It
 preserves the accepted measurement and archive contracts while making the
-Camera-41 exchange boundary explicit and adding reusable transmission-series
-exports.
+Camera-41 exchange boundary explicit through a shared, non-overridable
+400-730 nm visible-light contract.
 
-- [v1.2.0 release notes](releases/RELEASE_NOTES_v1.2.0.md)
-- [Download SpectraLab v1.2.0](https://github.com/chto0703009/SpectraLab/releases/download/v1.2.0/SpectraLab_v1.2.0.zip)
+- [v1.2.1 release notes](releases/RELEASE_NOTES_v1.2.1.md)
+- [Download SpectraLab v1.2.1](https://github.com/chto0703009/SpectraLab/releases/download/v1.2.1/SpectraLab_v1.2.1.zip)
 - [Getting started](docs/GETTING_STARTED.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 
@@ -59,7 +59,7 @@ Reliable measurements require reliable software.
 
 SpectraLab was developed to provide a clean separation between measurement, data management, visualisation, export and instrument communication. This makes user applications independent of specific instruments while allowing new devices to be added through dedicated drivers.
 
-The v1.2.0 release combines traceable measurement and archive handling with
+The v1.2.1 release combines traceable measurement and archive handling with
 registered analysis, controlled ColorChecker workflows, reliable PDF and PNG
 output, and one graphical presentation standard.
 
@@ -88,7 +88,7 @@ output, and one graphical presentation standard.
 
 ## Supported Environment
 
-The v1.2.0 release has been verified with the following environment.
+The v1.2.1 release has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|

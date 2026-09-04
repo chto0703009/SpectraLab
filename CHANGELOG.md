@@ -1,5 +1,21 @@
 # Changelog
 
+## Camera-41 export contract patch - v1.2.1
+
+Released 2026-09-04.
+
+- Defined visible light architecturally as the inclusive 400-730 nm interval.
+- Added a shared, versioned Camera-41 export contract that references the
+  visible-light definition.
+- Applied the contract to ColorChecker, transmission and transmission-series
+  exports; callers can no longer override the interchange wavelength range.
+- Camera-41 exports now reject inputs without complete coverage and boundary
+  samples at both 400 and 730 nm.
+- Updated spectral colour guides to use the same central visible-light
+  definition.
+
+---
+
 ## Spectral transmission workflow release - v1.2.0
 
 Released 2026-09-04.
