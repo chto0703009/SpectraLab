@@ -24,6 +24,16 @@ verifyError(testCase,@() spectralab.analysis.createTransmissionArtifact( ...
     "SpectraLab:Camera41:IncompleteWavelengthRange");
 end
 
+function testCamera41ContractAcceptsFloatingPointBoundaryNoise(testCase)
+wavelength=(376.6666666667:(10/3):730)';
+wavelength(end)=730+2e-13;
+values=ones(numel(wavelength),1);
+[selected,selectedValues]=spectralab.io.applyCamera41ExportContract( ...
+    wavelength,values);
+verifyEqual(testCase,selected([1 end]),[400;730]);
+verifyEqual(testCase,numel(selectedValues),numel(selected));
+end
+
 function testTransmissionSeriesUsesOneReferenceForEverySample(testCase)
 wavelength=(390:10:740)';
 reference=makeArchive(wavelength,10*ones(size(wavelength)),"Reference");
