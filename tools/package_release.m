@@ -79,6 +79,13 @@ if isfolder(exampleOutput)
     rmdir(exampleOutput, "s");
 end
 
+% Interpreter caches are local build artifacts, never release content.
+cacheFolders=dir(fullfile(packageRoot,"**","__pycache__"));
+for k=numel(cacheFolders):-1:1
+    cachePath=fullfile(cacheFolders(k).folder,cacheFolders(k).name);
+    if isfolder(cachePath),rmdir(cachePath,"s");end
+end
+
 % Finder metadata is not part of the engineering release record.
 finderFiles = dir(fullfile(packageRoot, "**", ".DS_Store"));
 for k = 1:numel(finderFiles)

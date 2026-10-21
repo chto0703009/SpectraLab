@@ -14,3 +14,8 @@ artifact=spectralab.colorchecker.createSpectralArtifact(sessionFile);
 spectralab.archive.saveSpectralArtifact(artifact,outputs.ArtifactFile);
 fprintf("ColorChecker spectral artifact saved:\n  %s\n", ...
     outputs.ArtifactFile);
+
+[folder,stem]=fileparts(outputs.ArtifactFile);
+jsonFile=fullfile(folder,stem+".json");
+spectralab.colorchecker.exportSpectralJSON(sessionFile,jsonFile);
+fprintf("Self-contained ColorChecker JSON saved:\n  %s\n",jsonFile);

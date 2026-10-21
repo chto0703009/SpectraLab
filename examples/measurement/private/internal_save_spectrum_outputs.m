@@ -6,6 +6,7 @@ arguments
     measurement (1,1) spectralab.core.Spectrum
     measurementName (1,1) string
     outputRoot (1,1) string
+    options.Binding (1,1) struct = struct()
     options.OpenPDF (1,1) logical = true
     options.PNGInformation (1,1) logical = false
 end
@@ -39,6 +40,10 @@ end
 
 archive = spectralab.archive.create(measurement);
 spectralab.archive.save(archive, archiveFile);
+jsonFile="";
+if any(strcmpi(string(archive.Measurement.Context.Kind),["emission","emissive"]))
+ jsonFile=fullfile(archiveFolder,measurementName+".json");spectralab.exchange.exportEmission({archive},jsonFile,Spectra={measurement},Bindings=options.Binding);
+end
 reportInfo = spectralab.report.generate( ...
     archiveFile, "ANL-SPECTRUM", reportFolder, ...
     ShowFigure=false, OpenPDF=false, FigureOutputFolder=plotFolder, ...
@@ -49,7 +54,7 @@ end
 
 saveInfo = struct( ...
     "ArchiveFile", archiveFile, ...
-    "PDFFile", string(reportInfo.PDFFile), ...
+    "JSONFile",string(jsonFile),"PDFFile", string(reportInfo.PDFFile), ...
     "PNGFile", pngFile);
 
 fprintf("SpectraLab measurement saved:\n");

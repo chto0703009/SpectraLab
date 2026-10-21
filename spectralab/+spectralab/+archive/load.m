@@ -38,7 +38,13 @@ if ~isfile(filename)
         "Archive file not found: %s", filename);
 end
 
-S = load(filename, "-mat");
+[~,~,extension]=fileparts(filename);
+if strcmpi(extension,'.json')
+ archives=spectralab.exchange.readEmission(filename);
+ assert(numel(archives)==1,'SpectraLab:Exchange:SelectMeasurement','This JSON contains a series. Import it and select a named measurement first.');S=struct('archive',archives{1});
+else
+ S = load(filename, "-mat");
+end
 
 if isfield(S,"spectralArtifact")
     artifactValidation=spectralab.archive.validateSpectralArtifact( ...

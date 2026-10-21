@@ -140,6 +140,7 @@ or i1Pro2 with its matching white calibration plate:
 ```matlab
 measure_spectrum
 measure_spectrum_series_5
+measure_reflectance_series
 measure_emission_spectrum
 measure_emission_series
 measure_transmission_pair
@@ -194,3 +195,11 @@ examples/output/archive/
 examples/output/report/
 examples/output/plot/
 ```
+
+
+`measure_reflectance_series` measures a user-selected number of printed-sample points in one calibrated reflectance session. The default is 15 points; select the count in the opening dialog. Its metadata fields, placement confirmations, calibration, measurement sequence and output handling follow `measure_emission_series`; the instrument uses reflectance mode. Measure in your recorded order and note each point position separately. Each spectrum is saved before the next reading. It uses `MeasurementKind="reflectance"` and does not require a ColorChecker target. The existing `measure_spectrum_series_5` example remains unchanged.
+
+ColorChecker: `export_colorchecker_spectra_json` exports all original measured
+patch spectra and units as one self-contained JSON for Camera-41 PRE and DC.
+The measurement and controlled remeasurement workflows also create this export
+when a controlled target definition is present.

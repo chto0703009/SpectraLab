@@ -90,19 +90,28 @@ function panel = copyInformationPanel(sourceAxes, exportFigure)
 %COPYINFORMATIONPANEL Preserve a renderer-owned side panel in PNG output.
 
 sourceFigure = ancestor(sourceAxes, "figure");
-panel = [ ...
-    findall(sourceFigure, "Type", "axes", ...
-        "Tag", "SpectraLabFigureInformationPanel"); ...
-    findall(sourceFigure, "Type", "axes", ...
-        "Tag", "SpectraLabFigureColorSwatchPanel")];
+information = findall(sourceFigure, "Type", "axes", ...
+    "Tag", "SpectraLabFigureInformationPanel");
+swatch = findall(sourceFigure, "Type", "axes", ...
+    "Tag", "SpectraLabFigureColorSwatchPanel");
+if numel(information) > 1 || numel(swatch) > 1
+    error("SpectraLab:Report:InvalidFigureInformationPanel", ...
+        "A report figure may contain at most one information panel and one colour swatch panel.");
+end
+panel = [information; swatch];
 if isempty(panel)
     return
 end
-if numel(panel) ~= 1
-    error("SpectraLab:Report:InvalidFigureInformationPanel", ...
-        "A report figure may contain at most one information panel.");
+% Reflectance figures may have separate summary and colour-swatch axes.
+% Their normalized children share one sidebar without changing the source.
+if ~isempty(information)
+    panel = copyobj(information, exportFigure);
+    if ~isempty(swatch)
+        copyobj(allchild(swatch), panel);
+    end
+else
+    panel = copyobj(swatch, exportFigure);
 end
-panel = copyobj(panel, exportFigure);
 profile = spectralab.report.internal.figureLayoutProfile();
 set(panel, ...
     "Units", "normalized", ...

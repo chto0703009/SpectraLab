@@ -64,8 +64,10 @@ calibrationSerialNumber = verify_spotread_instrument( ...
     inst, "", "calibration");
 pause(1.0)
 
+seriesArchives={};seriesSpectra={};seriesBindings=struct('Role',{},'FilmID',{},'RollID',{},'FrameID',{},'SeriesID',{},'ReferenceMeasurementID',{});
 for measurementIndex = 1:measurementCount
     measurementName = sprintf("%s_%02d", seriesName, measurementIndex);
+    binding=emission_binding_dialog(measurementName,seriesName);
     sess = sess.withSample(measurementName);
     fprintf("Measurement %d of %d: %s\n", ...
         measurementIndex, measurementCount, measurementName);
@@ -74,11 +76,15 @@ for measurementIndex = 1:measurementCount
         inst, ...
         calibrationSerialNumber, ...
         "measurement " + string(measurementIndex));
-    internal_save_spectrum_outputs( ...
+    saved=internal_save_spectrum_outputs( ...
         measurement, measurementName, outputRoot, ...
-        OpenPDF=false, PNGInformation=true);
+        Binding=binding,OpenPDF=false, PNGInformation=true);
+    seriesArchives{end+1}=spectralab.archive.load(saved.ArchiveFile,Quiet=true,Validation="error");seriesSpectra{end+1}=measurement;seriesBindings(end+1)=binding;
 end
 
+seriesJSON=fullfile(outputRoot,"archive",seriesName+"_spectra.json");
+spectralab.exchange.exportEmission(seriesArchives,seriesJSON,Spectra=seriesSpectra,Bindings=seriesBindings);
+fprintf("Complete standalone emission series JSON: %s\n",seriesJSON);
 sess = sess.close();
 clear instrumentCleanup
 fprintf("SpectraLab series completed: %d measurements saved.\n", ...

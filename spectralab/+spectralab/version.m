@@ -1,5 +1,5 @@
 function v = version()
 %VERSION Return the SpectraLab version string.
 
-v = "1.2.1-dev";
+v = "1.3.0";
 end

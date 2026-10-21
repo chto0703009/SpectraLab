@@ -8,6 +8,7 @@ arguments
     instrumentId (1,1) string
     measurementName (1,1) string
     archiveFolder (1,1) string
+    options.Binding (1,1) struct = struct()
     options.MeasurementKind (1,1) string = "emissive"
     options.HighResolution (1,1) logical = false
     options.Operator (1,1) string = ""
@@ -51,6 +52,11 @@ pause(1.0)
 measurement = session.measure(measurementName, "Mode", "automatic");
 archive = spectralab.archive.create(measurement);
 spectralab.archive.save(archive, archiveFile);
+jsonFile="";
+if any(strcmpi(string(archive.Measurement.Context.Kind),["emission","emissive"]))
+ jsonFile=fullfile(archiveFolder,measurementName+".json");
+ spectralab.exchange.exportEmission({archive},jsonFile,Spectra={measurement},Bindings=options.Binding);
+end
 session.close();
 clear cleanup
 
@@ -79,6 +85,6 @@ elseif options.ShowFigure && ~exportStandalonePNG
     spectralab.report.showFigure(archive, "ANL-SPECTRUM");
 end
 outputs = struct("ArchiveFile", string(archiveFile), ...
-    "CSVFile", string(csvFile), "PNGFile", string(pngFile), ...
+    "JSONFile",string(jsonFile),"CSVFile", string(csvFile), "PNGFile", string(pngFile), ...
     "Report", reportInfo);
 end

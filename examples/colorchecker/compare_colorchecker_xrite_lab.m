@@ -145,6 +145,23 @@ fprintf("  Interpretation: consistency check, not formal validation\n");
 end
 
 function [patch, lab] = readNominalLab(file)
+[~, ~, extension] = fileparts(file);
+if strcmpi(extension, '.json')
+    document = jsondecode(fileread(file));
+    assert(string(document.Schema) == "spectralab.colorchecker-nominal-lab.v1", ...
+        'Unsupported nominal Lab JSON schema.');
+    assert(string(document.Illuminant) == "D50" && document.ObserverDegrees == 2, ...
+        'Nominal comparison requires D50 and 2 degree observer.');
+    patch = string({document.Patches.PatchID})';
+    lab = zeros(numel(patch), 3);
+    for index = 1:numel(patch)
+        lab(index, :) = document.Patches(index).Lab(:)';
+    end
+    assert(document.PatchCount == 140 && numel(patch) == 140 && ...
+        numel(unique(patch)) == 140 && all(isfinite(lab(:))), ...
+        'Invalid nominal SG patch data.');
+    return
+end
 lines = readlines(file);
 patch = strings(0, 1);
 lab = zeros(0, 3);

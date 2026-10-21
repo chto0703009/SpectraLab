@@ -1,17 +1,17 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v1.2.1-dev
-Status: DEVELOPMENT
+Version: v1.3.0
+Status: OFFICIAL RELEASE
 -->
 
 # SpectraLab
 
 > **Measure once. Save forever. Verify always.**
 
-This worktree is the `v1.2.1-dev` patch-development line based on the
-published v1.2.0 release. It is not a published release; SpectraLab v1.2.0
-remains the current stable production version.
+SpectraLab v1.3.0 adds self-contained ColorChecker and emission JSON exchange,
+updated measurement examples and improved report PNG export. See
+[release notes](releases/RELEASE_NOTES_v1.3.0.md) for scope and verification limits.
 
 SpectraLab is an open-source MATLAB package for reliable spectral measurements.
 Standard/base MATLAB only is the binding runtime policy; MathWorks add-on
@@ -295,3 +295,14 @@ Engineers remain responsible for those decisions.
 **Save forever.**
 
 **Verify always.**
+
+## ColorChecker från en enda JSON-fil
+
+ColorChecker-export från SpectraLab kan läsas utan separata patch-MAT-filer.
+Se [arbetsgång och format](docs/COLORCHECKER_SPECTRA_JSON.md).
+
+## Emissionsspektrum från SpectraLab
+
+Enstaka mätningar och serier kan överföras som fristående JSON till PRE och DC,
+med mätdata och registrerade metadata. MAT stöds fortsatt.
+Se [arbetsgång, innehåll och beräkningsanrop](docs/EMISSION_SPECTRA_JSON.md).

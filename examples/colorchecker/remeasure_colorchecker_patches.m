@@ -96,6 +96,7 @@ pending = amendment.Entries(string({amendment.Entries.State}) == "pending");
 if isempty(pending)
     [~, correctedFile] = ...
         spectralab.colorchecker.finalizeRemeasurement(amendmentFile);
+    exportCorrectedJSON(correctedFile);
     fprintf("Corrected ColorChecker session created:\n  %s\n", correctedFile);
     return
 end
@@ -163,6 +164,7 @@ clear instrumentCleanup
 if completed
     [~, correctedFile] = ...
         spectralab.colorchecker.finalizeRemeasurement(amendmentFile);
+    exportCorrectedJSON(correctedFile);
     fprintf("Controlled ColorChecker correction complete:\n");
     fprintf("  Original session unchanged: %s\n", sourceFile);
     fprintf("  Amendment:                 %s\n", amendmentFile);
@@ -197,4 +199,12 @@ end
 
 function value = displayValue(value)
 if value == "", value = "not recorded"; end
+end
+
+function exportCorrectedJSON(file)
+s=spectralab.colorchecker.load(file);
+if ~isfield(s.Definition,'TargetDefinition'),return;end
+[folder,stem]=fileparts(file);out=fullfile(folder,stem+"_spectra_"+extractBefore(string(java.util.UUID.randomUUID),9)+".json");
+spectralab.colorchecker.exportSpectralJSON(file,out);
+fprintf("Self-contained corrected ColorChecker spectra JSON: %s\n",out);
 end

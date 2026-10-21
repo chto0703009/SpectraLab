@@ -96,6 +96,11 @@ session = spectralab.colorchecker.save(session);
 while true
     patch = spectralab.colorchecker.nextPatch(session);
     if isempty(fieldnames(patch))
+        if isfield(session.Definition,'TargetDefinition')
+            jsonFile=fullfile(string(session.Context.SessionFolder),"colorchecker_spectra_"+string(datetime('now','Format','yyyyMMdd_HHmmss_SSS'))+"_"+extractBefore(string(java.util.UUID.randomUUID),9)+".json");
+            spectralab.colorchecker.exportSpectralJSON(fullfile(string(session.Context.SessionFolder),'colorchecker_session.json'),jsonFile);
+            fprintf("Self-contained ColorChecker spectra JSON: %s\n",jsonFile);
+        end
         uiwait(msgbox( ...
             "All patches in this ColorChecker session are measured.", ...
             "SpectraLab - ColorChecker complete", "modal"));

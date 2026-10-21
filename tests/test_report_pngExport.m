@@ -145,6 +145,40 @@ verifyGreaterThan(testCase, dir(pngFile).bytes, 1000);
 verifyTrue(testCase, isgraphics(ax, "axes"));
 end
 
+function testExportsSummaryTogetherWithReflectanceSwatch(testCase)
+[pngFile, cleanupFolder] = temporaryPNG(); %#ok<ASGLU>
+[renderContext, cleanupGraphics] = makeRenderContext(); %#ok<ASGLU>
+fig = renderContext.Graphics.Figure;
+profile = spectralab.report.internal.figureLayoutProfile();
+info = axes("Parent", fig, "Position", profile.SidePanel, ...
+    "Visible", "off", "Tag", "SpectraLabFigureInformationPanel");
+text(info, 0, 1, "Peak wavelength: 450 nm", "Units", "normalized", ...
+    "VerticalAlignment", "top");
+swatch = axes("Parent", fig, "Position", profile.SidePanel, ...
+    "Visible", "off", "XLim", [0 1], "YLim", [0 1], ...
+    "Tag", "SpectraLabFigureColorSwatchPanel");
+rectangle(swatch, "Position", [0 .02 .18 .18], "FaceColor", [0 0 1]);
+spectralab.report.internal.exportPNG(pngFile, renderContext);
+verifyTrue(testCase, isfile(pngFile));
+pixels = imread(pngFile);
+blue = pixels(:,:,3)>200 & pixels(:,:,1)<50 & pixels(:,:,2)<50;
+verifyGreaterThan(testCase, nnz(blue), 100);
+verifyTrue(testCase, isgraphics(info));verifyTrue(testCase, isgraphics(swatch));
+verifyEqual(testCase, numel(findall(fig,"Type","axes","Tag","SpectraLabFigureInformationPanel")),1);
+end
+
+function testStillRejectsDuplicateInformationPanels(testCase)
+[pngFile, cleanupFolder] = temporaryPNG(); %#ok<ASGLU>
+[renderContext, cleanupGraphics] = makeRenderContext(); %#ok<ASGLU>
+for k=1:2
+    axes("Parent", renderContext.Graphics.Figure, "Visible", "off", ...
+        "Tag", "SpectraLabFigureInformationPanel");
+end
+verifyError(testCase,@()spectralab.report.internal.exportPNG(pngFile,renderContext), ...
+    "SpectraLab:Report:InvalidFigureInformationPanel");
+verifyFalse(testCase,isfile(pngFile));
+end
+
 function [renderContext, cleanup] = makeRenderContext()
 fig = figure("Visible", "off", "Name", "Report source figure");
 ax = axes("Parent", fig);

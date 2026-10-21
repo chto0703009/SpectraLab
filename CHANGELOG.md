@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0 - self-contained spectral exchange
+
+Release date: 2026-10-21.
+
+- Export complete measured ColorChecker patch spectra as self-contained JSON for Camera-41_DC and Camera-41_PRE.
+- Export named emission measurements and series as self-contained JSON, retaining physical bindings, archive provenance and content hashes.
+- Add emission JSON import and validation, canonical JSON/hash helpers and regression coverage.
+- Update ColorChecker acquisition, remeasurement and X-Rite comparison examples with JSON exchange support.
+- Add a reflectance-series measurement example and a converter for locally obtained X-Rite nominal tables; manufacturer values are not redistributed by the converter.
+- Improve measurement metadata preservation and report PNG export with both information and colour-swatch panels.
+- Retain the base-MATLAB runtime policy; new physical acquisition has not been independently requalified on every instrument.
+
 ## 1.2.1-dev
 
 - Opened the post-v1.2.0 patch-development line.
