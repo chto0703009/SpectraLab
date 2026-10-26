@@ -64,6 +64,8 @@ classdef OneShotCommandRunner
 
             bridgeCommand = quoteArgument(obj.PythonExecutable) + " " + ...
                 quoteArgument(helper) + " " + quoteArgument(configPath);
+            native=spectralab.runtime.nativeArchitecture(obj.PythonExecutable);
+            if native.Native && native.Physical=="arm64",bridgeCommand="/usr/bin/arch -arm64 "+bridgeCommand;end
             if obj.KeepStandardInputOpen
                 [bridgeStatus, bridgeOutput] = ...
                     system(char(bridgeCommand), "-echo");
