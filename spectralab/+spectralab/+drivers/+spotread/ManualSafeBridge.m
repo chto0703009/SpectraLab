@@ -6,35 +6,28 @@ classdef ManualSafeBridge
 
     methods (Static)
         function pythonExe = findPython()
-            candidates = strings(0,1);
+            % Always use this SpectraLab installation's own verified environment.
+            runtime = spectralab.runtime.ensurePython();
+            pythonExe = string(runtime.Executable);
+        end
 
-            if ispc
-                candidates(end+1) = "python";
-                candidates(end+1) = "py";
-            else
-                candidates(end+1) = "/Users/christer/SpectraLabPython/bin/python";
-                candidates(end+1) = "/opt/homebrew/bin/python3";
-                candidates(end+1) = "/usr/local/bin/python3";
-                candidates(end+1) = "/usr/bin/python3";
-                candidates(end+1) = "python3";
-            end
-
-            pythonExe = "";
-
-            for k = 1:numel(candidates)
-                c = candidates(k);
-                if contains(c, filesep) || startsWith(c, "/")
-                    if isfile(c)
-                        pythonExe = c;
-                        return
-                    end
-                else
-                    [status, out] = system(sprintf("command -v %s", char(c)));
-                    if status == 0 && strlength(strtrim(string(out))) > 0
-                        pythonExe = strtrim(string(out));
-                        return
-                    end
+        function yes = pythonWorks(executable)
+            % Check the launcher as well as its file; copied venvs may be broken.
+            yes = false;
+            try
+                argv = java.util.ArrayList();
+                for value = [string(executable),"-I","-c","import sys; sys.exit(0 if sys.version_info.major == 3 else 1)"]
+                    argv.add(java.lang.String(char(value)));
                 end
+                builder = java.lang.ProcessBuilder(argv);
+                process = builder.start();
+                if process.waitFor(int64(10),java.util.concurrent.TimeUnit.SECONDS)
+                    yes = process.exitValue()==0;
+                else
+                    process.destroyForcibly();
+                end
+            catch
+                % Try the next machine-local interpreter.
             end
         end
 
@@ -100,6 +93,8 @@ classdef ManualSafeBridge
                 cmd = sprintf('%s --spotread "%s"', cmd, spotreadExe);
             end
 
+            native=spectralab.runtime.nativeArchitecture(string(pythonExe));
+            if native.Native && native.Physical=="arm64",cmd="/usr/bin/arch -arm64 "+string(cmd);end
             [status, output] = system(cmd, "-echo");
 
             r = struct();

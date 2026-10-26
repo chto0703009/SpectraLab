@@ -44,6 +44,8 @@ classdef CommandRunner
             else
                 cmd = exe + " " + args;
             end
+            native=spectralab.runtime.nativeArchitecture(obj.Executable);
+            if native.Native && native.Physical=="arm64",cmd="/usr/bin/arch -arm64 "+string(cmd);end
             cmd = char(cmd);
         end
     end

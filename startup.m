@@ -69,5 +69,6 @@ end
 addpath(genpath(fullfile(rootDir, "spectralab")));
 rehash;
 
+% status verifies the local Python environment through findPython.
 spectralab.status("ProjectRoot", rootDir, "Startup", true);
 end

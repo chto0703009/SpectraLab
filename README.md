@@ -93,12 +93,12 @@ The v1.2.1 release has been verified with the following environment.
 | Component | Recommended |
 |-----------|-------------|
 | MATLAB | R2024b or later |
-| Python | 3.10 or later |
+| Python | 3.13.6 in the local `.venv` |
 | ArgyllCMS | 3.5 or later |
-| pexpect | 4.9 or later |
-| ptyprocess | 0.7 or later |
+| pexpect | 4.9.0 |
+| ptyprocess | 0.7.0 |
 
-Earlier versions may work, but they are not part of the verified release configuration.
+The Python and package versions are checked against the identical full lock used by the other active applications.
 
 Run `setup` to let SpectraLab verify the environment before the first measurement.
 
@@ -295,3 +295,7 @@ Engineers remain responsible for those decisions.
 **Save forever.**
 
 **Verify always.**
+
+## Pythonmiljö och datorbyte
+
+Programmet använder en egen `.venv` med Python 3.13.6 och samma fullständiga paketversioner som övriga aktiva Camera-41-, InkProf- och SpectraLab-program. Se [PYTHON_ENVIRONMENT.md](PYTHON_ENVIRONMENT.md) för installation, kontroll och säker ombyggnad.

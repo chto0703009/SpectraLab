@@ -26,7 +26,6 @@ end
 % the key diagnostic is the Python executable that SpectraLab itself will
 % use, not the Python executable configured for MATLAB's Python interface.
 minMatlabRelease = "2024b";
-minPythonVersion = [3 10 0];
 minArgyllVersion = [3 5 0];
 
 s = struct();
@@ -62,7 +61,7 @@ s.ptyprocess_version = "";
 
 if s.python_ok
     s.python_version = getPythonVersion(s.python);
-    s.python_version_ok = isVersionAtLeast(s.python_version, minPythonVersion);
+    s.python_version_ok = s.python_version == "3.13.6";
     [s.pexpect_ok, s.pexpect_version] = checkPythonModule(s.python, "pexpect");
     [s.ptyprocess_ok, s.ptyprocess_version] = ...
         checkPythonModule(s.python, "ptyprocess");
@@ -127,9 +126,9 @@ if ~allOk
         fprintf("            Current MATLAB release: %s.\n", s.matlab_release);
     end
     if ~s.python_ok
-        fprintf("  [SPL-003] Install Python 3.10 or later, or configure the Python executable used by SpectraLab.\n");
+        fprintf("  [SPL-003] Run setup_python_environment with mode rebuild to prepare private Python 3.13.6.\n");
     elseif ~s.python_version_ok
-        fprintf("  [SPL-011] SpectraLab is using Python %s. Python 3.10 or later is recommended.\n", unknownText(s.python_version));
+        fprintf("  [SPL-011] SpectraLab is using Python %s. The isolated environment requires Python 3.13.6; use setup_python_environment with mode rebuild.\n", unknownText(s.python_version));
         fprintf("            Current executable: %s\n", s.python);
     elseif ~s.pexpect_ok
         fprintf("  [SPL-004] Install pexpect in the Python environment used by SpectraLab.\n");
@@ -179,8 +178,8 @@ end
 
 function v = getPythonVersion(pythonExe)
 v = "";
-cmd = sprintf('"%s" --version', char(pythonExe));
-[st, out] = system(cmd);
+[st, out] = spectralab.runtime.invoke(pythonExe, ...
+    ["-I","-c","import platform; print(platform.python_version())"],15);
 if st == 0
     v = strtrim(string(out));
 end
@@ -223,20 +222,8 @@ end
 end
 
 function nums = parseVersionNumbers(txt)
-txt = string(txt);
-tok = regexp(txt, "(\d+)\.(\d+)(?:\.(\d+))?", "tokens", "once");
-if isempty(tok)
-    nums = [];
-    return
-end
-nums = zeros(1, numel(tok));
-for k = 1:numel(tok)
-    if isempty(tok{k})
-        nums(k) = 0;
-    else
-        nums(k) = str2double(tok{k});
-    end
-end
+% Parse numeric components without nested optional capture groups.
+nums = str2double(regexp(char(string(txt)), '\d+', 'match'));
 end
 
 function r = compareRelease(currentRelease, minimumRelease)
