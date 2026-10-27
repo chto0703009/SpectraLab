@@ -1,5 +1,7 @@
 # Scientific Notes
 
+> Current v1.3.1 calculation and export contract: see [RELEASE_GUIDE.md](RELEASE_GUIDE.md) and [SCIENTIFIC_REVIEW_20261026.md](SCIENTIFIC_REVIEW_20261026.md). Status A/M and ISO visual use transmission before weighting; whiteDensity retains source weighting. The older framework discussion below is read with these corrections.
+
 ## Integrated power
 
 Integrated power is computed numerically over wavelength using trapezoidal integration.

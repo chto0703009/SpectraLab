@@ -3,8 +3,8 @@ tests = functiontests(localfunctions);
 end
 
 function testTransmissionArtifactIsOneSelfContainedInput(testCase)
-reference = makeArchive([400;500;600],[10;20;30],"Reference");
-sample = makeArchive([400;500;600],[5;10;15],"Sample");
+reference = makeArchive([400;500;730],[10;20;30],"Reference");
+sample = makeArchive([400;500;730],[5;10;15],"Sample");
 artifact = spectralab.analysis.createTransmissionArtifact(reference,sample, ...
     Resample=false,ReferenceFile="reference.mat",SampleFile="sample.mat");
 verifyTrue(testCase,spectralab.archive.validateSpectralArtifact(artifact).IsValid);

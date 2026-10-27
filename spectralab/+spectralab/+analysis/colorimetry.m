@@ -33,7 +33,7 @@ end
 dataset = struct();
 dataset.Format = "spectralab.colorimetry.dataset.v1";
 dataset.SchemaVersion = 1;
-dataset.CalculationVersion = "COL-001";
+dataset.CalculationVersion = "COL-002";
 dataset.CreatedBy = "SpectraLab " + spectralab.version();
 dataset.CreatedAt = char(datetime("now", "TimeZone", "local"));
 dataset.Observer = options.Observer;
@@ -65,14 +65,9 @@ if isempty(illuminant)
     illuminant = spectralab.filters.cie.d50();
 end
 
-if ~contains(lower(spec.PowerUnit), "reflectance")
-    error("SpectraLab:Colorimetry:UnsupportedQuantity", ...
-        "Canonical colourimetry currently requires relative reflectance data.");
-end
-
 [wavelength, reflectance, illumination] = commonGrid(spec, illuminant);
 sampleSpectrum = spectralab.core.Spectrum( ...
-    wavelength, (reflectance ./ 100) .* illumination, spec.Label, ...
+    wavelength, spectralab.core.reflectanceFraction(reflectance,spec.PowerUnit) .* illumination, spec.Label, ...
     struct(), struct(), struct(), "relative reflected spectral power");
 whiteSpectrum = spectralab.core.Spectrum( ...
     wavelength, illumination, illuminant.Label, ...

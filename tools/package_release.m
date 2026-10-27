@@ -43,6 +43,12 @@ mkdir(packageRoot);
 
 topLevelFiles = [ ...
     "README.md"
+    "CITATION.cff"
+    ".python-version"
+    "requirements.txt"
+    "requirements-tools.txt"
+    "setup_python_environment.m"
+    "PYTHON_ENVIRONMENT.md"
     "LICENSE"
     "VERSION"
     "setup.m"
@@ -70,6 +76,12 @@ for sourceName = directories.'
     copyRequired( ...
         fullfile(projectRoot, sourceName), ...
         fullfile(packageRoot, sourceName));
+end
+
+% Historical scientific notes are preserved in the source tree, not shipped as code.
+for relative=["spectralab/+spectralab/+analysis/C41 status A and M.txt", "tests/classdef Report.txt"]
+    historical=fullfile(packageRoot,relative);
+    if isfile(historical),delete(historical);end % Only newly created staging files.
 end
 
 % Local example output may contain real measurements. It is deliberately

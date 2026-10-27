@@ -1,15 +1,13 @@
-# SpectraLab v1.3.0 release verification
+# SpectraLab v1.3.1 release verification
 
-Release date: 2026-10-21. Scope: all tracked development changes and new spectral exchange source/tests/examples in this worktree.
+Release date: 2026-10-27.
 
-- [x] VERSION, spectralab.version and README identify 1.3.0.
-- [x] Release notes and changelog describe the final scope.
-- [x] Complete automated regression: 92 test files, 539 test cases, zero failures in MATLAB R2025b on 2026-10-21.
-- [x] Versioned package built with tools/package_release.m; ZIP CRC, required exchange files, version, and exclusion of local measurement output/cache verified.
-Publication step: create the release commit, annotated v1.3.0 tag and GitHub release after the package checks below. Publication is verified through GitHub, not assumed from this checklist.
+- VERSION, spectralab.version, README, manifest and citation metadata identify 1.3.1.
+- Complete MATLAB R2025b regression: 94 test files, 550 cases, zero failures.
+- Current technical summary and technical report rebuilt; historical foundation is retained and labelled.
+- Scientific corrections and limits are recorded in docs/SCIENTIFIC_REVIEW_20261026.md and releases/RELEASE_NOTES_v1.3.1.md.
+- No original measured archive, prior numerical report or Camera-41 accepted project is regenerated.
 
-## Evidence boundaries
+Build the official clean-commit ZIP with tools/build_release.py --output <folder>. Check its CRC, VERSION, source-commit manifest and every SHA-256; exclude private captures, local runtimes and nested release archives. Tag the reviewed commit as v1.3.1, push it and upload the archive, current PDF documents and SHA256SUMS.txt. Verify the published release and uploaded file digests before reporting completion.
 
-Physical measurement acquisition and every instrument/OS combination have not been newly requalified for this release. Historical v1.2.0 field approvals must not be relabelled as v1.3.0 measurements. The release notes state this limitation. Local measurement output is excluded from public release packaging.
-
-The package uses an explicit source allow-list and excludes examples/output. Check that ZIP contents contain no local captures, private instrument data, Python cache or Finder metadata. Base-MATLAB dependency policy is exercised by automated regression.
+Physical instrument and operating-system combinations have not been newly requalified. Neither ISO Annex B nor ASTM E308 numerical conformance is claimed.

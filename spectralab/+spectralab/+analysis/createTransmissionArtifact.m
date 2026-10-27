@@ -10,16 +10,17 @@ arguments
         {mustBeInteger,mustBePositive} = 4
     options.InterpolationMethod (1,1) string = "pchip"
     options.Name (1,1) string = "Derived spectral transmission"
-    options.WavelengthRangeNm (1,2) double = [400 730]
 end
 
 transmission = spectralab.analysis.transmission(reference, sample, ...
     Resample=options.Resample, RefinementFactor=options.RefinementFactor, ...
     InterpolationMethod=options.InterpolationMethod);
-[wavelength,value,effectiveRange] = boundedResult(transmission.Result, ...
-    options.WavelengthRangeNm);
+[wavelength,value,contract] = spectralab.io.applyCamera41ExportContract( ...
+    transmission.Result.WavelengthNm,transmission.Result.Value);
+effectiveRange=[wavelength(1) wavelength(end)];
 parameters=transmission.Parameters;
-parameters.RequestedOutputWavelengthRangeNm=options.WavelengthRangeNm;
+parameters.Camera41ExportContract=contract;
+parameters.RequestedOutputWavelengthRangeNm=contract.WavelengthRangeNm;
 parameters.EffectiveOutputWavelengthRangeNm=effectiveRange;
 
 metadata = struct("Description","Derived spectral transmission", ...
@@ -57,23 +58,6 @@ artifact.Identity = struct( ...
     "UUID",string(java.util.UUID.randomUUID), ...
     "Created",datetime("now","TimeZone","UTC"), ...
     "ContentHash",spectralab.archive.contentHash(rmfield(artifact,"Identity")));
-end
-
-function [wavelength,value,effectiveRange] = boundedResult(result,range)
-if any(~isfinite(range)) || range(1)>=range(2)
-    error("SpectraLab:Artifact:InvalidWavelengthRange", ...
-        "WavelengthRangeNm must contain two increasing finite values.");
-end
-wavelength=double(result.WavelengthNm(:));
-value=double(result.Value(:));
-keep=wavelength>=range(1) & wavelength<=range(2);
-if nnz(keep)<2
-    error("SpectraLab:Artifact:InsufficientVisibleSamples", ...
-        "Fewer than two spectral samples lie within %.1f-%.1f nm.", ...
-        range(1),range(2));
-end
-wavelength=wavelength(keep); value=value(keep);
-effectiveRange=[wavelength(1) wavelength(end)];
 end
 
 function value = source(archive, filename)

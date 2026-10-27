@@ -14,7 +14,7 @@ function [wavelengthNm, value] = statusAData(channel)
         channel (1,1) string
     end
 
-    wavelengthNm = (400:10:750).';
+    wavelengthNm = (400:1:750).';
 
     switch lower(channel)
         case "blue"

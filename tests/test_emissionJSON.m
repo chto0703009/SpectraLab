@@ -25,3 +25,15 @@ end
 function s=fixture()
 s=spectralab.core.Spectrum((400:10:730)',ones(34,1),'Test',struct('Driver','spotread'),struct(),struct('measurement_kind','emissive','signal_quantity','spectral power'),'arbitrary');
 end
+
+function testDatetimeSubcomponentResidualIsPreserved(testCase)
+% Exercise floating-point time components and both sides of a DST transition.
+for zone=["", "UTC", "Europe/Stockholm"]
+ t=datetime(2026,10,25,0,0,0,'TimeZone',zone)+seconds((0:256)'*0.123456789);
+ encoded=spectralab.exchange.pack(t);
+ decoded=spectralab.exchange.unpack(jsondecode(jsonencode(encoded)));
+ verifyEqual(testCase,decoded,t);
+ old=rmfield(encoded,'CorrectionSeconds');
+ verifyEqual(testCase,size(spectralab.exchange.unpack(old)),size(t));
+end
+end

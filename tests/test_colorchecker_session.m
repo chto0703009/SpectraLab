@@ -90,6 +90,9 @@ artifact=spectralab.colorchecker.createSpectralArtifact( ...
 verifyTrue(testCase,spectralab.archive.validateSpectralArtifact(artifact).IsValid);
 verifyEqual(testCase,artifact.Payload.WavelengthNm([1 end]),[400;730]);
 verifySize(testCase,artifact.Payload.Values,[34 1]);
+verifyEqual(testCase,artifact.Payload.Unit,"1");
+keep=wavelength>=400 & wavelength<=730;
+verifyEqual(testCase,artifact.Payload.Values,archive.Measurement.Value(keep)/100,AbsTol=1e-12);
 verifyEqual(testCase,artifact.Payload.RequestedWavelengthRangeNm,[400 730]);
 verifyEqual(testCase,artifact.Provenance.EffectiveOutputWavelengthRangeNm, ...
     [400 730]);

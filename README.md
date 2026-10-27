@@ -1,7 +1,7 @@
 <!--
 SpectraLab Documentation
 Document: README.md
-Version: v1.3.0
+Version: v1.3.1
 Status: OFFICIAL RELEASE
 -->
 
@@ -9,9 +9,9 @@ Status: OFFICIAL RELEASE
 
 > **Measure once. Save forever. Verify always.**
 
-SpectraLab v1.3.0 adds self-contained ColorChecker and emission JSON exchange,
-updated measurement examples and improved report PNG export. See
-[release notes](releases/RELEASE_NOTES_v1.3.0.md) for scope and verification limits.
+SpectraLab v1.3.1 corrects transmission-density weighting, spectral units, CRI rounding
+and the fixed Camera-41 export boundary. See
+[release notes](releases/RELEASE_NOTES_v1.3.1.md) for scope and verification limits.
 
 SpectraLab is an open-source MATLAB package for reliable spectral measurements.
 Standard/base MATLAB only is the binding runtime policy; MathWorks add-on
@@ -37,18 +37,18 @@ consistent with ArgyllCMS Spotread's own device identification and support.
 
 ## Current Release
 
-**SpectraLab v1.2.0** is the current stable production release. It
+**SpectraLab v1.3.1** is the latest published release (2026-10-27). The scientific-review corrections are included; see [SCIENTIFIC_REVIEW_20261026.md](docs/SCIENTIFIC_REVIEW_20261026.md). It
 preserves the accepted measurement and archive contracts while making the
 Camera-41 exchange boundary explicit and adding reusable transmission-series
 exports.
 
-- [v1.2.0 release notes](releases/RELEASE_NOTES_v1.2.0.md)
-- [Download SpectraLab v1.2.0](https://github.com/chto0703009/SpectraLab/releases/download/v1.2.0/SpectraLab_v1.2.0.zip)
+- [Published release notes](https://github.com/chto0703009/SpectraLab/releases/tag/v1.3.1)
+- [Download SpectraLab v1.3.1](https://github.com/chto0703009/SpectraLab/releases/tag/v1.3.1)
 - [Getting started](docs/GETTING_STARTED.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 
-The `main` branch represents the latest published release. Named development
-branches are working branches and should not be treated as release packages.
+Version tags and release assets identify published code. The historically named
+development branches and folders do not by themselves identify a release.
 For a fixed, reproducible installation, use the versioned ZIP above.
 
 ---
@@ -88,7 +88,7 @@ output, and one graphical presentation standard.
 
 ## Supported Environment
 
-The v1.2.0 release has been verified with the following environment.
+The current local runtime has been verified with the following environment.
 
 | Component | Recommended |
 |-----------|-------------|

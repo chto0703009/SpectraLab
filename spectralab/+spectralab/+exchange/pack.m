@@ -11,6 +11,10 @@ elseif isdatetime(value)
  node.TimeZone=value.TimeZone;node.Format=value.Format;
  v=value;if ~isempty(value.TimeZone),v.TimeZone='UTC';end
  [y,m,d]=ymd(v);[h,mi,se]=hms(v);node.Components=spectralab.exchange.pack([y(:),m(:),d(:),h(:),mi(:),se(:)]);
+ % Component reconstruction can round the low-order part of a datetime.
+ % Preserve that measured residual as ordinary numeric data, not object bytes.
+ reconstructed=datetime(y,m,d,h,mi,se,'TimeZone',v.TimeZone);
+ node.CorrectionSeconds=spectralab.exchange.pack(seconds(v-reconstructed));
  v=value;v.Format="yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS";node.Data=cellstr(string(v(:)));
 elseif isstring(value)
  node.Missing=ismissing(value(:));v=value(:);v(ismissing(v))="";node.Data=cellstr(v);

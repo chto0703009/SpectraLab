@@ -184,7 +184,7 @@ function result = cri(inputData, options)
 
     if options.RoundIndices
         Rreported = round(R);
-        Rareported = round(mean(Rreported(1:8)));
+        Rareported = round(Ra); % Round the mean of unrounded individual indices.
     else
         Rreported = R;
         Rareported = Ra;

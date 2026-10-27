@@ -1,0 +1,25 @@
+{
+  "Program": "SpectraLab",
+  "Version": "1.3.1",
+  "Reviewed": "2026-10-27",
+  "Documents": [
+    {
+      "Path": "docs/spectralab_summary_spectral_measurement.pdf",
+      "Status": "CURRENT",
+      "Pages": 3,
+      "SHA256": "c88878cc5b24f887d92305eb2ddcb0e840f1a6e9b7d103ba840069675f82b2c8"
+    },
+    {
+      "Path": "docs/scientific-reports/spectralab_spectral_measurement_analysis_and_provenance.pdf",
+      "Status": "CURRENT",
+      "Pages": 12,
+      "SHA256": "448787b829b731f1fe7d21164127cb1abdaba558102143b6c251a43326b000c5"
+    },
+    {
+      "Path": "docs/scientific-reports/foundation-v1.0.1-historical.pdf",
+      "Status": "HISTORICAL",
+      "Pages": 8,
+      "SHA256": "93fe674532a6265220282e996e203bfb24b907d1033054eb9b405c5fd160c121"
+    }
+  ]
+}

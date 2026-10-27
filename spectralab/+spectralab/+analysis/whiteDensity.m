@@ -3,6 +3,9 @@ function result = whiteDensity(reference, sample, options)
 %
 %   RESULT = spectralab.analysis.whiteDensity(REFERENCE, SAMPLE)
 %
+%   Intentionally source-weighted: D=-log10(integral(S*V)/integral(R*V)).
+%   This is not the standardized ISO visual spectral-product density.
+%
 %   calculates density using the CIE photopic luminous-efficiency
 %   weighting function V(lambda).
 %

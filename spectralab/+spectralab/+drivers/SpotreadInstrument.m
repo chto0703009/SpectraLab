@@ -397,7 +397,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
                 obj.getInfo(), ...
                 obj.LastCalibration.toStruct(), ...
                 metadata, ...
-                spectrumUnit(obj.MeasurementKind));
+                spectralab.drivers.spotread.spectralUnit(obj.MeasurementKind,obj.MeasurementOptions));
         end
     end
 
@@ -528,7 +528,7 @@ classdef SpotreadInstrument < spectralab.core.Instrument
             spec = spectralab.core.Spectrum( ...
                 fileWl, filePower, label, obj.getInfo(), ...
                 obj.LastCalibration.toStruct(), metadata, ...
-                spectrumUnit(obj.MeasurementKind));
+                spectralab.drivers.spotread.spectralUnit(obj.MeasurementKind,obj.MeasurementOptions));
         end
 
         function confirmPlacement(obj, message)
@@ -631,14 +631,6 @@ end
 if ~any(tokens == "-s")
     error("SpectraLab:Spotread:SpectrumRequired", ...
         "SpectraLab Spotread measurements require the -s spectrum option.");
-end
-end
-
-function unit = spectrumUnit(kind)
-if string(kind) == "reflectance"
-    unit = "relative reflectance (%)";
-else
-    unit = "arbitrary";
 end
 end
 

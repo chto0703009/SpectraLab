@@ -4,7 +4,7 @@ function barHandle = addSpectralColorBar(ax)
 %   barHandle = addSpectralColorBar(ax)
 %
 %   The guide spans the current x-axis range. Wavelengths outside
-%   380–730 nm are black. Existing graphics, axis limits, and hold
+%   400-730 nm are black. Existing graphics, axis limits, and hold
 %   state are preserved.
 
     arguments
@@ -25,7 +25,8 @@ function barHandle = addSpectralColorBar(ax)
     wavelengthNm = linspace(originalXLimits(1), originalXLimits(2), 512);
     rgb = zeros(numel(wavelengthNm), 3);
 
-    visible = wavelengthNm >= 380 & wavelengthNm <= 730;
+    visibleRange = spectralab.core.visibleLightContract().WavelengthRangeNm;
+    visible = wavelengthNm >= visibleRange(1) & wavelengthNm <= visibleRange(2);
     if any(visible)
         rgb(visible,:) = visibleWavelengthRGB(wavelengthNm(visible).');
     end

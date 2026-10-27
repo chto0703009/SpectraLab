@@ -31,6 +31,11 @@ function result = weightedDensity(referenceInput, sampleInput, weightingInput, o
 %       WavelengthRangeNm
 %       WeightingName
 %
+%   IntegrationBasis="source-weighted" preserves the historical signal ratio.
+%   IntegrationBasis="transmittance" first forms sample/reference on the common
+%   grid, then integrates that ratio with the complete spectral product.
+%   Status A/M and ISO visual wrappers explicitly select the latter.
+%
 %   This is the common calculation engine for white, red, green, blue,
 %   and other weighted density measurements.
 
@@ -41,6 +46,8 @@ function result = weightedDensity(referenceInput, sampleInput, weightingInput, o
 
         options.WeightingName (1,1) string = "Weighted density"
         options.WarnAboveOne (1,1) logical = true
+        options.IntegrationBasis (1,1) string ...
+            {mustBeMember(options.IntegrationBasis,["source-weighted","transmittance"])} = "source-weighted"
 
         options.Resample (1,1) logical = false
 
@@ -125,13 +132,38 @@ function result = weightedDensity(referenceInput, sampleInput, weightingInput, o
         wavelengthNm, ...
         "linear");
 
-    referenceWeightedValue = trapz( ...
-        wavelengthNm, ...
-        referenceValue .* weightingValue);
+    activeWeight=weightingValue>0;
+    if any(referenceValue(activeWeight)<0) || any(sampleValue(activeWeight)<0)
+        error("spectralab:core:weightedDensity:NegativeSignal", ...
+            "Negative signal within the active weighting interval requires review; no clipping is applied.");
+    end
+    excludedNegative=struct( ...
+        "ReferenceWavelengthNm",reference.WavelengthNm(reference.Value<0 & (reference.WavelengthNm<minimumWavelength | reference.WavelengthNm>maximumWavelength)), ...
+        "SampleWavelengthNm",sample.WavelengthNm(sample.Value<0 & (sample.WavelengthNm<minimumWavelength | sample.WavelengthNm>maximumWavelength)));
 
-    sampleWeightedValue = trapz( ...
-        wavelengthNm, ...
-        sampleValue .* weightingValue);
+    if options.IntegrationBasis == "transmittance"
+        % Weight the measured ratio, not the illumination a second time.
+        % Zero/negative source signal cannot determine transmission reliably.
+        ratioGrid=unique([minimumWavelength; maximumWavelength; ...
+            reference.WavelengthNm(reference.WavelengthNm>=minimumWavelength & reference.WavelengthNm<=maximumWavelength); ...
+            sample.WavelengthNm(sample.WavelengthNm>=minimumWavelength & sample.WavelengthNm<=maximumWavelength)]);
+        sourceOnGrid=interp1(reference.WavelengthNm,reference.Value,ratioGrid,"linear");
+        sampleOnGrid=interp1(sample.WavelengthNm,sample.Value,ratioGrid,"linear");
+        active=interp1(weighting.WavelengthNm,weighting.Value,ratioGrid,"linear")>0;
+        if any(sourceOnGrid(active)<=0)
+            error("spectralab:core:weightedDensity:InvalidReferenceSupport", ...
+                "Reference signal must be positive across the active weighting interval. No extrapolation or clipping is applied.");
+        end
+        ratioOnGrid=zeros(size(sourceOnGrid));positive=sourceOnGrid>0;
+        ratioOnGrid(positive)=sampleOnGrid(positive)./sourceOnGrid(positive);
+        % Form measured transmission first, then interpolate the ratio for integration.
+        ratio=interp1(ratioGrid,ratioOnGrid,wavelengthNm,"linear");
+        referenceWeightedValue=trapz(wavelengthNm,weightingValue);
+        sampleWeightedValue=trapz(wavelengthNm,ratio.*weightingValue);
+    else
+        referenceWeightedValue=trapz(wavelengthNm,referenceValue.*weightingValue);
+        sampleWeightedValue=trapz(wavelengthNm,sampleValue.*weightingValue);
+    end
 
     if ~isfinite(referenceWeightedValue) || referenceWeightedValue <= 0
         error( ...
@@ -166,6 +198,14 @@ function result = weightedDensity(referenceInput, sampleInput, weightingInput, o
     end
 
     result = struct( ...
+        "CalculationVersion", "DENS-002", ...
+        "IntegrationBasis", options.IntegrationBasis, ...
+        "IntegrationRule", "Trapezoidal on common wavelength grid", ...
+        "WeightingRangeNm", [weighting.WavelengthNm(1) weighting.WavelengthNm(end)], ...
+        "CompleteWeightingRange", minimumWavelength<=weighting.WavelengthNm(1) && maximumWavelength>=weighting.WavelengthNm(end), ...
+        "StandardConformance", "Spectral approximation; not a validated ISO densitometer", ...
+        "NegativeSignalPolicy", "Reject within active weights; excluded out-of-range negatives recorded, never clipped", ...
+        "ExcludedNegativeSamples", excludedNegative, ...
         "Density", density, ...
         "Transmittance", transmittance, ...
         "ReferenceWeightedValue", referenceWeightedValue, ...
@@ -276,12 +316,7 @@ function localValidateSignal(data, dataName)
 
     localValidateCommon(data, dataName);
 
-    if any(data.Value < 0)
-        error( ...
-            "spectralab:core:weightedDensity:NegativeSignal", ...
-            "%s spectrum contains negative values.", ...
-            upperFirst(dataName));
-    end
+
 end
 
 

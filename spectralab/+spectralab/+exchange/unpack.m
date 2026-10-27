@@ -10,6 +10,10 @@ switch string(node.Type)
  case 'datetime'
   c=spectralab.exchange.unpack(node.Components);zone=char(node.TimeZone);workingZone=zone;if ~isempty(zone),workingZone='UTC';end
   value=datetime(c(:,1),c(:,2),c(:,3),c(:,4),c(:,5),c(:,6),'TimeZone',workingZone);
+  if isfield(node,'CorrectionSeconds')
+   correction=spectralab.exchange.unpack(node.CorrectionSeconds);
+   value=value+seconds(correction(:));
+  end
   if ~isempty(zone),value.TimeZone=zone;end
   value=reshape(value,shape);value.Format=char(node.Format);
  case 'string'
