@@ -1,3 +1,5 @@
+> Local installation identity: VERSION is **1.2.2-dev**; the folder name is historical. This is a retained development branch, not the current production release. The current 1.3.1 installation is selected by SpectraLab_Work/setup_spectralab.m.
+
 <!--
 SpectraLab Documentation
 Document: README.md
@@ -10,8 +12,8 @@ Status: DEVELOPMENT
 > **Measure once. Save forever. Verify always.**
 
 This worktree is the `v1.2.2-dev` patch-development line for corrections to
-the accepted v1.2.1 release. It is not a published release. SpectraLab v1.2.1
-remains the current stable production version.
+the accepted v1.2.1 release. It is not a published release. SpectraLab v1.3.1
+is the current production release; this retained branch is historical development work.
 
 SpectraLab is an open-source MATLAB package for reliable spectral measurements.
 Standard/base MATLAB only is the binding runtime policy; MathWorks add-on
@@ -35,21 +37,11 @@ consistent with ArgyllCMS Spotread's own device identification and support.
 
 ---
 
-## Current Release
+## Production release and historical branch
 
-**SpectraLab v1.2.1** is the current stable production release. It
-preserves the accepted measurement and archive contracts while making the
-Camera-41 exchange boundary explicit through a shared, non-overridable
-400-730 nm visible-light contract.
+Use [SpectraLab v1.3.1](https://github.com/chto0703009/SpectraLab/releases/tag/v1.3.1) for the current release, including the scientific-review corrections. The code in this retained folder still reports 1.2.2-dev; it has not received those corrections and is not a substitute for the versioned release.
 
-- [v1.2.1 release notes](releases/RELEASE_NOTES_v1.2.1.md)
-- [Download SpectraLab v1.2.1](https://github.com/chto0703009/SpectraLab/releases/download/v1.2.1/SpectraLab_v1.2.1.zip)
-- [Getting started](docs/GETTING_STARTED.md)
-- [Troubleshooting](docs/TROUBLESHOOTING.md)
-
-The `main` branch represents the latest published release. Named development
-branches are working branches and should not be treated as release packages.
-For a fixed, reproducible installation, use the versioned ZIP above.
+The manuals and PDFs retained in this legacy branch describe its historical implementation. Use the documentation shipped with v1.3.1 for current operating instructions and numerical methods. Branch and folder names are historical identifiers, not release identity.
 
 ---
 
