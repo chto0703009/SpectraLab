@@ -48,6 +48,9 @@ def main():
             file = root/rel
             if file.exists():
                 file.unlink()  # New staging directory only.
+        # Old published ZIPs remain in Git, but are never nested in a new release.
+        for old_archive in (root/'releases').glob('*.zip'):
+            old_archive.unlink()  # New staging directory only.
         files = sorted(p for p in root.rglob('*') if p.is_file())
         for path in files:
             relative = path.relative_to(root)
